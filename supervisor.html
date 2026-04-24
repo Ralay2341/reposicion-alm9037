@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUPERVISOR - RepoSYSTEM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0f18;
+            --card: #131926;
+            --gold: #f0a500;
+            --linde-red: #e30613;
+            --txt: #e8eaf0;
+            --txt-dim: #8896b0;
+            --border: #1e2d45;
+        }
+        body {
+            font-family: 'Barlow', sans-serif;
+            background-color: var(--bg);
+            color: var(--txt);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid var(--gold); width: 100%; max-width: 600px; padding-bottom: 10px; }
+        header h1 { font-family: 'Barlow Condensed', sans-serif; margin: 0; color: var(--gold); letter-spacing: 2px; }
+        
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 25px;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        h2 { color: var(--txt); font-size: 18px; margin-top: 0; text-transform: uppercase; }
+        p { font-size: 12px; color: var(--txt-dim); line-height: 1.5; }
+        
+        textarea {
+            width: 100%;
+            height: 250px;
+            background: #080b12;
+            color: var(--txt);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            resize: none;
+            margin: 15px 0;
+            outline: none;
+        }
+        textarea:focus { border-color: var(--gold); }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            text-transform: uppercase;
+            background: var(--gold);
+            color: var(--bg);
+            transition: 0.2s;
+        }
+        .btn:active { transform: scale(0.98); }
+        
+        .status { margin-top: 15px; padding: 10px; border-radius: 8px; text-align: center; display: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>PANEL SUPERVISOR</h1>
+</header>
+
+<div class="card">
+    <h2>Carga Masiva de Tareas</h2>
+    <p>
+        Copie las filas de su Excel y péguelas aquí.<br>
+        <strong>Orden requerido (13 columnas):</strong><br>
+        Folio | Fecha | Operador | Q | Ubic | SAP | Barcode | Desc | Cant | Lote | Venc | Impo | Destino
+    </p>
+    
+    <textarea id="areaPegado" placeholder="Pegue aquí las filas de su planilla..."></textarea>
+    
+    <button class="btn" onclick="procesarTareasMasivas()">Procesar y Guardar en Sheets →</button>
+    <div id="status" class="status"></div>
+</div>
+
+<script>
+    // REEMPLAZA CON TU URL DE GOOGLE APPS SCRIPT
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; 
+
+    async function procesarTareasMasivas() {
+        const texto = document.getElementById('areaPegado').value;
+        const statusDiv = document.getElementById('status');
+        
+        if (!texto.trim()) return alert("Pega las filas de Excel primero.");
+
+        statusDiv.innerText = "Procesando...";
+        statusDiv.style.display = "block";
+        statusDiv.style.backgroundColor = "#112244";
+
+        const filas = texto.split('\n');
+        const tareasParaEnviar = [];
+
+        filas.forEach(fila => {
+            if(!fila.trim()) return;
+            const c = fila.split('\t'); 
+            if (c.length >= 5) {
+                tareasParaEnviar.push({
+                    folio: c[0]||'', fecha: c[1]||'', operador: c[2]||'', q_pallets: c[3]||'1',
+                    ubic_origen: c[4]||'', sap: c[5]||'', barcode: c[6]||'', descripcion: c[7]||'',
+                    cantidad: c[8]||'', lote: c[9]||'', venc: c[10]||'', impo: c[11]||'', ubic_destino: c[12]||''
+                });
+            }
+        });
+
+        if(tareasParaEnviar.length === 0) {
+            statusDiv.style.display = "none";
+            return alert("No se detectaron filas válidas.");
+        }
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'cargarTareas', tareas: tareasParaEnviar })
+            });
+            
+            alert(`✅ Éxito: ${tareasParaEnviar.length} tareas enviadas a Google Sheets.`);
+            document.getElementById('areaPegado').value = "";
+            statusDiv.style.display = "none";
+        } catch (err) {
+            alert("Error en la conexión.");
+            statusDiv.style.display = "none";
+        }
+    }
+</script>
+</body>
+</html>
