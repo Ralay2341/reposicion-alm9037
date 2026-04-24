@@ -13,6 +13,7 @@
             --blue: #3b82f6;
             --green: #22c55e;
             --red: #ef4444;
+            --orange: #f97316;
             --txt: #e8eaf0;
             --txt-dim: #8896b0;
             --border: #1e2d45;
@@ -54,14 +55,36 @@
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 10px;
-            overflow: hidden;
+            overflow: visible;
             cursor: pointer;
             transition: 0.2s;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
         .op-card:active { transform: scale(0.95); background: #1a2234; }
         
+        /* Contador de Tareas (Badge) */
+        .badge-tareas {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--linde-red);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            z-index: 10;
+            border: 2px solid var(--bg);
+        }
+        .badge-tareas.zero { display: none; }
+
         .op-img-container {
             width: 100%;
             height: 80px;
@@ -70,6 +93,7 @@
             align-items: center;
             justify-content: center;
             padding: 5px;
+            border-radius: 10px 10px 0 0;
         }
         .op-img-container img {
             max-width: 100%;
@@ -108,6 +132,7 @@
         .btn-blue { background: var(--blue); color: white; }
         .btn-green { background: var(--green); color: white; }
         .btn-red { background: var(--red); color: white; }
+        .btn-orange { background: var(--orange); color: white; }
 
         .status-msg {
             position: fixed;
@@ -137,35 +162,42 @@
         <div class="grid-operadores">
             <!-- Francisco -->
             <div class="op-card" onclick="seleccionarOperador('Francisco Vigueras')">
+                <div id="badge-Francisco" class="badge-tareas zero">0</div>
                 <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
                 <div class="op-info"><span class="op-sub">Apilador 1</span><span class="op-name">Francisco Vigueras</span></div>
             </div>
             <!-- Diego -->
             <div class="op-card" onclick="seleccionarOperador('Diego Nahuelcheo')">
+                <div id="badge-Diego" class="badge-tareas zero">0</div>
                 <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
                 <div class="op-info"><span class="op-sub">Apilador 2</span><span class="op-name">Diego Nahuelcheo</span></div>
             </div>
             <!-- Gonzalo -->
             <div class="op-card" onclick="seleccionarOperador('Gonzalo Díaz')">
+                <div id="badge-Gonzalo" class="badge-tareas zero">0</div>
                 <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
                 <div class="op-info"><span class="op-sub">Apilador 3</span><span class="op-name">Gonzalo Díaz</span></div>
             </div>
             <!-- Jorge -->
             <div class="op-card" onclick="seleccionarOperador('Jorge González')">
+                <div id="badge-Jorge" class="badge-tareas zero">0</div>
                 <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
                 <div class="op-info"><span class="op-sub">Apilador 4</span><span class="op-name">Jorge González</span></div>
             </div>
             <!-- Jim -->
             <div class="op-card" onclick="seleccionarOperador('Jim San')">
+                <div id="badge-Jim" class="badge-tareas zero">0</div>
                 <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
                 <div class="op-info"><span class="op-sub">Apilador 5</span><span class="op-name">Jim San</span></div>
             </div>
             <!-- Grúa -->
             <div class="op-card" onclick="seleccionarOperador('Grúa Apoyo')">
+                <div id="badge-Grúa" class="badge-tareas zero">0</div>
                 <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
                 <div class="op-info"><span class="op-sub">Apilador 6</span><span class="op-name">Grúa Apoyo</span></div>
             </div>
         </div>
+        <button class="btn btn-blue" onclick="obtenerContadores()">Actualizar Contadores</button>
     </div>
 
     <!-- SECCIÓN TAREAS -->
@@ -178,18 +210,19 @@
             <div id="tareaContenido">
                 <p style="text-align: center; color: var(--txt-dim); padding: 10px;">Buscando tareas...</p>
             </div>
-            <button class="btn" style="background: transparent; border: 1px solid var(--border); color: var(--txt-dim); padding: 10px; font-size: 12px;" onclick="volverASeleccion()">← Cambiar Operador</button>
+            <button class="btn" style="background: transparent; border: 1px solid var(--border); color: var(--txt-dim); padding: 10px; font-size: 12px;" onclick="volverASeleccion()">← Volver al Menú</button>
         </div>
 
         <div id="controlesApilador" class="hidden">
             <div class="card" style="text-align: center; padding: 10px;">
-                <div style="display: flex; gap: 10px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <button class="btn btn-green" style="margin-top:0;" onclick="enviarResultado('REALIZADO')">REALIZADO</button>
                     <button class="btn btn-red" style="margin-top:0;" onclick="enviarResultado('UBIC. VACÍA')">VACÍA</button>
                 </div>
+                <!-- NUEVO BOTÓN: NO CORRESPONDE -->
+                <button class="btn btn-orange" onclick="enviarResultado('NO CORRESPONDE')">NO CORRESPONDE</button>
             </div>
         </div>
-        <button class="btn btn-blue" onclick="cargarTareas()">Actualizar Tareas</button>
     </div>
 </div>
 
@@ -199,9 +232,33 @@
     // REEMPLAZA CON TU URL DE GOOGLE APPS SCRIPT
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; 
     
+    let todasLasTareas = [];
     let tareasFiltradas = [];
     let indexActual = 0;
     let nombreOperador = "";
+
+    // Al cargar la página, obtenemos los contadores para el menú
+    window.onload = obtenerContadores;
+
+    async function obtenerContadores() {
+        try {
+            const resp = await fetch(`${SCRIPT_URL}?action=getTareas`);
+            const data = await resp.json();
+            if (data.tareas) {
+                todasLasTareas = data.tareas;
+                const operadores = ['Francisco', 'Diego', 'Gonzalo', 'Jorge', 'Jim', 'Grúa'];
+                
+                operadores.forEach(op => {
+                    const cant = todasLasTareas.filter(t => t.operador.toLowerCase().includes(op.toLowerCase())).length;
+                    const badge = document.getElementById(`badge-${op}`);
+                    if (badge) {
+                        badge.innerText = cant;
+                        badge.classList.toggle('zero', cant === 0);
+                    }
+                });
+            }
+        } catch (err) { console.error("Error contadores:", err); }
+    }
 
     function seleccionarOperador(nombre) {
         nombreOperador = nombre;
@@ -215,6 +272,7 @@
         nombreOperador = "";
         document.getElementById('secTareas').classList.add('hidden');
         document.getElementById('secSeleccion').classList.remove('hidden');
+        obtenerContadores(); // Actualizar contadores al volver
     }
 
     function mostrarMensaje(texto, tipo) {
@@ -231,7 +289,8 @@
             const resp = await fetch(`${SCRIPT_URL}?action=getTareas`);
             const data = await resp.json();
             if (data.tareas) {
-                tareasFiltradas = data.tareas.filter(t => 
+                todasLasTareas = data.tareas;
+                tareasFiltradas = todasLasTareas.filter(t => 
                     t.operador.toLowerCase().includes(nombreOperador.split(' ')[0].toLowerCase())
                 );
 
