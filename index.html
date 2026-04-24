@@ -16,7 +16,7 @@
             --border: #1e2d45;
         }
         body {
-            font-family: 'Barlow', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg);
             color: var(--txt);
             margin: 0;
@@ -50,7 +50,6 @@
         .btn-gold { background: var(--gold); color: var(--bg); }
         .btn-green { background: var(--green); color: white; }
         .btn-red { background: var(--red); color: white; }
-        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--txt); }
         
         textarea {
             width: 100%;
@@ -72,9 +71,9 @@
             display: none;
             font-weight: bold;
         }
-        .nav-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
-        .tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; border-bottom: 2px solid var(--border); color: #8896b0; }
-        .tab.active { border-bottom: 2px solid var(--gold); color: var(--gold); font-weight: bold; }
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
+        .tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; border-bottom: 2px solid var(--border); color: #8896b0; transition: 0.3s; }
+        .tab.active { border-bottom: 2px solid var(--gold); color: var(--gold); font-weight: bold; background: rgba(240, 165, 0, 0.05); }
         .hidden { display: none; }
         .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #1e2d45; padding-bottom: 4px; }
         .info-row span:first-child { color: var(--gold); font-size: 12px; font-weight: bold; }
@@ -83,6 +82,7 @@
 <body>
 
 <div class="container">
+    <!-- PESTAÑAS DE NAVEGACIÓN -->
     <div class="nav-tabs">
         <div id="tabApilador" class="tab active" onclick="switchTab('apilador')">APILADOR</div>
         <div id="tabSupervisor" class="tab" onclick="switchTab('supervisor')">SUPERVISOR</div>
@@ -134,11 +134,20 @@
     let indexActual = 0;
     let nombreOperador = "Francisco Vigueras";
 
+    // Lógica para manejar los parámetros de la URL (?modo=supervisor)
+    window.onload = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const modo = urlParams.get('modo');
+        if (modo === 'supervisor') switchTab('supervisor');
+        else if (modo === 'apilador') switchTab('apilador');
+    };
+
     function switchTab(tab) {
         document.getElementById('secApilador').classList.toggle('hidden', tab !== 'apilador');
         document.getElementById('secSupervisor').classList.toggle('hidden', tab !== 'supervisor');
         document.getElementById('tabApilador').classList.toggle('active', tab === 'apilador');
         document.getElementById('tabSupervisor').classList.toggle('active', tab === 'supervisor');
+        document.getElementById('mensajeGlobal').style.display = 'none';
     }
 
     function mostrarMensaje(texto, tipo) {
@@ -152,7 +161,7 @@
 
     // --- FUNCIONES APILADOR ---
     async function cargarTareas() {
-        mostrarMensaje("Buscando tareas en RepoSYSTEM...", "info");
+        mostrarMensaje("Buscando tareas...", "info");
         try {
             const resp = await fetch(`${SCRIPT_URL}?action=getTareas`);
             const data = await resp.json();
@@ -168,7 +177,7 @@
                 mostrarMensaje("Sin tareas pendientes", "info");
             }
         } catch (err) {
-            mostrarMensaje("Error de conexión con el servidor", "error");
+            mostrarMensaje("Error de conexión", "error");
         }
     }
 
@@ -229,7 +238,7 @@
 
         filas.forEach(fila => {
             if(!fila.trim()) return;
-            const c = fila.split('\t'); // Split por tabulación de Excel
+            const c = fila.split('\t'); 
             if (c.length >= 5) {
                 tareasParaEnviar.push({
                     folio:        c[0] || '',
