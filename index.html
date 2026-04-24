@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reposición ALM9037</title>
+    <title>Sistema RepoSYSTEM ALM9037</title>
     <style>
         :root {
             --bg: #0b0f18;
@@ -14,172 +13,260 @@
             --green: #22c55e;
             --red: #ef4444;
             --txt: #e8eaf0;
+            --border: #1e2d45;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Barlow', sans-serif;
             background-color: var(--bg);
             color: var(--txt);
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        .container {
-            width: 100%;
-            max-width: 500px;
-        }
+        .container { width: 100%; max-width: 600px; }
         .card {
             background: var(--card);
             border-radius: 12px;
-            padding: 20px;
+            padding: 15px;
             margin-bottom: 15px;
-            border: 1px solid #1e2d45;
+            border: 1px solid var(--border);
         }
-        h2 { color: var(--gold); margin-top: 0; }
+        h2, h3 { color: var(--gold); margin-top: 0; text-transform: uppercase; letter-spacing: 1px; }
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: none;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             margin-top: 10px;
-            font-size: 16px;
+            font-size: 14px;
+            text-transform: uppercase;
+            transition: 0.2s;
         }
         .btn-blue { background: var(--blue); color: white; }
+        .btn-gold { background: var(--gold); color: var(--bg); }
         .btn-green { background: var(--green); color: white; }
         .btn-red { background: var(--red); color: white; }
-        .status-msg {
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--txt); }
+        
+        textarea {
+            width: 100%;
+            height: 150px;
+            background: #080b12;
+            color: var(--txt);
+            border: 1px solid var(--border);
+            border-radius: 8px;
             padding: 10px;
-            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+        .status-msg {
+            padding: 12px;
+            border-radius: 8px;
             margin-top: 10px;
             text-align: center;
             display: none;
+            font-weight: bold;
         }
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; border-bottom: 2px solid var(--border); color: #8896b0; }
+        .tab.active { border-bottom: 2px solid var(--gold); color: var(--gold); font-weight: bold; }
+        .hidden { display: none; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #1e2d45; padding-bottom: 4px; }
+        .info-row span:first-child { color: var(--gold); font-size: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="container">
+
+<div class="container">
+    <div class="nav-tabs">
+        <div id="tabApilador" class="tab active" onclick="switchTab('apilador')">APILADOR</div>
+        <div id="tabSupervisor" class="tab" onclick="switchTab('supervisor')">SUPERVISOR</div>
+    </div>
+
+    <!-- SECCIÓN APILADOR -->
+    <div id="secApilador">
         <div class="card">
-            <h2>Sistema ALM9037</h2>
-            <p>Operador: <strong id="opNombre">Cargando...</strong></p>
-            <div id="tareaActual">
-                <p>Presione el botón para obtener tareas pendientes.</p>
+            <h2>Panel Apilador</h2>
+            <p style="font-size: 12px; color: #8896b0;">Operador: <strong id="opNombreDisplay" style="color: var(--txt);">Francisco Vigueras</strong></p>
+            <div id="tareaContenido">
+                <p style="text-align: center; color: #8896b0;">Presione "OBTENER TAREAS" para comenzar.</p>
             </div>
             <button class="btn btn-blue" onclick="cargarTareas()">Obtener Tareas</button>
         </div>
 
-        <div id="controles" style="display:none;">
+        <div id="controlesApilador" class="hidden">
             <div class="card">
                 <h3>Registrar Resultado</h3>
                 <button class="btn btn-green" onclick="enviarResultado('REALIZADO')">REALIZADO</button>
                 <button class="btn btn-red" onclick="enviarResultado('UBIC. VACÍA')">UBICACIÓN VACÍA</button>
             </div>
         </div>
-        
-        <div id="mensaje" class="status-msg"></div>
     </div>
 
-    <script>
-        // ============================================================
-        // CONFIGURACIÓN: PEGA AQUÍ TU URL DE GOOGLE APPS SCRIPT
-        // ============================================================
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxXe5cS-46569HQJbamZzpP3TOY4lsj-o9qw6wR1dWGXvjk7zvxBceAZ9O5w573GPGk/exec"; 
-        
-        let tareasPendientes = [];
-        let indexActual = 0;
-        let nombreOperador = "Francisco Vigueras"; // Cambiar según corresponda
+    <!-- SECCIÓN SUPERVISOR -->
+    <div id="secSupervisor" class="hidden">
+        <div class="card">
+            <h2>Panel Supervisor</h2>
+            <p style="font-size: 11px; color: #8896b0; margin-bottom: 10px;">
+                Pegue las filas de Excel aquí.<br>
+                Orden: Folio | Fecha | Operador | Q | Ubic | SAP | Barcode | Desc | Cant | Lote | Venc | Impo | Destino
+            </p>
+            <textarea id="areaPegado" placeholder="Pegue aquí las filas de su planilla..."></textarea>
+            <button class="btn btn-gold" onclick="procesarTareasMasivas()">Procesar Tareas →</button>
+        </div>
+    </div>
 
-        document.getElementById('opNombre').innerText = nombreOperador;
+    <div id="mensajeGlobal" class="status-msg"></div>
+</div>
 
-        async function cargarTareas() {
-            mostrarMensaje("Buscando tareas...", "blue");
-            try {
-                const resp = await fetch(`${SCRIPT_URL}?action=getTareas`);
-                const data = await resp.json();
-                
-                if (data.tareas && data.tareas.length > 0) {
-                    tareasPendientes = data.tareas;
-                    indexActual = 0;
-                    mostrarTarea();
-                    document.getElementById('controles').style.display = 'block';
-                    mostrarMensaje(`Se encontraron ${tareasPendientes.length} tareas`, "green");
-                } else {
-                    document.getElementById('tareaActual').innerHTML = "<p>No hay tareas pendientes.</p>";
-                    document.getElementById('controles').style.display = 'none';
-                    mostrarMensaje("Sin tareas pendientes", "gold");
+<script>
+    // ============================================================
+    // CONFIGURACIÓN: REEMPLAZA CON TU URL DE GOOGLE APPS SCRIPT
+    // ============================================================
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_XXXXXXXXXXXX/exec"; 
+    
+    let tareasPendientes = [];
+    let indexActual = 0;
+    let nombreOperador = "Francisco Vigueras";
+
+    function switchTab(tab) {
+        document.getElementById('secApilador').classList.toggle('hidden', tab !== 'apilador');
+        document.getElementById('secSupervisor').classList.toggle('hidden', tab !== 'supervisor');
+        document.getElementById('tabApilador').classList.toggle('active', tab === 'apilador');
+        document.getElementById('tabSupervisor').classList.toggle('active', tab === 'supervisor');
+    }
+
+    function mostrarMensaje(texto, tipo) {
+        const m = document.getElementById('mensajeGlobal');
+        m.innerText = texto;
+        m.style.display = 'block';
+        m.style.backgroundColor = tipo === 'error' ? '#441111' : tipo === 'success' ? '#114411' : '#112244';
+        m.style.border = `1px solid ${tipo === 'error' ? 'red' : tipo === 'success' ? 'green' : 'blue'}`;
+        if(tipo === 'success') setTimeout(() => m.style.display = 'none', 3000);
+    }
+
+    // --- FUNCIONES APILADOR ---
+    async function cargarTareas() {
+        mostrarMensaje("Buscando tareas en RepoSYSTEM...", "info");
+        try {
+            const resp = await fetch(`${SCRIPT_URL}?action=getTareas`);
+            const data = await resp.json();
+            if (data.tareas && data.tareas.length > 0) {
+                tareasPendientes = data.tareas;
+                indexActual = 0;
+                mostrarTarea();
+                document.getElementById('controlesApilador').classList.remove('hidden');
+                mostrarMensaje(`Se encontraron ${tareasPendientes.length} tareas`, "success");
+            } else {
+                document.getElementById('tareaContenido').innerHTML = "<p style='text-align:center;'>No hay tareas pendientes.</p>";
+                document.getElementById('controlesApilador').classList.add('hidden');
+                mostrarMensaje("Sin tareas pendientes", "info");
+            }
+        } catch (err) {
+            mostrarMensaje("Error de conexión con el servidor", "error");
+        }
+    }
+
+    function mostrarTarea() {
+        const t = tareasPendientes[indexActual];
+        document.getElementById('tareaContenido').innerHTML = `
+            <div class="info-row"><span>UBICACIÓN ORIGEN</span><span>${t.ubic_origen}</span></div>
+            <div class="info-row"><span>SAP</span><span>${t.sap}</span></div>
+            <div class="info-row"><span>DESCRIPCIÓN</span><span>${t.descripcion}</span></div>
+            <div class="info-row"><span>CANTIDAD</span><span>${t.cantidad}</span></div>
+            <div class="info-row"><span>LOTE / VENC</span><span>${t.lote} / ${t.venc}</span></div>
+            <div class="info-row"><span>DESTINO</span><span>${t.ubic_destino}</span></div>
+            <p style="font-size:10px; color:#555; text-align:right; margin:0;">Tarea ${indexActual + 1} de ${tareasPendientes.length}</p>
+        `;
+    }
+
+    async function enviarResultado(resultado) {
+        const t = tareasPendientes[indexActual];
+        const now = new Date();
+        const payload = {
+            action: 'registrarResultado',
+            folio: t.folio,
+            ubic_origen: t.ubic_origen,
+            sap: t.sap,
+            operador: nombreOperador,
+            resultado: resultado,
+            fecha: now.toLocaleDateString('es-CL'),
+            hora: now.toLocaleTimeString('es-CL')
+        };
+
+        mostrarMensaje("Grabando...", "info");
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(payload)
+            });
+            mostrarMensaje("✅ Grabado correctamente", "success");
+            setTimeout(() => {
+                indexActual++;
+                if (indexActual < tareasPendientes.length) mostrarTarea();
+                else {
+                    document.getElementById('tareaContenido').innerHTML = "<p style='text-align:center;'>¡Completado!</p>";
+                    document.getElementById('controlesApilador').classList.add('hidden');
                 }
-            } catch (err) {
-                mostrarMensaje("Error al conectar con el servidor", "red");
-            }
-        }
+            }, 1000);
+        } catch (err) { mostrarMensaje("Error al grabar", "error"); }
+    }
 
-        function mostrarTarea() {
-            const t = tareasPendientes[indexActual];
-            document.getElementById('tareaActual').innerHTML = `
-                <div style="border-left: 4px solid var(--gold); padding-left: 10px;">
-                    <p><strong>Ubicación:</strong> ${t.ubic_origen}</p>
-                    <p><strong>SAP:</strong> ${t.sap}</p>
-                    <p><strong>Descripción:</strong> ${t.descripcion}</p>
-                    <p><strong>Cantidad:</strong> ${t.cantidad}</p>
-                    <p><strong>Destino:</strong> ${t.ubic_destino}</p>
-                </div>
-            `;
-        }
+    // --- FUNCIONES SUPERVISOR ---
+    async function procesarTareasMasivas() {
+        const texto = document.getElementById('areaPegado').value;
+        if (!texto.trim()) return alert("Pega las filas de Excel primero.");
 
-        async function enviarResultado(resultado) {
-            const t = tareasPendientes[indexActual];
-            const now = new Date();
-            
-            const payload = {
-                action: 'registrarResultado',
-                folio: t.folio,
-                ubic_origen: t.ubic_origen,
-                sap: t.sap,
-                operador: nombreOperador,
-                resultado: resultado,
-                fecha: now.toLocaleDateString('es-CL'),
-                hora: now.toLocaleTimeString('es-CL')
-            };
+        const filas = texto.split('\n');
+        const tareasParaEnviar = [];
 
-            mostrarMensaje("Grabando en RepoSYSTEM...", "blue");
-
-            try {
-                // Usamos mode: 'no-cors' para asegurar que la petición llegue a Google
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', 
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify(payload)
+        filas.forEach(fila => {
+            if(!fila.trim()) return;
+            const c = fila.split('\t'); // Split por tabulación de Excel
+            if (c.length >= 5) {
+                tareasParaEnviar.push({
+                    folio:        c[0] || '',
+                    fecha:        c[1] || '',
+                    operador:     c[2] || '',
+                    q_pallets:    c[3] || '1',
+                    ubic_origen:  c[4] || '',
+                    sap:          c[5] || '',
+                    barcode:      c[6] || '',
+                    descripcion:  c[7] || '',
+                    cantidad:     c[8] || '',
+                    lote:         c[9] || '',
+                    venc:         c[10] || '',
+                    impo:         c[11] || '',
+                    ubic_destino: c[12] || ''
                 });
-
-                // Como 'no-cors' no permite leer la respuesta, asumimos éxito si no hay error de red
-                mostrarMensaje("✅ Grabado correctamente", "green");
-                
-                // Pasar a la siguiente tarea tras 1.5 segundos
-                setTimeout(() => {
-                    indexActual++;
-                    if (indexActual < tareasPendientes.length) {
-                        mostrarTarea();
-                    } else {
-                        document.getElementById('tareaActual').innerHTML = "<p>¡Todas las tareas completadas!</p>";
-                        document.getElementById('controles').style.display = 'none';
-                    }
-                }, 1500);
-
-            } catch (err) {
-                mostrarMensaje("❌ Error al grabar", "red");
             }
-        }
+        });
 
-        function mostrarMensaje(texto, color) {
-            const m = document.getElementById('mensaje');
-            m.innerText = texto;
-            m.style.display = 'block';
-            m.style.backgroundColor = color === 'red' ? '#441111' : color === 'green' ? '#114411' : '#112244';
-            m.style.border = `1px solid ${color}`;
-        }
-    </script>
+        if(tareasParaEnviar.length === 0) return alert("No se detectaron filas válidas.");
+
+        mostrarMensaje(`Enviando ${tareasParaEnviar.length} tareas...`, "info");
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({
+                    action: 'cargarTareas',
+                    tareas: tareasParaEnviar
+                })
+            });
+            alert(`✅ ${tareasParaEnviar.length} tareas enviadas al sistema.`);
+            document.getElementById('areaPegado').value = "";
+            mostrarMensaje("Carga masiva completada", "success");
+        } catch (err) { alert("Error en la carga masiva."); }
+    }
+</script>
 </body>
 </html>
