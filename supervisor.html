@@ -20,20 +20,32 @@
             background-color: var(--bg);
             color: var(--txt);
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid var(--gold); width: 100%; max-width: 600px; padding-bottom: 10px; }
+        header { 
+            background: linear-gradient(180deg, #090e1a, #111827);
+            padding: 20px;
+            text-align: center; 
+            border-bottom: 3px solid var(--gold); 
+            width: 100%; 
+        }
         header h1 { font-family: 'Barlow Condensed', sans-serif; margin: 0; color: var(--gold); letter-spacing: 2px; }
         
+        .content {
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            flex: 1;
+        }
+
         .card {
             background: var(--card);
             border-radius: 12px;
             padding: 25px;
-            width: 100%;
-            max-width: 600px;
             border: 1px solid var(--border);
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
@@ -72,6 +84,17 @@
         .btn:active { transform: scale(0.98); }
         
         .status { margin-top: 15px; padding: 10px; border-radius: 8px; text-align: center; display: none; font-weight: bold; }
+
+        footer {
+            width: 100%;
+            text-align: center;
+            padding: 15px;
+            font-size: 11px;
+            color: var(--txt-dim);
+            border-top: 1px solid var(--border);
+            background: #090e1a;
+        }
+        footer strong { color: var(--gold); }
     </style>
 </head>
 <body>
@@ -80,22 +103,27 @@
     <h1>PANEL SUPERVISOR</h1>
 </header>
 
-<div class="card">
-    <h2>Carga Masiva de Tareas</h2>
-    <p>
-        Copie las filas de su Excel y péguelas aquí.<br>
-        <strong>Orden requerido (13 columnas):</strong><br>
-        Folio | Fecha | Operador | Q | Ubic | SAP | Barcode | Desc | Cant | Lote | Venc | Impo | Destino
-    </p>
-    
-    <textarea id="areaPegado" placeholder="Pegue aquí las filas de su planilla..."></textarea>
-    
-    <button class="btn" onclick="procesarTareasMasivas()">Procesar y Guardar en Sheets →</button>
-    <div id="status" class="status"></div>
+<div class="content">
+    <div class="card">
+        <h2>Carga Masiva de Tareas</h2>
+        <p>
+            Copie las filas de su Excel y péguelas aquí.<br>
+            <strong>Orden requerido (13 columnas):</strong><br>
+            Folio | Fecha | Operador | Q | Ubic | SAP | Barcode | Desc | Cant | Lote | Venc | Impo | Destino
+        </p>
+        
+        <textarea id="areaPegado" placeholder="Pegue aquí las filas de su planilla..."></textarea>
+        
+        <button class="btn" onclick="procesarTareasMasivas()">Procesar y Guardar en Sheets →</button>
+        <div id="status" class="status"></div>
+    </div>
 </div>
 
+<footer>
+    Diseñado por: <strong>Raul Layseca</strong>
+</footer>
+
 <script>
-    // REEMPLAZA CON TU URL DE GOOGLE APPS SCRIPT
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; 
 
     async function procesarTareasMasivas() {
