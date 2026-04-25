@@ -26,6 +26,8 @@
             margin: 0;
             padding: 0;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         header {
             background: linear-gradient(180deg, #090e1a, #111827);
@@ -42,9 +44,8 @@
         }
         header span { color: var(--linde-red); }
 
-        .content { padding: 10px; max-width: 900px; margin: 0 auto; }
+        .content { padding: 10px; max-width: 900px; margin: 0 auto; flex: 1; width: 100%; }
         
-        /* Grilla de 3 Iconos */
         .grid-operadores {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -64,7 +65,6 @@
         }
         .op-card:active { transform: scale(0.95); background: #1a2234; }
         
-        /* Contador de Tareas (Badge) */
         .badge-tareas {
             position: absolute;
             top: -5px;
@@ -107,7 +107,6 @@
         .op-name { font-weight: bold; font-size: 11px; display: block; color: var(--txt); line-height: 1.1; }
         .op-sub { font-size: 9px; color: var(--linde-red); text-transform: uppercase; font-weight: bold; margin-bottom: 2px; display: block; }
 
-        /* Tareas */
         .card {
             background: var(--card);
             border-radius: 12px;
@@ -147,6 +146,16 @@
             font-size: 13px;
         }
         .hidden { display: none; }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 11px;
+            color: var(--txt-dim);
+            border-top: 1px solid var(--border);
+            background: #090e1a;
+        }
+        footer strong { color: var(--linde-red); }
     </style>
 </head>
 <body>
@@ -156,41 +165,34 @@
 </header>
 
 <div class="content">
-    <!-- SECCIÓN SELECCIÓN OPERADOR -->
     <div id="secSeleccion">
         <h3 style="text-align: center; color: var(--txt-dim); margin-top: 10px; font-size: 13px; letter-spacing: 1px;">¿QUIÉN ERES?</h3>
         <div class="grid-operadores">
-            <!-- Francisco -->
             <div class="op-card" onclick="seleccionarOperador('Francisco Vigueras')">
                 <div id="badge-Francisco" class="badge-tareas zero">0</div>
                 <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
                 <div class="op-info"><span class="op-sub">Apilador 1</span><span class="op-name">Francisco Vigueras</span></div>
             </div>
-            <!-- Diego -->
             <div class="op-card" onclick="seleccionarOperador('Diego Nahuelcheo')">
                 <div id="badge-Diego" class="badge-tareas zero">0</div>
                 <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
                 <div class="op-info"><span class="op-sub">Apilador 2</span><span class="op-name">Diego Nahuelcheo</span></div>
             </div>
-            <!-- Gonzalo -->
             <div class="op-card" onclick="seleccionarOperador('Gonzalo Díaz')">
                 <div id="badge-Gonzalo" class="badge-tareas zero">0</div>
                 <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
                 <div class="op-info"><span class="op-sub">Apilador 3</span><span class="op-name">Gonzalo Díaz</span></div>
             </div>
-            <!-- Jorge -->
             <div class="op-card" onclick="seleccionarOperador('Jorge González')">
                 <div id="badge-Jorge" class="badge-tareas zero">0</div>
                 <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
                 <div class="op-info"><span class="op-sub">Apilador 4</span><span class="op-name">Jorge González</span></div>
             </div>
-            <!-- Jim -->
             <div class="op-card" onclick="seleccionarOperador('Jim San')">
                 <div id="badge-Jim" class="badge-tareas zero">0</div>
                 <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
                 <div class="op-info"><span class="op-sub">Apilador 5</span><span class="op-name">Jim San</span></div>
             </div>
-            <!-- Grúa -->
             <div class="op-card" onclick="seleccionarOperador('Grúa Apoyo')">
                 <div id="badge-Grúa" class="badge-tareas zero">0</div>
                 <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
@@ -200,7 +202,6 @@
         <button class="btn btn-blue" onclick="obtenerContadores()">Actualizar Contadores</button>
     </div>
 
-    <!-- SECCIÓN TAREAS -->
     <div id="secTareas" class="hidden">
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -219,17 +220,19 @@
                     <button class="btn btn-green" style="margin-top:0;" onclick="enviarResultado('REALIZADO')">REALIZADO</button>
                     <button class="btn btn-red" style="margin-top:0;" onclick="enviarResultado('UBIC. VACÍA')">VACÍA</button>
                 </div>
-                <!-- NUEVO BOTÓN: NO CORRESPONDE -->
                 <button class="btn btn-orange" onclick="enviarResultado('NO CORRESPONDE')">NO CORRESPONDE</button>
             </div>
         </div>
     </div>
 </div>
 
+<footer>
+    Diseñado por: <strong>Raul Layseca</strong>
+</footer>
+
 <div id="mensajeGlobal" class="status-msg"></div>
 
 <script>
-    // REEMPLAZA CON TU URL DE GOOGLE APPS SCRIPT
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; 
     
     let todasLasTareas = [];
@@ -237,7 +240,6 @@
     let indexActual = 0;
     let nombreOperador = "";
 
-    // Al cargar la página, obtenemos los contadores para el menú
     window.onload = obtenerContadores;
 
     async function obtenerContadores() {
@@ -272,7 +274,7 @@
         nombreOperador = "";
         document.getElementById('secTareas').classList.add('hidden');
         document.getElementById('secSeleccion').classList.remove('hidden');
-        obtenerContadores(); // Actualizar contadores al volver
+        obtenerContadores();
     }
 
     function mostrarMensaje(texto, tipo) {
@@ -311,7 +313,7 @@
         const t = tareasFiltradas[indexActual];
         document.getElementById('contador').innerText = `${indexActual + 1} / ${tareasFiltradas.length}`;
         document.getElementById('tareaContenido').innerHTML = `
-            <div class="info-row"><span class="info-label">Origen</span><span class="info-value" style="color:var(--gold);">${t.ubic_origen}</span></div>
+            <div class="info-row"><span class="info-label">Origen</span><span class="info-value" style="color:#f0a500;">${t.ubic_origen}</span></div>
             <div class="info-row"><span class="info-label">SAP</span><span class="info-value">${t.sap}</span></div>
             <div class="info-row"><span class="info-label">Descripción</span><span class="info-value" style="font-size:12px;">${t.descripcion}</span></div>
             <div class="info-row"><span class="info-label">Cant / Lote</span><span class="info-value">${t.cantidad} (${t.lote})</span></div>
