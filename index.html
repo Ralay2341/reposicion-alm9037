@@ -127,11 +127,30 @@
             cursor: pointer;
             text-transform: uppercase;
             margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         .btn-blue { background: var(--blue); color: white; }
         .btn-green { background: var(--green); color: white; }
         .btn-red { background: var(--red); color: white; }
         .btn-orange { background: var(--orange); color: white; }
+
+        /* Animación de giro */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
 
         .status-msg {
             position: fixed;
@@ -199,7 +218,10 @@
                 <div class="op-info"><span class="op-sub">Apilador 6</span><span class="op-name">Grúa Apoyo</span></div>
             </div>
         </div>
-        <button class="btn btn-blue" onclick="obtenerContadores()">Actualizar Contadores</button>
+        <button id="btnActualizar" class="btn btn-blue" onclick="obtenerContadores()">
+            <div id="spinnerBtn" class="spinner"></div>
+            <span id="textoBtn">Actualizar Contadores</span>
+        </button>
     </div>
 
     <div id="secTareas" class="hidden">
@@ -243,6 +265,15 @@
     window.onload = obtenerContadores;
 
     async function obtenerContadores() {
+        const btn = document.getElementById('btnActualizar');
+        const spinner = document.getElementById('spinnerBtn');
+        const texto = document.getElementById('textoBtn');
+        
+        // Estado de carga
+        btn.disabled = true;
+        spinner.style.display = 'block';
+        texto.innerText = 'Procesando...';
+
         try {
             const resp = await fetch(`${SCRIPT_URL}?action=getTareas`);
             const data = await resp.json();
@@ -259,7 +290,14 @@
                     }
                 });
             }
-        } catch (err) { console.error("Error contadores:", err); }
+        } catch (err) { 
+            console.error("Error contadores:", err); 
+        } finally {
+            // Restaurar estado del botón
+            btn.disabled = false;
+            spinner.style.display = 'none';
+            texto.innerText = 'Actualizar Contadores';
+        }
     }
 
     function seleccionarOperador(nombre) {
