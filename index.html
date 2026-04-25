@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>APILADORES - RepoSYSTEM</title>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Iconos de FontAwesome para el engranaje -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --bg: #0b0f18;
@@ -130,26 +132,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
+            font-size: 14px;
+            transition: 0.3s;
         }
         .btn-blue { background: var(--blue); color: white; }
         .btn-green { background: var(--green); color: white; }
         .btn-red { background: var(--red); color: white; }
         .btn-orange { background: var(--orange); color: white; }
+        .btn:disabled { opacity: 0.8; cursor: not-allowed; }
 
-        /* Animación de giro */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .spinner {
-            display: none;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-top: 2px solid #fff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        /* Animación del Engranaje */
+        .fa-gear.spinning {
+            animation: fa-spin 2s infinite linear;
+            font-size: 18px;
         }
 
         .status-msg {
@@ -219,7 +215,7 @@
             </div>
         </div>
         <button id="btnActualizar" class="btn btn-blue" onclick="obtenerContadores()">
-            <div id="spinnerBtn" class="spinner"></div>
+            <i id="iconoBtn" class="fa-solid fa-arrows-rotate"></i>
             <span id="textoBtn">Actualizar Contadores</span>
         </button>
     </div>
@@ -266,13 +262,14 @@
 
     async function obtenerContadores() {
         const btn = document.getElementById('btnActualizar');
-        const spinner = document.getElementById('spinnerBtn');
+        const icono = document.getElementById('iconoBtn');
         const texto = document.getElementById('textoBtn');
         
-        // Estado de carga
+        // Estado de carga visual fuerte
         btn.disabled = true;
-        spinner.style.display = 'block';
-        texto.innerText = 'Procesando...';
+        icono.className = "fa-solid fa-gear spinning"; // Cambia a engranaje girando
+        texto.innerText = 'PROCESANDO...';
+        btn.style.backgroundColor = "#1e293b"; // Color más oscuro mientras procesa
 
         try {
             const resp = await fetch(`${SCRIPT_URL}?action=getTareas`);
@@ -293,10 +290,11 @@
         } catch (err) { 
             console.error("Error contadores:", err); 
         } finally {
-            // Restaurar estado del botón
+            // Restaurar estado original
             btn.disabled = false;
-            spinner.style.display = 'none';
-            texto.innerText = 'Actualizar Contadores';
+            icono.className = "fa-solid fa-arrows-rotate"; // Vuelve al icono de refrescar
+            texto.innerText = 'ACTUALIZAR CONTADORES';
+            btn.style.backgroundColor = "var(--blue)";
         }
     }
 
