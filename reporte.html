@@ -43,8 +43,8 @@
     .filter-group { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
     input[type="date"], select { background: #1a2234; border: 1px solid var(--border); color: var(--txt); padding: 8px; border-radius: 5px; font-size: 12px; }
     .btn-filter { background: var(--blue); color: white; border: none; padding: 8px; border-radius: 5px; font-family: 'Rajdhani'; font-weight: bold; cursor: pointer; }
+    #fechaSidebar { font-size: 11px; color: var(--amber); margin-top: 10px; font-weight: bold; }
 
-    /* Estilos Panel Lateral */
     .side-panel { position: fixed; right: -450px; top: 0; width: 420px; height: 100%; background: var(--surface); border-left: 3px solid var(--red); z-index: 200; transition: 0.4s; padding: 30px; overflow-y: auto; box-shadow: -10px 0 30px rgba(0,0,0,0.7); }
     .side-panel.open { right: 0; }
     .close-panel { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 20px; color: var(--red); font-weight: bold; }
@@ -54,7 +54,6 @@
     .pkpi small { font-size: 9px; color: var(--txt-dim); text-transform: uppercase; }
     .pkpi div { font-family: 'Rajdhani'; font-size: 18px; font-weight: bold; }
 
-    /* Lista Productividad Sidebar */
     .prod-list { font-size: 11px; max-height: 250px; overflow-y: auto; }
     .prod-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #1a2234; }
 
@@ -79,11 +78,8 @@
 
 <div id="sidePanel" class="side-panel">
   <span class="close-panel" onclick="togglePanel()">✕</span>
-  <h2 style="font-family: 'Rajdhani'; color: var(--red); margin-bottom: 15px;">ESTADÍSTICA GENERAL</h2>
-  
-  <div class="panel-kpi-grid" id="panelGeneralStats">
-     </div>
-
+  <h2 style="font-family: 'Rajdhani'; color: var(--red); margin-bottom: 15px;">ESTADÍSTICA HISTÓRICA</h2>
+  <div class="panel-kpi-grid" id="panelGeneralStats"></div>
   <h3 style="font-family: 'Rajdhani'; font-size: 14px; color: var(--txt-dim); margin-bottom: 10px; text-transform: uppercase;">Detalle por Responsable</h3>
   <div id="filterResult"></div>
 </div>
@@ -91,7 +87,7 @@
 <header>
   <h1>REPOSYSTEM <span>ALM9037</span></h1>
   <div class="header-right">
-    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Actualizando...</div>
+    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Consultando Servidor...</div>
     <button class="btn-update" onclick="cargarDatos()" id="btnUpdate">
       <span id="gearIcon">🔄</span> ACTUALIZAR
     </button>
@@ -110,22 +106,21 @@
           <option value="Semana">Semana</option>
           <option value="Mes">Mes</option>
         </select>
-        <button class="btn-filter" onclick="aplicarFiltro()">GENERAR ESTADÍSTICA</button>
+        <button class="btn-filter" id="btnFilter" onclick="aplicarFiltro()">GENERAR ESTADÍSTICA</button>
+        <div id="fechaSidebar">Consulta: Hoy</div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-title">Productividad / Hora ⚡</div>
-      <div id="prodByHourList" class="prod-list">
-        <p style="color:var(--txt-dim); font-size:10px;">Sin datos activos...</p>
-      </div>
+      <div id="prodByHourList" class="prod-list"></div>
     </div>
     
     <div class="card">
       <div class="card-title">Alertas de Calidad ⚠️</div>
       <div id="sidebarContent">
         <p id="alertOp" style="font-size:16px; font-weight:bold;">0</p>
-        <p id="alertQty" style="font-size:11px; color:var(--txt-dim)">Sistema listo.</p>
+        <p id="alertQty" style="font-size:11px; color:var(--txt-dim)">-</p>
       </div>
     </div>
   </aside>
@@ -163,23 +158,70 @@
 
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; 
-  let lastData = null;
   let chartInstances = [];
 
   async function cargarDatos() {
-    const gear = document.getElementById('gearIcon');
-    document.getElementById('statusMsg').classList.remove('hidden');
-    gear.classList.add('spin');
-
+    toggleLoading(true);
     try {
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos`);
-      lastData = await response.json();
-      procesarReporte(lastData);
-    } catch (e) { console.error(e); } 
-    finally {
-      document.getElementById('statusMsg').classList.add('hidden');
-      gear.classList.remove('spin');
-    }
+      const data = await response.json();
+      procesarReporte(data);
+      document.getElementById('fechaSidebar').textContent = "Consulta: Tiempo Real";
+    } catch (e) { alert("Error al cargar datos actuales"); } 
+    finally { toggleLoading(false); }
+  }
+
+  async function aplicarFiltro() {
+    const fecha = document.getElementById('inputDate').value;
+    const rango = document.getElementById('inputRange').value;
+    if (!fecha) return alert("Por favor seleccione una fecha");
+
+    toggleLoading(true);
+    try {
+      // LLAMADA REAL AL SCRIPT ENVIANDO LOS PARÁMETROS DE FECHA Y RANGO
+      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${fecha}&rango=${rango}`);
+      const data = await response.json();
+      
+      document.getElementById('fechaSidebar').textContent = `Consulta: ${fecha} (${rango})`;
+      mostrarPanelHistorial(data);
+    } catch (e) { alert("Error al consultar el historial"); } 
+    finally { toggleLoading(false); }
+  }
+
+  function mostrarPanelHistorial(data) {
+    const panel = document.getElementById('sidePanel');
+    const pStats = document.getElementById('panelGeneralStats');
+    const res = document.getElementById('filterResult');
+    
+    const tot = data.totalTareas || 1;
+    const ok = data.porEstado['REALIZADO'] || 0;
+    const efec = Math.round((ok / tot) * 100);
+
+    pStats.innerHTML = `
+      <div class="pkpi"><small>Total Reposic.</small><div>${tot}</div></div>
+      <div class="pkpi"><small>Correctas</small><div style="color:var(--green)">${ok}</div></div>
+      <div class="pkpi"><small>Ub. Vacías</small><div style="color:var(--amber)">${data.porEstado['UBIC. VACÍA'] || 0}</div></div>
+      <div class="pkpi"><small>No Corresp.</small><div style="color:var(--red)">${data.porEstado['COD. NO CORRESPONDE'] || 0}</div></div>
+      <div class="pkpi" style="grid-column: span 2; border-left-color: var(--purple);"><small>% Efectividad Global</small><div style="color:var(--purple)">${efec}%</div></div>
+    `;
+
+    let html = "";
+    Object.entries(data.rendimientoIndividual).forEach(([nom, s]) => {
+      html += `
+        <div class="card" style="margin-bottom:10px; padding:12px; background:#161f2e;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <b style="color:var(--txt)">${nom}</b>
+            <span class="badge" style="background:rgba(139,92,246,0.1); color:var(--purple);">${s.cumplimiento}% Efec.</span>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px; margin-top:8px; font-size:10px; color:var(--txt-dim);">
+             <span>OK: <b style="color:var(--green)">${s.realizados}</b></span>
+             <span>Err: <b style="color:var(--red)">${s.nocode}</b></span>
+             <span>P/H: <b>${s.palletsPorHora}</b></span>
+          </div>
+        </div>`;
+    });
+    res.innerHTML = html;
+    panel.classList.add('open');
   }
 
   function procesarReporte(data) {
@@ -192,99 +234,52 @@
     const chartCont = document.getElementById('chartsContainer');
     const prodList = document.getElementById('prodByHourList');
     
-    tbody.innerHTML = "";
-    chartCont.innerHTML = "";
-    prodList.innerHTML = "";
-    chartInstances.forEach(c => c.destroy());
-    chartInstances = [];
+    tbody.innerHTML = ""; chartCont.innerHTML = ""; prodList.innerHTML = "";
+    chartInstances.forEach(c => c.destroy()); chartInstances = [];
 
     let maxErrOp = { n: "N/A", q: 0 };
 
     Object.entries(data.rendimientoIndividual).forEach(([nom, s], i) => {
       if(s.nocode > maxErrOp.q) maxErrOp = { n: nom, q: s.nocode };
 
-      // Llenar Tabla Principal
-      tbody.innerHTML += `
-        <tr>
-          <td><strong>${nom}</strong></td>
-          <td>${s.total}</td>
-          <td><span class="badge green">${s.realizados}</span></td>
-          <td><span class="badge amber">${s.vacias}</span></td>
-          <td><span class="badge red-status">${s.nocode}</span></td>
-          <td style="font-weight:bold;">${s.palletsPorHora}</td>
-          <td style="color:var(--green)">${s.cumplimiento}%</td>
-        </tr>`;
+      tbody.innerHTML += `<tr>
+        <td><strong>${nom}</strong></td><td>${s.total}</td>
+        <td><span class="badge green">${s.realizados}</span></td>
+        <td><span class="badge amber">${s.vacias}</span></td>
+        <td><span class="badge red-status">${s.nocode}</span></td>
+        <td style="font-weight:bold;">${s.palletsPorHora}</td>
+        <td style="color:var(--green)">${s.cumplimiento}%</td></tr>`;
 
-      // Llenar Lista Productividad Sidebar (P/H)
-      prodList.innerHTML += `
-        <div class="prod-item">
-          <span>${nom}</span>
-          <b style="color:var(--blue)">${s.palletsPorHora} P/H</b>
-        </div>`;
+      prodList.innerHTML += `<div class="prod-item"><span>${nom}</span><b style="color:var(--blue)">${s.palletsPorHora} P/H</b></div>`;
 
-      // Generar Gráfico de Dona
       const chartId = `c-${i}`;
       chartCont.innerHTML += `<div class="chart-box"><p style="font-size:9px;">${nom}</p><canvas id="${chartId}"></canvas></div>`;
       setTimeout(() => {
         const ctx = document.getElementById(chartId).getContext('2d');
         const c = new Chart(ctx, {
           type: 'doughnut',
-          data: {
-            datasets: [{
-              data: [s.realizados, s.vacias, s.nocode],
-              backgroundColor: ['#10b981', '#f59e0b', '#e30613'],
-              borderWidth: 0
-            }]
-          },
+          data: { datasets: [{ data: [s.realizados, s.vacias, s.nocode], backgroundColor: ['#10b981', '#f59e0b', '#e30613'], borderWidth: 0 }] },
           options: { cutout: '78%', plugins: { legend: { display: false } } }
         });
         chartInstances.push(c);
       }, 0);
     });
-
     document.getElementById('alertOp').textContent = maxErrOp.n;
-    document.getElementById('alertQty').textContent = `Peor desempeño en validación (${maxErrOp.q} err).`;
+    document.getElementById('alertQty').textContent = `Peor desempeño (${maxErrOp.q} err).`;
   }
 
-  function aplicarFiltro() {
-    if(!lastData) return;
-    const panel = document.getElementById('sidePanel');
-    const pStats = document.getElementById('panelGeneralStats');
-    const res = document.getElementById('filterResult');
-    
-    // Cálculo de efectividad general
-    const tot = lastData.totalTareas || 1;
-    const ok = lastData.porEstado['REALIZADO'] || 0;
-    const efec = Math.round((ok / tot) * 100);
-
-    // 1. Cabecera General del Panel Lateral
-    pStats.innerHTML = `
-      <div class="pkpi"><small>Total Reposic.</small><div>${tot}</div></div>
-      <div class="pkpi"><small>Correctas</small><div style="color:var(--green)">${ok}</div></div>
-      <div class="pkpi"><small>Ub. Vacías</small><div style="color:var(--amber)">${lastData.porEstado['UBIC. VACÍA']}</div></div>
-      <div class="pkpi"><small>No Corresp.</small><div style="color:var(--red)">${lastData.porEstado['COD. NO CORRESPONDE']}</div></div>
-      <div class="pkpi" style="grid-column: span 2; border-left-color: var(--purple);"><small>% Efectividad Global</small><div style="color:var(--purple)">${efec}%</div></div>
-    `;
-
-    // 2. Detalle por Responsable
-    let html = "";
-    Object.entries(lastData.rendimientoIndividual).forEach(([nom, s]) => {
-      html += `
-        <div class="card" style="margin-bottom:10px; padding:12px; background:#161f2e;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <b style="color:var(--txt)">${nom}</b>
-            <span class="badge" style="background:rgba(139,92,246,0.1); color:var(--purple);">${s.cumplimiento}% Efec.</span>
-          </div>
-          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px; margin-top:8px; font-size:10px; color:var(--txt-dim);">
-             <span>OK: <b style="color:var(--green)">${s.realizados}</b></span>
-             <span>Err: <b style="color:var(--red)">${s.nocode}</b></span>
-             <span>P/H: <b>${s.palletsPorHora}</b></span>
-          </div>
-        </div>
-      `;
-    });
-    res.innerHTML = html;
-    panel.classList.add('open');
+  function toggleLoading(isLoading) {
+    const gear = document.getElementById('gearIcon');
+    const msg = document.getElementById('statusMsg');
+    const btnU = document.getElementById('btnUpdate');
+    const btnF = document.getElementById('btnFilter');
+    if (isLoading) {
+      msg.classList.remove('hidden'); gear.classList.add('spin');
+      btnU.disabled = true; btnF.disabled = true;
+    } else {
+      msg.classList.add('hidden'); gear.classList.remove('spin');
+      btnU.disabled = false; btnF.disabled = false;
+    }
   }
 
   function togglePanel() { document.getElementById('sidePanel').classList.remove('open'); }
