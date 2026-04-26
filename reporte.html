@@ -15,57 +15,41 @@
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--txt); min-height: 100vh; overflow-x: hidden; }
-    
     header { background: #0a0f1c; border-bottom: 2px solid var(--red); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     header h1 { font-family: 'Rajdhani', sans-serif; font-size: 20px; letter-spacing: 2px; }
     header h1 span { color: var(--red); }
-
     .header-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
-    .btn-update { 
-      background: var(--red); color: white; border: none; padding: 10px 20px; 
-      border-radius: 5px; cursor: pointer; font-family: 'Rajdhani'; font-weight: bold; 
-      display: flex; align-items: center; gap: 8px; transition: 0.3s;
-    }
+    .btn-update { background: var(--red); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-family: 'Rajdhani'; font-weight: bold; display: flex; align-items: center; gap: 8px; }
     .designer-tag { font-size: 10px; color: var(--txt-dim); margin-top: 5px; font-family: 'Rajdhani'; letter-spacing: 1px; text-transform: uppercase; }
-
     .wrapper { display: flex; gap: 20px; padding: 20px; max-width: 1600px; margin: 0 auto; align-items: flex-start; }
     .sidebar { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
     .main-content { flex-grow: 1; min-width: 0; }
-
     .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
     .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 15px; border-top: 4px solid var(--red); }
     .kpi-val { font-family: 'Rajdhani', sans-serif; font-size: 28px; font-weight: 700; }
     .kpi-label { font-size: 10px; color: var(--txt-dim); text-transform: uppercase; letter-spacing: 1px; }
-
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
     .card-title { font-family: 'Rajdhani', sans-serif; font-size: 14px; color: var(--txt-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; }
-
     .filter-group { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
     input[type="date"], select { background: #1a2234; border: 1px solid var(--border); color: var(--txt); padding: 8px; border-radius: 5px; font-size: 12px; }
     .btn-filter { background: var(--blue); color: white; border: none; padding: 8px; border-radius: 5px; font-family: 'Rajdhani'; font-weight: bold; cursor: pointer; }
     #fechaSidebar { font-size: 11px; color: var(--amber); margin-top: 10px; font-weight: bold; }
-
     .side-panel { position: fixed; right: -450px; top: 0; width: 420px; height: 100%; background: var(--surface); border-left: 3px solid var(--red); z-index: 200; transition: 0.4s; padding: 30px; overflow-y: auto; box-shadow: -10px 0 30px rgba(0,0,0,0.7); }
     .side-panel.open { right: 0; }
     .close-panel { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 20px; color: var(--red); font-weight: bold; }
-
     .panel-kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
     .pkpi { background: #1a2234; padding: 10px; border-radius: 6px; border-left: 3px solid var(--blue); }
     .pkpi small { font-size: 9px; color: var(--txt-dim); text-transform: uppercase; }
     .pkpi div { font-family: 'Rajdhani'; font-size: 18px; font-weight: bold; }
-
     .prod-list { font-size: 11px; max-height: 250px; overflow-y: auto; }
     .prod-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #1a2234; }
-
     table { width: 100%; border-collapse: collapse; font-size: 11px; }
     th { text-align: left; padding: 10px; color: var(--txt-dim); border-bottom: 1px solid var(--border); }
     td { padding: 10px; border-bottom: 1px solid #1a2234; }
-    
     .badge { padding: 3px 6px; border-radius: 4px; font-weight: bold; font-family: 'Rajdhani'; }
     .green { background: rgba(16,185,129,0.1); color: var(--green); }
     .amber { background: rgba(245,158,11,0.1); color: var(--amber); }
     .red-status { background: rgba(227,6,19,0.1); color: var(--red); }
-
     .spin { animation: spin 1s linear infinite; display: inline-block; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
     .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 20px; }
@@ -78,9 +62,8 @@
 
 <div id="sidePanel" class="side-panel">
   <span class="close-panel" onclick="togglePanel()">✕</span>
-  <h2 style="font-family: 'Rajdhani'; color: var(--red); margin-bottom: 15px;">ESTADÍSTICA HISTÓRICA</h2>
+  <h2 style="font-family: 'Rajdhani'; color: var(--red); margin-bottom: 15px;">ESTADÍSTICA HISTÓRICA (COL O)</h2>
   <div class="panel-kpi-grid" id="panelGeneralStats"></div>
-  <h3 style="font-family: 'Rajdhani'; font-size: 14px; color: var(--txt-dim); margin-bottom: 10px; text-transform: uppercase;">Detalle por Responsable</h3>
   <div id="filterResult"></div>
 </div>
 
@@ -110,47 +93,35 @@
         <div id="fechaSidebar">Consulta: Tiempo Real</div>
       </div>
     </div>
-
     <div class="card">
       <div class="card-title">Productividad / Hora ⚡</div>
       <div id="prodByHourList" class="prod-list"></div>
-    </div>
-    
-    <div class="card">
-      <div class="card-title">Alertas de Calidad ⚠️</div>
-      <div id="sidebarContent">
-        <p id="alertOp" style="font-size:16px; font-weight:bold;">0</p>
-        <p id="alertQty" style="font-size:11px; color:var(--txt-dim)">A la espera de datos.</p>
-      </div>
     </div>
   </aside>
 
   <main class="main-content">
     <div class="kpi-row">
-      <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-label">Reposiciones Totales</div></div>
+      <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-label">Total Reposiciones</div></div>
       <div class="kpi" style="border-top-color: var(--green);"><div class="kpi-val" id="kRealizadas" style="color: var(--green);">0</div><div class="kpi-label">Correctas</div></div>
       <div class="kpi" style="border-top-color: var(--amber);"><div class="kpi-val" id="kVacias" style="color: var(--amber);">0</div><div class="kpi-label">Ubicac. Vacías</div></div>
       <div class="kpi" style="border-top-color: var(--red);"><div class="kpi-val" id="kErrores" style="color: var(--red);">0</div><div class="kpi-label">No Corresponde</div></div>
     </div>
-
     <div class="card">
-      <div class="card-title">Desempeño Individual y Gráficos 📊</div>
-      <div style="overflow-x: auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>Operador</th>
-              <th>Total</th>
-              <th>OK</th>
-              <th>Vacías</th>
-              <th>Error</th>
-              <th>P/H</th>
-              <th>%</th>
-            </tr>
-          </thead>
-          <tbody id="rendBody"></tbody>
-        </table>
-      </div>
+      <div class="card-title">Desempeño Individual 📊</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Operador</th>
+            <th>Total</th>
+            <th>OK</th>
+            <th>Vacías</th>
+            <th>Error</th>
+            <th>P/H</th>
+            <th>%</th>
+          </tr>
+        </thead>
+        <tbody id="rendBody"></tbody>
+      </table>
       <div class="charts-grid" id="chartsContainer"></div>
     </div>
   </main>
@@ -181,33 +152,35 @@
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos`);
       const data = await response.json();
       procesarReporte(data);
-      document.getElementById('fechaSidebar').textContent = "Consulta: Tiempo Real";
     } catch (e) { console.error(e); } 
     finally { toggleLoading(false); }
   }
 
   async function aplicarFiltro() {
-    const fecha = document.getElementById('inputDate').value;
+    const rawDate = document.getElementById('inputDate').value;
+    if (!rawDate) return alert("Selecciona una fecha");
+
+    // FORMATEO PARA COLUMNA O (Día-Mes-Año)
+    const parts = rawDate.split('-');
+    const fechaFormateada = `${parts[2]}-${parts[1]}-${parts[0]}`;
     const rango = document.getElementById('inputRange').value;
-    if (!fecha) return alert("Selecciona una fecha");
 
     toggleLoading(true);
-    resetDashboard(); // Limpia antes de mostrar nada nuevo
+    resetDashboard();
 
     try {
-      // Se envía targetCol=O para forzar la búsqueda en la columna O de tu Sheets
-      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${fecha}&rango=${rango}&targetCol=O`);
+      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${fechaFormateada}&rango=${rango}&targetCol=O`);
       const data = await response.json();
       
       if(!data || !data.totalTareas || data.totalTareas == 0) {
-        document.getElementById('fechaSidebar').textContent = `SIN DATOS COL O: ${fecha}`;
-        alert("La fecha seleccionada no existe en la Columna O.");
+        document.getElementById('fechaSidebar').textContent = `SIN DATOS: ${fechaFormateada}`;
+        alert(`Sin registros en Columna O para: ${fechaFormateada}`);
       } else {
-        document.getElementById('fechaSidebar').textContent = `Consulta Col O: ${fecha}`;
+        document.getElementById('fechaSidebar').textContent = `Consulta: ${fechaFormateada}`;
         mostrarPanelHistorial(data);
         procesarReporte(data);
       }
-    } catch (e) { alert("Error al conectar con el servidor."); } 
+    } catch (e) { alert("Error de servidor."); } 
     finally { toggleLoading(false); }
   }
 
@@ -215,27 +188,17 @@
     const panel = document.getElementById('sidePanel');
     const pStats = document.getElementById('panelGeneralStats');
     const res = document.getElementById('filterResult');
-    const tot = data.totalTareas || 0;
-    const ok = data.porEstado['REALIZADO'] || 0;
-    const efec = tot > 0 ? Math.round((ok / tot) * 100) : 0;
-
+    
     pStats.innerHTML = `
-      <div class="pkpi"><small>Total Reposic.</small><div>${tot}</div></div>
-      <div class="pkpi"><small>Correctas</small><div style="color:var(--green)">${ok}</div></div>
-      <div class="pkpi"><small>Ub. Vacías</small><div style="color:var(--amber)">${data.porEstado['UBIC. VACÍA'] || 0}</div></div>
-      <div class="pkpi"><small>No Corresp.</small><div style="color:var(--red)">${data.porEstado['COD. NO CORRESPONDE'] || 0}</div></div>
-      <div class="pkpi" style="grid-column: span 2; border-left-color: var(--purple);"><small>% Efec. Periodo</small><div style="color:var(--purple)">${efec}%</div></div>
+      <div class="pkpi"><small>Total</small><div>${data.totalTareas}</div></div>
+      <div class="pkpi"><small>Eficiencia</small><div style="color:var(--purple)">${Math.round((data.porEstado['REALIZADO'] / data.totalTareas) * 100)}%</div></div>
     `;
 
     let html = "";
     Object.entries(data.rendimientoIndividual || {}).forEach(([nom, s]) => {
-      html += `
-        <div class="card" style="margin-bottom:10px; padding:12px; background:#161f2e;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <b style="color:var(--txt)">${nom}</b>
-            <span class="badge" style="background:rgba(139,92,246,0.1); color:var(--purple);">${s.cumplimiento}%</span>
-          </div>
-        </div>`;
+      html += `<div class="card" style="margin-bottom:10px; padding:10px; background:#161f2e;">
+                <b style="font-size:12px;">${nom}</b>: ${s.realizados} OK
+               </div>`;
     });
     res.innerHTML = html;
     panel.classList.add('open');
@@ -246,25 +209,21 @@
     document.getElementById('kRealizadas').textContent = data.porEstado['REALIZADO'] || 0;
     document.getElementById('kVacias').textContent = data.porEstado['UBIC. VACÍA'] || 0;
     document.getElementById('kErrores').textContent = data.porEstado['COD. NO CORRESPONDE'] || 0;
-    const tbody = document.getElementById('rendBody');
-    const chartCont = document.getElementById('chartsContainer');
-    const prodList = document.getElementById('prodByHourList');
-    let maxErrOp = { n: "N/A", q: 0 };
 
     Object.entries(data.rendimientoIndividual || {}).forEach(([nom, s], i) => {
-      if(s.nocode > maxErrOp.q) maxErrOp = { n: nom, q: s.nocode };
-      tbody.innerHTML += `<tr>
+      document.getElementById('rendBody').innerHTML += `<tr>
         <td><strong>${nom}</strong></td><td>${s.total}</td>
         <td><span class="badge green">${s.realizados}</span></td>
         <td><span class="badge amber">${s.vacias}</span></td>
         <td><span class="badge red-status">${s.nocode}</span></td>
-        <td style="font-weight:bold;">${s.palletsPorHora}</td>
+        <td>${s.palletsPorHora}</td>
         <td style="color:var(--green)">${s.cumplimiento}%</td></tr>`;
       
-      prodList.innerHTML += `<div class="prod-item"><span>${nom}</span><b style="color:var(--blue)">${s.palletsPorHora} P/H</b></div>`;
+      document.getElementById('prodByHourList').innerHTML += `<div class="prod-item"><span>${nom}</span><b>${s.palletsPorHora} P/H</b></div>`;
       
       const chartId = `c-${i}`;
-      chartCont.innerHTML += `<div class="chart-box"><p style="font-size:9px;">${nom}</p><canvas id="${chartId}"></canvas></div>`;
+      document.getElementById('chartsContainer').innerHTML += `<div class="chart-box"><p style="font-size:9px;">${nom}</p><canvas id="${chartId}"></canvas></div>`;
+      
       setTimeout(() => {
         const ctx = document.getElementById(chartId).getContext('2d');
         const c = new Chart(ctx, {
@@ -275,17 +234,12 @@
         chartInstances.push(c);
       }, 0);
     });
-    document.getElementById('alertOp').textContent = maxErrOp.n;
-    document.getElementById('alertQty').textContent = `Peor desempeño (${maxErrOp.q} err).`;
   }
 
-  function toggleLoading(isLoading) {
-    const gear = document.getElementById('gearIcon');
-    const msg = document.getElementById('statusMsg');
-    if (isLoading) { msg.classList.remove('hidden'); gear.classList.add('spin'); } 
-    else { msg.classList.add('hidden'); gear.classList.remove('spin'); }
+  function toggleLoading(s) { 
+    document.getElementById('statusMsg').classList.toggle('hidden', !s);
+    document.getElementById('gearIcon').classList.toggle('spin', s);
   }
-
   function togglePanel() { document.getElementById('sidePanel').classList.remove('open'); }
   window.onload = cargarDatos;
 </script>
