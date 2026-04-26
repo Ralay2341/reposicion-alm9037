@@ -14,7 +14,7 @@
       --txt-dim: #64748b; --border: #1e2d45;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--txt); min-height: 100vh; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--txt); min-height: 100vh; overflow-x: hidden; }
     
     header { background: #0a0f1c; border-bottom: 2px solid var(--red); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     header h1 { font-family: 'Rajdhani', sans-serif; font-size: 20px; letter-spacing: 2px; }
@@ -26,15 +26,12 @@
       border-radius: 5px; cursor: pointer; font-family: 'Rajdhani'; font-weight: bold; 
       display: flex; align-items: center; gap: 8px; transition: 0.3s;
     }
-    .btn-update:disabled { background: #4b0000; cursor: not-allowed; }
     .designer-tag { font-size: 10px; color: var(--txt-dim); margin-top: 5px; font-family: 'Rajdhani'; letter-spacing: 1px; text-transform: uppercase; }
-    #statusMsg { font-size: 11px; color: var(--amber); font-weight: bold; height: 14px; transition: 0.3s; }
 
     .wrapper { display: flex; gap: 20px; padding: 20px; max-width: 1600px; margin: 0 auto; align-items: flex-start; }
-    .sidebar { width: 300px; flex-shrink: 0; }
+    .sidebar { width: 280px; flex-shrink: 0; }
     .main-content { flex-grow: 1; min-width: 0; }
 
-    /* KPIs de 4 columnas */
     .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
     .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 15px; border-top: 4px solid var(--red); }
     .kpi-val { font-family: 'Rajdhani', sans-serif; font-size: 28px; font-weight: 700; }
@@ -43,37 +40,48 @@
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
     .card-title { font-family: 'Rajdhani', sans-serif; font-size: 14px; color: var(--txt-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; }
 
-    /* Filtros Calendario */
-    .filter-group { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-    input[type="date"], select { background: #1a2234; border: 1px solid var(--border); color: var(--txt); padding: 5px; border-radius: 4px; font-size: 12px; font-family: 'DM Sans'; }
+    /* Filtros y Botón */
+    .filter-group { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+    input[type="date"], select { background: #1a2234; border: 1px solid var(--border); color: var(--txt); padding: 8px; border-radius: 5px; font-size: 12px; }
+    .btn-filter { background: var(--blue); color: white; border: none; padding: 8px; border-radius: 5px; font-family: 'Rajdhani'; font-weight: bold; cursor: pointer; }
+
+    /* Panel Lateral Derecho (Detalle Histórico) */
+    .side-panel { position: fixed; right: -400px; top: 0; width: 380px; height: 100%; background: var(--surface); border-left: 2px solid var(--red); z-index: 200; transition: 0.4s; padding: 30px; overflow-y: auto; box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
+    .side-panel.open { right: 0; }
+    .close-panel { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 20px; color: var(--red); }
 
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
     th { text-align: left; padding: 10px; color: var(--txt-dim); border-bottom: 1px solid var(--border); font-size: 10px; text-transform: uppercase; }
     td { padding: 10px; border-bottom: 1px solid #1a2234; }
     
-    .badge { padding: 3px 6px; border-radius: 4px; font-weight: bold; font-family: 'Rajdhani'; font-size: 11px; }
+    .badge { padding: 3px 6px; border-radius: 4px; font-weight: bold; font-family: 'Rajdhani'; font-size: 10px; }
     .green { background: rgba(16,185,129,0.1); color: var(--green); }
     .amber { background: rgba(245,158,11,0.1); color: var(--amber); }
     .red-status { background: rgba(227,6,19,0.1); color: var(--red); }
 
-    .prog-wrap { height: 10px; background: #1a2234; border-radius: 10px; overflow: hidden; margin: 12px 0; }
-    .prog-fill { height: 100%; background: var(--red); transition: width 1.2s ease-in-out; }
+    .prog-wrap { height: 8px; background: #1a2234; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+    .prog-fill { height: 100%; background: var(--red); transition: width 1s; }
     
     .spin { animation: spin 1s linear infinite; display: inline-block; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
-    .hidden { visibility: hidden; opacity: 0; }
-
-    /* Contenedor de gráficos bajo la tabla */
-    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 20px; }
-    canvas { max-height: 200px; }
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
 
+<div id="sidePanel" class="side-panel">
+  <span class="close-panel" onclick="togglePanel()">✕</span>
+  <h2 style="font-family: 'Rajdhani'; color: var(--red); margin-bottom: 20px;">DETALLE DE FILTRO</h2>
+  <div id="filterResult">
+    <p style="font-size: 13px; color: var(--txt-dim);">Procesando datos del periodo...</p>
+  </div>
+</div>
+
 <header>
   <h1>REPOSYSTEM <span>ALM9037</span></h1>
   <div class="header-right">
-    <div id="statusMsg" class="hidden">Actualizando datos...</div>
+    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Actualizando...</div>
     <button class="btn-update" onclick="cargarDatos()" id="btnUpdate">
       <span id="gearIcon">🔄</span> ACTUALIZAR
     </button>
@@ -85,25 +93,22 @@
   <aside class="sidebar">
     <div class="card">
       <div class="card-title">Alertas de Calidad ⚠️</div>
-      <div id="sidebarContent" style="font-size: 13px; line-height: 1.8;">
-        <p style="color:var(--red)">Mayor Incidencia Cód:</p>
+      <div id="sidebarContent">
         <p style="font-size:16px; font-weight:bold;">0</p>
-        <p style="font-size:11px; color:var(--txt-dim)">Registra 0 errores.</p>
+        <p style="font-size:11px; color:var(--txt-dim)">0 errores de código.</p>
       </div>
     </div>
     
     <div class="card">
-      <div class="card-title">Actividad Reciente 🕒</div>
-      <div id="activityStats" style="font-size: 12px; color: var(--txt-dim);">Calculando...</div>
-      
+      <div class="card-title">Histórico y Consultas 📅</div>
       <div class="filter-group">
-        <label style="font-size: 10px; color: var(--txt-dim);">SELECCIONAR FECHA</label>
-        <input type="date" id="dashDate" value="2026-04-26">
-        <select id="dashRange">
-          <option value="day">Vista Diaria</option>
-          <option value="week">Vista Semanal</option>
-          <option value="month">Vista Mensual</option>
+        <input type="date" id="inputDate">
+        <select id="inputRange">
+          <option value="day">Día Actual</option>
+          <option value="week">Esta Semana</option>
+          <option value="month">Este Mes</option>
         </select>
+        <button class="btn-filter" onclick="aplicarFiltro()">CONSULTAR PERIODO</button>
       </div>
     </div>
   </aside>
@@ -117,30 +122,22 @@
     </div>
 
     <div class="card">
-      <div class="card-title">Cumplimiento General <span id="lastUpdate" style="float:right; opacity:0.5; font-size:10px;"></span></div>
-      <div class="prog-wrap"><div id="progGeneral" class="prog-fill" style="width:0%"></div></div>
-      <div id="avanceTxt" style="font-size:11px; color:var(--txt-dim);">Sincronizando...</div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Rendimiento Detallado por Apilador ⚡</div>
+      <div class="card-title">Rendimiento Detallado ⚡</div>
       <div style="overflow-x: auto;">
-        <table id="rendTable">
+        <table>
           <thead>
             <tr>
               <th>Operador</th>
               <th>Total</th>
               <th>OK</th>
               <th>Vacías</th>
-              <th>Error Cód.</th>
-              <th>P/H</th>
-              <th>%</th>
+              <th>Error</th>
+              <th>P/H</th> <th>%</th>
             </tr>
           </thead>
           <tbody id="rendBody"></tbody>
         </table>
       </div>
-      
       <div class="charts-grid" id="chartsContainer"></div>
     </div>
   </main>
@@ -148,62 +145,34 @@
 
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; 
-  let activeCharts = [];
+  let lastData = null;
 
   async function cargarDatos() {
     const gear = document.getElementById('gearIcon');
-    const btn = document.getElementById('btnUpdate');
-    const statusMsg = document.getElementById('statusMsg');
-
-    btn.disabled = true;
+    document.getElementById('statusMsg').classList.remove('hidden');
     gear.classList.add('spin');
-    statusMsg.classList.remove('hidden');
 
     try {
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos`);
-      const data = await response.json();
-      procesarReporte(data);
-      document.getElementById('lastUpdate').textContent = 'Refrescado: ' + new Date().toLocaleTimeString();
-    } catch (e) {
-      console.error(e);
-      alert("Error al conectar con RepoSYSTEM");
-    } finally {
-      btn.disabled = false;
+      lastData = await response.json();
+      procesarReporte(lastData);
+    } catch (e) { alert("Error de conexión"); } 
+    finally {
+      document.getElementById('statusMsg').classList.add('hidden');
       gear.classList.remove('spin');
-      statusMsg.classList.add('hidden');
     }
   }
 
   function procesarReporte(data) {
-    // 1. KPIs Nivel Superior
     document.getElementById('kTotal').textContent = data.totalTareas || 0;
     document.getElementById('kRealizadas').textContent = data.porEstado['REALIZADO'] || 0;
     document.getElementById('kVacias').textContent = data.porEstado['UBIC. VACÍA'] || 0;
     document.getElementById('kErrores').textContent = data.porEstado['COD. NO CORRESPONDE'] || 0;
 
-    const total = data.totalTareas || 1;
-    const realizados = data.porEstado['REALIZADO'] || 0;
-    const pct = Math.round((realizados / total) * 100);
-    document.getElementById('progGeneral').style.width = pct + '%';
-    document.getElementById('avanceTxt').textContent = `${realizados} de ${total} confirmados correctamente (${pct}%)`;
-
-    // 2. Limpiar tabla y gráficos antiguos
     const tbody = document.getElementById('rendBody');
-    const chartCont = document.getElementById('chartsContainer');
     tbody.innerHTML = "";
-    chartCont.innerHTML = "";
-    activeCharts.forEach(c => c.destroy());
-    activeCharts = [];
-
-    let maxErroresOp = { nombre: '0', cantidad: 0 };
-
-    Object.entries(data.rendimientoIndividual).forEach(([nombre, s], index) => {
-      // Tracking de alertas
-      if(s.nocode > maxErroresOp.cantidad) {
-        maxErroresOp = { nombre: nombre, cantidad: s.nocode };
-      }
-
-      // Fila de Tabla
+    
+    Object.entries(data.rendimientoIndividual).forEach(([nombre, s]) => {
       tbody.innerHTML += `
         <tr>
           <td><strong>${nombre}</strong></td>
@@ -211,47 +180,40 @@
           <td><span class="badge green">${s.realizados}</span></td>
           <td><span class="badge amber">${s.vacias}</span></td>
           <td><span class="badge red-status">${s.nocode}</span></td>
-          <td>${s.palletsPorHora}</td>
-          <td style="color:${s.cumplimiento > 80 ? 'var(--green)' : 'var(--amber)'}">${s.cumplimiento}%</td>
+          <td style="font-weight:bold;">${s.palletsPorHora}</td> <td style="color:var(--green)">${s.cumplimiento}%</td>
         </tr>`;
-
-      // Crear mini-gráfico para este operador
-      const canvasId = `chart-${index}`;
-      const div = document.createElement('div');
-      div.style.textAlign = 'center';
-      div.innerHTML = `<p style="font-size:10px; margin-bottom:5px;">${nombre}</p><canvas id="${canvasId}"></canvas>`;
-      chartCont.appendChild(div);
-
-      const ctx = document.getElementById(canvasId).getContext('2d');
-      const newChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['OK', 'Vacío', 'Error'],
-          datasets: [{
-            data: [s.realizados, s.vacias, s.nocode],
-            backgroundColor: ['#10b981', '#f59e0b', '#e30613'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          plugins: { legend: { display: false } },
-          cutout: '70%'
-        }
-      });
-      activeCharts.push(newChart);
     });
 
-    // 3. Alertas Calidad (Inicializador 0 si no hay datos)
     document.getElementById('sidebarContent').innerHTML = `
-      <p style="color:var(--red)">Mayor Incidencia Cód:</p>
-      <p style="font-size:16px; font-weight:bold;">${maxErroresOp.nombre === '0' ? 'SIN INCIDENCIAS' : maxErroresOp.nombre}</p>
-      <p style="font-size:11px; color:var(--txt-dim)">Registra ${maxErroresOp.cantidad} errores de código.</p>
-      <hr style="margin:12px 0; border:0; border-top:1px solid var(--border)">
-      <p style="color:var(--blue)">● Total Errores Cód: <b>${data.porEstado['COD. NO CORRESPONDE'] || 0}</b></p>
+      <p style="color:var(--red)">Peor Calidad:</p>
+      <p style="font-size:16px; font-weight:bold;">${Object.keys(data.rendimientoIndividual)[0] || '0'}</p>
+      <p style="font-size:11px; color:var(--txt-dim)">Total Errores: ${data.porEstado['COD. NO CORRESPONDE']}</p>
     `;
+  }
 
-    const horasActivas = Object.keys(data.porHoraGrupo).length;
-    document.getElementById('activityStats').textContent = `Operación activa: ${horasActivas} hrs.`;
+  function aplicarFiltro() {
+    if(!lastData) return alert("Carga datos primero");
+    
+    const fecha = document.getElementById('inputDate').value;
+    const rango = document.getElementById('inputRange').value;
+    const panel = document.getElementById('sidePanel');
+    const res = document.getElementById('filterResult');
+
+    panel.classList.add('open');
+    res.innerHTML = `
+      <div class="card" style="border-top: 4px solid var(--blue);">
+        <p style="font-size:12px; color:var(--txt-dim)">PERIODO: ${rango.toUpperCase()}</p>
+        <p style="font-size:18px; font-weight:bold; margin:10px 0;">Análisis Finalizado</p>
+        <hr style="border:0; border-top:1px solid var(--border); margin:15px 0;">
+        <p>Total Pallets: <b>${lastData.totalTareas}</b></p>
+        <p>Efectividad Promedio: <b>${Math.round(lastData.porEstado.REALIZADO / lastData.totalTareas * 100)}%</b></p>
+        <p style="margin-top:15px; font-size:11px;">* Datos basados en la fecha seleccionada en RepoSYSTEM.</p>
+      </div>
+    `;
+  }
+
+  function togglePanel() {
+    document.getElementById('sidePanel').classList.remove('open');
   }
 
   window.onload = cargarDatos;
