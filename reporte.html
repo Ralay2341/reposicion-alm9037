@@ -141,15 +141,17 @@
     return `${d}-${m}-${y}`;
   }
 
-  // CARGAR DATOS DE HOY (OBLIGA AL SERVIDOR A USAR LA FECHA ACTUAL)
+  // CARGAR DATOS DE HOY
+  // Lógica: fecha de solicitud en Col B → estado real en Col O
   async function cargarDatosHoy() {
     const hoy = getTodayString();
     toggleLoading(true, `Sincronizando ${hoy}...`);
     limpiarDashboardPrincipal();
     
     try {
-      // Enviamos la fecha de hoy explícitamente para que no traiga días pasados de la Col B
-      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${hoy}&targetCol=B`);
+      // filterCol=B  → filtra filas donde Col B == fecha de hoy (Solicitadas)
+      // statusCol=O  → lee el estado de cada fila desde Col O (Realizadas / Vacías / No Corresponde)
+      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${hoy}&filterCol=B&statusCol=O`);
       const data = await response.json();
       
       procesarReportePrincipal(data);
@@ -160,7 +162,9 @@
     } finally { toggleLoading(false); }
   }
 
-  // FILTRO HISTÓRICO (EXCLUSIVO PARA SIDEBAR - COLUMNA O)
+  // FILTRO HISTÓRICO (SIDEBAR)
+  // Misma lógica que hoy: fecha en Col B → estado en Col O
+  // ⚠️ BUG ORIGINAL: enviaba targetCol=O, lo que hacía filtrar fechas en Col O (incorrecto)
   async function aplicarFiltroHistorico() {
     const rawDate = document.getElementById('inputDate').value;
     if (!rawDate) return alert("Selecciona una fecha");
@@ -172,11 +176,13 @@
     limpiarSidebar();
 
     try {
-      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${fechaFormateada}&targetCol=O`);
+      // filterCol=B  → filtra por fecha en Col B (igual que el dashboard principal)
+      // statusCol=O  → lee el estado real desde Col O
+      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${fechaFormateada}&filterCol=B&statusCol=O`);
       const data = await response.json();
       
       if(!data || data.totalTareas === 0) {
-        alert(`Sin registros en Columna O para el día ${fechaFormateada}`);
+        alert(`Sin registros en Col B para el día ${fechaFormateada}`);
         togglePanel(false);
       } else {
         mostrarPanelHistorico(data, fechaFormateada);
@@ -186,23 +192,39 @@
   }
 
   function mostrarPanelHistorico(data, fecha) {
-    document.getElementById('panelFechaLabel').textContent = `Auditoría Realizaciones (Col O): ${fecha}`;
+    document.getElementById('panelFechaLabel').textContent = `Auditoría Col B→Col O: ${fecha}`;
     const pStats = document.getElementById('panelGeneralStats');
     const res = document.getElementById('filterResult');
     
-    const ok = data.porEstado['REALIZADO'] || 0;
-    const tot = data.totalTareas || 1;
+    const solicitadas = data.totalTareas || 0;
+    const ok       = data.porEstado['REALIZADO'] || 0;
+    const vacias   = data.porEstado['UBIC. VACÍA'] || 0;
+    const nocode   = data.porEstado['COD. NO CORRESPONDE'] || 0;
+    const tot      = solicitadas || 1;
 
     pStats.innerHTML = `
-      <div class="pkpi"><small>Realizados</small><div>${ok}</div></div>
-      <div class="pkpi"><small>Efectividad</small><div style="color:var(--purple)">${Math.round((ok/tot)*100)}%</div></div>
+      <div class="pkpi"><small>Solicitadas (Col B)</small><div>${solicitadas}</div></div>
+      <div class="pkpi"><small>Realizadas (Col O)</small><div style="color:var(--green)">${ok}</div></div>
+      <div class="pkpi"><small>Ubic. Vacías (Col O)</small><div style="color:var(--amber)">${vacias}</div></div>
+      <div class="pkpi"><small>No Corresponde (Col O)</small><div style="color:var(--red)">${nocode}</div></div>
+      <div class="pkpi" style="grid-column:span 2; border-left-color:var(--purple)">
+        <small>Efectividad (Realizadas / Solicitadas)</small>
+        <div style="color:var(--purple)">${Math.round((ok/tot)*100)}%</div>
+      </div>
     `;
 
     let html = "";
     Object.entries(data.rendimientoIndividual || {}).forEach(([nom, s]) => {
       html += `<div class="card" style="margin-bottom:8px; padding:10px; background:#161f2e;">
-                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                   <span style="font-size:12px;">${nom}</span><b>${s.realizados} OK</b>
+                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                   <span style="font-size:12px; font-weight:bold;">${nom}</span>
+                   <span style="font-size:11px; color:var(--txt-dim);">${s.total} tareas</span>
+                 </div>
+                 <div style="display:flex; gap:8px; font-size:10px;">
+                   <span class="badge green">${s.realizados} OK</span>
+                   <span class="badge amber">${s.vacias} Vacías</span>
+                   <span class="badge red-status">${s.nocode} Error</span>
+                   <span style="color:var(--txt-dim); margin-left:auto;">${s.cumplimiento}%</span>
                  </div>
                </div>`;
     });
