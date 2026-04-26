@@ -78,7 +78,7 @@
 
 <div id="sidePanel" class="side-panel">
   <span class="close-panel" onclick="togglePanel()">✕</span>
-  <h2 style="font-family: 'Rajdhani'; color: var(--red); margin-bottom: 15px;">ESTADÍSTICA HISTÓRICA (COL O)</h2>
+  <h2 style="font-family: 'Rajdhani'; color: var(--red); margin-bottom: 15px;">ESTADÍSTICA HISTÓRICA</h2>
   <div class="panel-kpi-grid" id="panelGeneralStats"></div>
   <h3 style="font-family: 'Rajdhani'; font-size: 14px; color: var(--txt-dim); margin-bottom: 10px; text-transform: uppercase;">Detalle por Responsable</h3>
   <div id="filterResult"></div>
@@ -87,7 +87,7 @@
 <header>
   <h1>REPOSYSTEM <span>ALM9037</span></h1>
   <div class="header-right">
-    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Consultando Columna O...</div>
+    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Conectando...</div>
     <button class="btn-update" onclick="cargarDatos()" id="btnUpdate">
       <span id="gearIcon">🔄</span> ACTUALIZAR
     </button>
@@ -120,7 +120,7 @@
       <div class="card-title">Alertas de Calidad ⚠️</div>
       <div id="sidebarContent">
         <p id="alertOp" style="font-size:16px; font-weight:bold;">0</p>
-        <p id="alertQty" style="font-size:11px; color:var(--txt-dim)">-</p>
+        <p id="alertQty" style="font-size:11px; color:var(--txt-dim)">A la espera de datos.</p>
       </div>
     </div>
   </aside>
@@ -168,6 +168,8 @@
     document.getElementById('rendBody').innerHTML = "";
     document.getElementById('chartsContainer').innerHTML = "";
     document.getElementById('prodByHourList').innerHTML = "";
+    document.getElementById('filterResult').innerHTML = "";
+    document.getElementById('panelGeneralStats').innerHTML = "";
     chartInstances.forEach(c => c.destroy());
     chartInstances = [];
   }
@@ -187,24 +189,25 @@
   async function aplicarFiltro() {
     const fecha = document.getElementById('inputDate').value;
     const rango = document.getElementById('inputRange').value;
-    if (!fecha) return alert("Seleccione una fecha");
+    if (!fecha) return alert("Selecciona una fecha");
 
     toggleLoading(true);
-    resetDashboard(); 
+    resetDashboard(); // Limpia antes de mostrar nada nuevo
 
     try {
+      // Se envía targetCol=O para forzar la búsqueda en la columna O de tu Sheets
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${fecha}&rango=${rango}&targetCol=O`);
       const data = await response.json();
       
-      if(!data.totalTareas || data.totalTareas == 0) {
-        document.getElementById('fechaSidebar').textContent = `Sin datos en Col O: ${fecha}`;
-        alert("No se encontraron registros en la Columna O.");
+      if(!data || !data.totalTareas || data.totalTareas == 0) {
+        document.getElementById('fechaSidebar').textContent = `SIN DATOS COL O: ${fecha}`;
+        alert("La fecha seleccionada no existe en la Columna O.");
       } else {
-        document.getElementById('fechaSidebar').textContent = `Filtrado Col O: ${fecha}`;
+        document.getElementById('fechaSidebar').textContent = `Consulta Col O: ${fecha}`;
         mostrarPanelHistorial(data);
         procesarReporte(data);
       }
-    } catch (e) { alert("Error de conexión."); } 
+    } catch (e) { alert("Error al conectar con el servidor."); } 
     finally { toggleLoading(false); }
   }
 
@@ -221,7 +224,7 @@
       <div class="pkpi"><small>Correctas</small><div style="color:var(--green)">${ok}</div></div>
       <div class="pkpi"><small>Ub. Vacías</small><div style="color:var(--amber)">${data.porEstado['UBIC. VACÍA'] || 0}</div></div>
       <div class="pkpi"><small>No Corresp.</small><div style="color:var(--red)">${data.porEstado['COD. NO CORRESPONDE'] || 0}</div></div>
-      <div class="pkpi" style="grid-column: span 2; border-left-color: var(--purple);"><small>% Efec. Global (Histórico)</small><div style="color:var(--purple)">${efec}%</div></div>
+      <div class="pkpi" style="grid-column: span 2; border-left-color: var(--purple);"><small>% Efec. Periodo</small><div style="color:var(--purple)">${efec}%</div></div>
     `;
 
     let html = "";
@@ -231,11 +234,6 @@
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <b style="color:var(--txt)">${nom}</b>
             <span class="badge" style="background:rgba(139,92,246,0.1); color:var(--purple);">${s.cumplimiento}%</span>
-          </div>
-          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px; margin-top:8px; font-size:10px; color:var(--txt-dim);">
-             <span>OK: <b style="color:var(--green)">${s.realizados}</b></span>
-             <span>Err: <b style="color:var(--red)">${s.nocode}</b></span>
-             <span>P/H: <b>${s.palletsPorHora}</b></span>
           </div>
         </div>`;
     });
@@ -262,7 +260,9 @@
         <td><span class="badge red-status">${s.nocode}</span></td>
         <td style="font-weight:bold;">${s.palletsPorHora}</td>
         <td style="color:var(--green)">${s.cumplimiento}%</td></tr>`;
+      
       prodList.innerHTML += `<div class="prod-item"><span>${nom}</span><b style="color:var(--blue)">${s.palletsPorHora} P/H</b></div>`;
+      
       const chartId = `c-${i}`;
       chartCont.innerHTML += `<div class="chart-box"><p style="font-size:9px;">${nom}</p><canvas id="${chartId}"></canvas></div>`;
       setTimeout(() => {
@@ -276,7 +276,7 @@
       }, 0);
     });
     document.getElementById('alertOp').textContent = maxErrOp.n;
-    document.getElementById('alertQty').textContent = `Máximas incidencias (${maxErrOp.q}).`;
+    document.getElementById('alertQty').textContent = `Peor desempeño (${maxErrOp.q} err).`;
   }
 
   function toggleLoading(isLoading) {
