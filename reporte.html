@@ -61,8 +61,9 @@
 <body>
 
 <div id="sidePanel" class="side-panel">
-  <span class="close-panel" onclick="togglePanel()">✕</span>
-  <h2 style="font-family: 'Rajdhani'; color: var(--red); margin-bottom: 15px;">ESTADÍSTICA HISTÓRICA (COL O)</h2>
+  <span class="close-panel" onclick="togglePanel(false)">✕</span>
+  <h2 style="font-family: 'Rajdhani'; color: var(--red); margin-bottom: 5px;">ESTADÍSTICA HISTÓRICA</h2>
+  <p id="panelFechaLabel" style="font-size: 12px; color: var(--amber); margin-bottom: 20px; font-weight: bold;"></p>
   <div class="panel-kpi-grid" id="panelGeneralStats"></div>
   <div id="filterResult"></div>
 </div>
@@ -70,9 +71,9 @@
 <header>
   <h1>REPOSYSTEM <span>ALM9037</span></h1>
   <div class="header-right">
-    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Consultando Columna O...</div>
-    <button class="btn-update" onclick="cargarDatos()" id="btnUpdate">
-      <span id="gearIcon">🔄</span> ACTUALIZAR
+    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Sincronizando...</div>
+    <button class="btn-update" onclick="cargarDatosHoy()" id="btnUpdate">
+      <span id="gearIcon">🔄</span> ACTUALIZAR HOY
     </button>
     <div class="designer-tag">Diseñado Por: Raul Layseca Beas</div>
   </div>
@@ -81,7 +82,7 @@
 <div class="wrapper">
   <aside class="sidebar">
     <div class="card">
-      <div class="card-title">Consultar Histórico 📅</div>
+      <div class="card-title">Consultar Histórico (Col O) 📅</div>
       <div class="filter-group">
         <input type="date" id="inputDate">
         <select id="inputRange">
@@ -89,8 +90,8 @@
           <option value="Semana">Semana</option>
           <option value="Mes">Mes</option>
         </select>
-        <button class="btn-filter" id="btnFilter" onclick="aplicarFiltro()">GENERAR ESTADÍSTICA</button>
-        <div id="fechaSidebar">Consulta: Tiempo Real</div>
+        <button class="btn-filter" id="btnFilter" onclick="aplicarFiltroHistorico()">GENERAR ESTADÍSTICA</button>
+        <div id="fechaSidebar">Monitor: Tiempo Real</div>
       </div>
     </div>
     <div class="card">
@@ -101,13 +102,13 @@
 
   <main class="main-content">
     <div class="kpi-row">
-      <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-label">Total Reposiciones</div></div>
-      <div class="kpi" style="border-top-color: var(--green);"><div class="kpi-val" id="kRealizadas" style="color: var(--green);">0</div><div class="kpi-label">Correctas</div></div>
-      <div class="kpi" style="border-top-color: var(--amber);"><div class="kpi-val" id="kVacias" style="color: var(--amber);">0</div><div class="kpi-label">Ubicac. Vacías</div></div>
-      <div class="kpi" style="border-top-color: var(--red);"><div class="kpi-val" id="kErrores" style="color: var(--red);">0</div><div class="kpi-label">No Corresponde</div></div>
+      <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-label">Reposiciones Hoy</div></div>
+      <div class="kpi" style="border-top-color: var(--green);"><div class="kpi-val" id="kRealizadas" style="color: var(--green);">0</div><div class="kpi-label">Correctas Hoy</div></div>
+      <div class="kpi" style="border-top-color: var(--amber);"><div class="kpi-val" id="kVacias" style="color: var(--amber);">0</div><div class="kpi-label">Ub. Vacías Hoy</div></div>
+      <div class="kpi" style="border-top-color: var(--red);"><div class="kpi-val" id="kErrores" style="color: var(--red);">0</div><div class="kpi-label">Errores Hoy</div></div>
     </div>
     <div class="card">
-      <div class="card-title">Desempeño Individual 📊</div>
+      <div class="card-title" id="mainTableTitle">Panel de Desempeño Actual 📊</div>
       <table>
         <thead>
           <tr>
@@ -131,72 +132,50 @@
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; 
   let chartInstances = [];
 
-  function resetDashboard() {
-    document.getElementById('kTotal').textContent = "0";
-    document.getElementById('kRealizadas').textContent = "0";
-    document.getElementById('kVacias').textContent = "0";
-    document.getElementById('kErrores').textContent = "0";
-    document.getElementById('rendBody').innerHTML = "";
-    document.getElementById('chartsContainer').innerHTML = "";
-    document.getElementById('prodByHourList').innerHTML = "";
-    document.getElementById('filterResult').innerHTML = "";
-    document.getElementById('panelGeneralStats').innerHTML = "";
-    chartInstances.forEach(c => c.destroy());
-    chartInstances = [];
-  }
-
-  async function cargarDatos() {
-    toggleLoading(true);
-    resetDashboard();
+  // 1. CARGA INICIAL: DATOS DEL DÍA EN CURSO (Independiente del Sidebar)
+  async function cargarDatosHoy() {
+    toggleLoading(true, "Actualizando Hoy...");
+    // No reseteamos TODO, solo el Dashboard principal para no cerrar el sidebar si estuviera abierto
+    limpiarDashboardPrincipal();
     try {
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos`);
       const data = await response.json();
-      procesarReporte(data);
-      document.getElementById('fechaSidebar').textContent = "Consulta: Tiempo Real";
+      procesarReportePrincipal(data);
+      document.getElementById('fechaSidebar').textContent = "Monitor: Hoy en Curso";
     } catch (e) { console.error(e); } 
     finally { toggleLoading(false); }
   }
 
-  async function aplicarFiltro() {
+  // 2. FILTRO HISTÓRICO: TRABAJA EN EL SIDEBAR (Independiente del Dashboard principal)
+  async function aplicarFiltroHistorico() {
     const rawDate = document.getElementById('inputDate').value;
     if (!rawDate) return alert("Selecciona una fecha");
 
-    // --- LIMPIEZA INICIAL DEL SIDEBAR (Para que no se quede pegado el 02-04-2026) ---
-    document.getElementById('panelGeneralStats').innerHTML = "";
-    document.getElementById('filterResult').innerHTML = "<p style='color:var(--txt-dim); font-size:11px;'>Buscando...</p>";
-    document.getElementById('fechaSidebar').textContent = "Sincronizando...";
-
-    // --- FORMATEO ESTRICTO DD-MM-YYYY (Para Columna O) ---
     const parts = rawDate.split('-');
     const fechaFormateada = `${parts[2]}-${parts[1]}-${parts[0]}`;
     const rango = document.getElementById('inputRange').value;
 
-    toggleLoading(true);
-    resetDashboard();
+    toggleLoading(true, "Buscando Histórico...");
+    limpiarSidebar();
 
     try {
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${fechaFormateada}&rango=${rango}&targetCol=O`);
       const data = await response.json();
       
-      if(!data || !data.totalTareas || data.totalTareas == 0) {
-        document.getElementById('fechaSidebar').textContent = `SIN DATOS: ${fechaFormateada}`;
-        document.getElementById('panelGeneralStats').innerHTML = "<div style='grid-column:span 2; color:var(--red); padding:10px;'>No existen tareas en Columna O</div>";
-        document.getElementById('filterResult').innerHTML = "";
-        alert(`Confirmado: La fecha ${fechaFormateada} no tiene registros en la Columna O.`);
+      if(!data || !data.totalTareas || data.totalTareas === 0) {
+        alert(`No hay registros en Columna O para ${fechaFormateada}`);
+        togglePanel(false);
       } else {
-        document.getElementById('fechaSidebar').textContent = `Consulta Col O: ${fechaFormateada}`;
-        mostrarPanelHistorial(data);
-        procesarReporte(data);
+        mostrarPanelHistorico(data, fechaFormateada);
+        // Opcional: Si quieres que al filtrar también cambie el dashboard, llama a procesarReportePrincipal(data);
+        // Pero por tu solicitud de INDEPENDENCIA, aquí solo mostramos el Sidebar.
       }
-    } catch (e) { 
-      alert("Error de servidor."); 
-    } finally { 
-      toggleLoading(false); 
-    }
+    } catch (e) { alert("Error de conexión histórico."); } 
+    finally { toggleLoading(false); }
   }
 
-  function mostrarPanelHistorial(data) {
-    const panel = document.getElementById('sidePanel');
+  function mostrarPanelHistorico(data, fecha) {
+    document.getElementById('panelFechaLabel').textContent = `Resultados de: ${fecha}`;
     const pStats = document.getElementById('panelGeneralStats');
     const res = document.getElementById('filterResult');
     
@@ -206,25 +185,23 @@
 
     pStats.innerHTML = `
       <div class="pkpi"><small>Total</small><div>${tot}</div></div>
-      <div class="pkpi"><small>Correctas</small><div style="color:var(--green)">${ok}</div></div>
-      <div class="pkpi"><small>Ub. Vacías</small><div style="color:var(--amber)">${data.porEstado['UBIC. VACÍA'] || 0}</div></div>
       <div class="pkpi"><small>Eficiencia</small><div style="color:var(--purple)">${efec}%</div></div>
     `;
 
-    let html = "<h3 style='font-size:11px; color:var(--txt-dim); margin-bottom:10px;'>DETALLE OPERADORES</h3>";
-    Object.entries(data.rendimientoIndividual || {}).forEach(([nom, s]) => {
+    let html = "<h3 style='font-size:11px; color:var(--txt-dim); margin-top:15px; margin-bottom:10px;'>CUMPLIMIENTO POR OPERADOR</h3>";
+    Object.entries(data.rendimientoIndividual).forEach(([nom, s]) => {
       html += `<div class="card" style="margin-bottom:8px; padding:10px; background:#161f2e; border:1px solid #1e2d45;">
-                <div style="display:flex; justify-content:space-between;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
                   <b style="font-size:12px;">${nom}</b>
                   <span style="color:var(--purple); font-weight:bold;">${s.cumplimiento}%</span>
                 </div>
                </div>`;
     });
     res.innerHTML = html;
-    panel.classList.add('open');
+    togglePanel(true);
   }
 
-  function procesarReporte(data) {
+  function procesarReportePrincipal(data) {
     document.getElementById('kTotal').textContent = data.totalTareas || 0;
     document.getElementById('kRealizadas').textContent = data.porEstado['REALIZADO'] || 0;
     document.getElementById('kVacias').textContent = data.porEstado['UBIC. VACÍA'] || 0;
@@ -234,13 +211,15 @@
     const chartCont = document.getElementById('chartsContainer');
     const prodList = document.getElementById('prodByHourList');
 
-    Object.entries(data.rendimientoIndividual || {}).forEach(([nom, s], i) => {
+    tbody.innerHTML = ""; chartCont.innerHTML = ""; prodList.innerHTML = "";
+
+    Object.entries(data.rendimientoIndividual).forEach(([nom, s], i) => {
       tbody.innerHTML += `<tr>
         <td><strong>${nom}</strong></td><td>${s.total}</td>
         <td><span class="badge green">${s.realizados}</span></td>
         <td><span class="badge amber">${s.vacias}</span></td>
         <td><span class="badge red-status">${s.nocode}</span></td>
-        <td style="font-weight:bold;">${s.palletsPorHora}</td>
+        <td>${s.palletsPorHora}</td>
         <td style="color:var(--green)">${s.cumplimiento}%</td></tr>`;
       
       prodList.innerHTML += `<div class="prod-item"><span>${nom}</span><b>${s.palletsPorHora} P/H</b></div>`;
@@ -260,12 +239,34 @@
     });
   }
 
-  function toggleLoading(s) { 
-    document.getElementById('statusMsg').classList.toggle('hidden', !s);
+  function limpiarDashboardPrincipal() {
+    document.getElementById('rendBody').innerHTML = "";
+    document.getElementById('chartsContainer').innerHTML = "";
+    document.getElementById('prodByHourList').innerHTML = "";
+    chartInstances.forEach(c => c.destroy());
+    chartInstances = [];
+  }
+
+  function limpiarSidebar() {
+    document.getElementById('panelGeneralStats').innerHTML = "";
+    document.getElementById('filterResult').innerHTML = "<p style='color:var(--txt-dim); font-size:11px;'>Procesando filtro...</p>";
+    document.getElementById('panelFechaLabel').textContent = "";
+  }
+
+  function toggleLoading(s, txt = "Cargando...") { 
+    const msg = document.getElementById('statusMsg');
+    msg.textContent = txt;
+    msg.classList.toggle('hidden', !s);
     document.getElementById('gearIcon').classList.toggle('spin', s);
   }
-  function togglePanel() { document.getElementById('sidePanel').classList.remove('open'); }
-  window.onload = cargarDatos;
+  
+  function togglePanel(show) { 
+    const p = document.getElementById('sidePanel');
+    if(show === false) p.classList.remove('open');
+    else p.classList.add('open');
+  }
+
+  window.onload = cargarDatosHoy;
 </script>
 </body>
 </html>
