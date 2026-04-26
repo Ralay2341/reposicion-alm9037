@@ -19,14 +19,16 @@
     header h1 { font-family: 'Rajdhani', sans-serif; font-size: 20px; letter-spacing: 2px; }
     header h1 span { color: var(--red); }
 
+    .header-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
     .btn-update { 
       background: var(--red); color: white; border: none; padding: 10px 20px; 
       border-radius: 5px; cursor: pointer; font-family: 'Rajdhani'; font-weight: bold; 
       display: flex; align-items: center; gap: 8px; transition: 0.3s;
     }
+    .designer-tag { font-size: 10px; color: var(--txt-dim); margin-top: 5px; font-family: 'Rajdhani'; letter-spacing: 1px; text-transform: uppercase; }
 
     .wrapper { display: flex; gap: 20px; padding: 20px; max-width: 1600px; margin: 0 auto; align-items: flex-start; }
-    .sidebar { width: 280px; flex-shrink: 0; }
+    .sidebar { width: 300px; flex-shrink: 0; }
     .main-content { flex-grow: 1; min-width: 0; }
 
     .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
@@ -37,11 +39,11 @@
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
     .card-title { font-family: 'Rajdhani', sans-serif; font-size: 14px; color: var(--txt-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; }
 
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th { text-align: left; padding: 12px; color: var(--txt-dim); border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; }
-    td { padding: 12px; border-bottom: 1px solid #1a2234; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { text-align: left; padding: 10px; color: var(--txt-dim); border-bottom: 1px solid var(--border); font-size: 10px; text-transform: uppercase; }
+    td { padding: 10px; border-bottom: 1px solid #1a2234; }
     
-    .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-family: 'Rajdhani'; }
+    .badge { padding: 3px 6px; border-radius: 4px; font-weight: bold; font-family: 'Rajdhani'; font-size: 11px; }
     .green { background: rgba(16,185,129,0.1); color: var(--green); }
     .amber { background: rgba(245,158,11,0.1); color: var(--amber); }
     .red-status { background: rgba(227,6,19,0.1); color: var(--red); }
@@ -59,49 +61,60 @@
 
 <div id="loader">
   <div style="font-size: 50px; margin-bottom: 15px;" class="spin">⚙️</div>
-  <span>SINCRONIZANDO...</span>
+  <span>SINCRONIZANDO REPOSYSTEM...</span>
 </div>
 
 <header>
   <h1>REPOSYSTEM <span>ALM9037</span></h1>
-  <button class="btn-update" onclick="cargarDatos()" id="btnUpdate">
-    <span id="gearIcon">🔄</span> ACTUALIZAR
-  </button>
+  <div class="header-right">
+    <button class="btn-update" onclick="cargarDatos()" id="btnUpdate">
+      <span id="gearIcon">🔄</span> ACTUALIZAR
+    </button>
+    <div class="designer-tag">Diseñado Por: Raul Layseca Beas</div>
+  </div>
 </header>
 
 <div class="wrapper">
   <aside class="sidebar">
     <div class="card">
-      <div class="card-title">Resumen de Estados 📊</div>
+      <div class="card-title">Alertas de Calidad ⚠️</div>
       <div id="sidebarContent" style="font-size: 13px; line-height: 1.8;">
-        Presiona actualizar para cargar el resumen lateral.
+        Actualiza para ver incidencias.
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Actividad Reciente 🕒</div>
+      <div id="activityStats" style="font-size: 12px; color: var(--txt-dim);">
+        Esperando datos...
       </div>
     </div>
   </aside>
 
   <main class="main-content">
     <div class="kpi-row">
-      <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-label">Totales</div></div>
+      <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-label">Tareas Totales</div></div>
       <div class="kpi" style="border-top-color: var(--green);"><div class="kpi-val" id="kRealizadas" style="color: var(--green);">0</div><div class="kpi-label">Realizadas</div></div>
-      <div class="kpi" style="border-top-color: var(--amber);"><div class="kpi-val" id="kPendientes" style="color: var(--amber);">0</div><div class="kpi-label">Pendientes</div></div>
+      <div class="kpi" style="border-top-color: var(--red);"><div class="kpi-val" id="kErrores" style="color: var(--red);">0</div><div class="kpi-label">Cod. No Corresp.</div></div>
     </div>
 
     <div class="card">
-      <div class="card-title">Avance de Gestión <span id="lastUpdate" style="float:right; opacity:0.5; font-size:10px;"></span></div>
+      <div class="card-title">Cumplimiento Operativo <span id="lastUpdate" style="float:right; opacity:0.5; font-size:10px;"></span></div>
       <div class="prog-wrap"><div id="progGeneral" class="prog-fill" style="width:0%"></div></div>
-      <div id="avanceTxt" style="font-size:12px; color:var(--txt-dim);">Esperando actualización...</div>
+      <div id="avanceTxt" style="font-size:12px; color:var(--txt-dim);">Procesando...</div>
     </div>
 
     <div class="card">
-      <div class="card-title">Rendimiento Operativo ⚡</div>
+      <div class="card-title">Rendimiento Detallado por Apilador ⚡</div>
       <div style="overflow-x: auto;">
         <table>
           <thead>
             <tr>
               <th>Operador</th>
               <th>Total</th>
-              <th>OK</th>
+              <th>Realizados</th>
               <th>Vacías</th>
+              <th>Cod. No Corresp.</th>
               <th>P/H</th>
               <th>%</th>
             </tr>
@@ -127,9 +140,10 @@
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos`);
       const data = await response.json();
       procesarReporte(data);
-      document.getElementById('lastUpdate').textContent = 'Refrescado: ' + new Date().toLocaleTimeString();
+      document.getElementById('lastUpdate').textContent = 'Sincronizado: ' + new Date().toLocaleTimeString();
     } catch (e) {
-      alert("Error de conexión");
+      console.error(e);
+      alert("Error al conectar con RepoSYSTEM");
     } finally {
       document.getElementById('btnUpdate').disabled = false;
       gear.classList.remove('spin');
@@ -140,35 +154,48 @@
   function procesarReporte(data) {
     document.getElementById('kTotal').textContent = data.totalTareas || 0;
     document.getElementById('kRealizadas').textContent = data.porEstado['REALIZADO'] || 0;
-    document.getElementById('kPendientes').textContent = data.porEstado['PENDIENTE'] || 0;
+    document.getElementById('kErrores').textContent = data.porEstado['COD. NO CORRESPONDE'] || 0;
 
     const total = data.totalTareas || 1;
-    const gestionados = total - (data.porEstado['PENDIENTE'] || 0);
-    const pct = Math.round((gestionados / total) * 100);
+    const realizados = data.porEstado['REALIZADO'] || 0;
+    const pct = Math.round((realizados / total) * 100);
     document.getElementById('progGeneral').style.width = pct + '%';
-    document.getElementById('avanceTxt').textContent = `${gestionados} de ${total} procesadas (${pct}%)`;
+    document.getElementById('avanceTxt').textContent = `${realizados} de ${total} tareas completadas correctamente (${pct}%)`;
 
     const tbody = document.getElementById('rendBody');
     tbody.innerHTML = "";
+    
+    let maxErroresOp = { nombre: 'N/A', cantidad: 0 };
+
     Object.entries(data.rendimientoIndividual).forEach(([nombre, s]) => {
+      if(s.nocode > maxErroresOp.cantidad) {
+        maxErroresOp = { nombre: nombre, cantidad: s.nocode };
+      }
+
       tbody.innerHTML += `
         <tr>
           <td><strong>${nombre}</strong></td>
           <td>${s.total}</td>
           <td><span class="badge green">${s.realizados}</span></td>
           <td><span class="badge amber">${s.vacias}</span></td>
+          <td><span class="badge red-status">${s.nocode}</span></td>
           <td style="font-weight:bold;">${s.palletsPorHora}</td>
-          <td style="color:var(--green)">${s.cumplimiento}%</td>
+          <td style="color:${s.cumplimiento > 80 ? 'var(--green)' : 'var(--amber)'}">${s.cumplimiento}%</td>
         </tr>`;
     });
 
     document.getElementById('sidebarContent').innerHTML = `
-      <p style="color:var(--green)">● Realizados: <b>${data.porEstado['REALIZADO']}</b></p>
-      <p style="color:var(--amber)">● Ubic. Vacías: <b>${data.porEstado['UBIC. VACÍA']}</b></p>
-      <p style="color:var(--red)">● Errores Cód: <b>${data.porEstado['COD. NO CORRESPONDE']}</b></p>
+      <p style="color:var(--red)">Mayor Incidencia Cód:</p>
+      <p style="font-size:16px; font-weight:bold;">${maxErroresOp.nombre}</p>
+      <p style="font-size:11px; color:var(--txt-dim)">Registra ${maxErroresOp.cantidad} errores de código.</p>
       <hr style="margin:12px 0; border:0; border-top:1px solid var(--border)">
-      <p><b>Horas de Actividad:</b> ${Object.keys(data.porHoraGrupo).length}h</p>
-      <p><b>Tareas Pendientes:</b> ${data.porEstado['PENDIENTE']}</p>
+      <p style="color:var(--blue)">● Total Errores Cód: <b>${data.porEstado['COD. NO CORRESPONDE']}</b></p>
+    `;
+
+    const horasActivas = Object.keys(data.porHoraGrupo).length;
+    document.getElementById('activityStats').innerHTML = `
+      <p>Rango Horario: ${horasActivas} horas.</p>
+      <p>Promedio General: ${(realizados / (horasActivas || 1)).toFixed(1)} pallets/hora.</p>
     `;
   }
 
