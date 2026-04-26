@@ -585,15 +585,20 @@
   function actualizarDashboard() {
     const d = reportData;
 
-    // Contar estados directamente desde rawTareas para manejar variantes reales
-    // ("NO CORRESPONDE", "CÓD. NO CORRESPONDE", "UBIC. VACÍA", etc.)
+    // Contar estados desde rawTareas usando `resultado` (ya calculado por backend)
     let realizado = 0, vacía = 0, nocode = 0, pendiente = 0;
     rawTareas.forEach(t => {
-      const est = normEstado(!t.hora || t.hora === '' ? '' : t.estado);
-      if (est === 'REALIZADO')        realizado++;
-      else if (est === 'UBIC. VACÍA') vacía++;
-      else if (est === 'PENDIENTE')   pendiente++;
-      else                            nocode++;
+      const horaStr = String(t.hora || '').trim();
+      const result  = String(t.resultado || t.estado || '').trim().toUpperCase();
+      if (horaStr === '') {
+        pendiente++;
+      } else if (result === 'REALIZADO') {
+        realizado++;
+      } else if (result.includes('VAC')) {
+        vacía++;
+      } else {
+        nocode++;
+      }
     });
     const total       = rawTareas.length;
     const completadas = realizado + vacía + nocode;
@@ -626,40 +631,48 @@
   //  AVANCE POR APILADOR
   // ──────────────────────────────────────────────
   function renderAvancePorApilador() {
-    const ops = {};
+    const mapa = {};
     rawTareas.forEach(t => {
-      const op  = t.operador || 'Sin Asignar';
-      const est = normEstado(!t.hora || t.hora === '' ? '' : t.estado);
-      if (!ops[op]) ops[op] = { realizado:0, vacia:0, nocode:0, pendiente:0 };
-      if (est === 'REALIZADO')        ops[op].realizado++;
-      else if (est === 'UBIC. VACÍA') ops[op].vacia++;
-      else if (est === 'PENDIENTE')   ops[op].pendiente++;
-      else                            ops[op].nocode++;
+      const op      = String(t.operador || 'Sin Asignar');
+      const horaStr = String(t.hora || '').trim();
+      const isPend  = horaStr === '';
+      const result  = String(t.resultado || t.estado || '').trim().toUpperCase();
+
+      if (!mapa[op]) mapa[op] = { r:0, v:0, n:0, p:0 };
+
+      if (isPend) {
+        mapa[op].p++;
+      } else if (result === 'REALIZADO') {
+        mapa[op].r++;
+      } else if (result.includes('VAC')) {
+        mapa[op].v++;
+      } else {
+        mapa[op].n++;
+      }
     });
 
     const list = document.getElementById('apiladorList');
     list.innerHTML = '';
 
-    Object.entries(ops).sort((a,b) => {
-      const totA = a[1].realizado + a[1].vacia + a[1].nocode + a[1].pendiente;
-      const totB = b[1].realizado + b[1].vacia + b[1].nocode + b[1].pendiente;
-      return totB - totA;
+    Object.entries(mapa).sort((a,b) => {
+      return (b[1].r+b[1].v+b[1].n+b[1].p) - (a[1].r+a[1].v+a[1].n+a[1].p);
     }).forEach(([op, s]) => {
-      const tot   = s.realizado + s.vacia + s.nocode + s.pendiente;
-      const pct   = tot > 0 ? Math.round(((s.realizado + s.vacia + s.nocode) / tot) * 100) : 0;
-      const pctR  = tot > 0 ? (s.realizado / tot * 100).toFixed(1) : 0;
-      const pctV  = tot > 0 ? (s.vacia     / tot * 100).toFixed(1) : 0;
-      const pctN  = tot > 0 ? (s.nocode    / tot * 100).toFixed(1) : 0;
+      const tot  = s.r + s.v + s.n + s.p;
+      const comp = s.r + s.v + s.n;
+      const pct  = tot > 0 ? Math.round((comp / tot) * 100) : 0;
+      const pctR = tot > 0 ? (s.r / tot * 100).toFixed(1) : 0;
+      const pctV = tot > 0 ? (s.v / tot * 100).toFixed(1) : 0;
+      const pctN = tot > 0 ? (s.n / tot * 100).toFixed(1) : 0;
 
       list.innerHTML += `
         <div class="apilador-row">
           <div class="apilador-header">
             <span class="apilador-name">👷 ${op}</span>
             <div class="apilador-counts">
-              <span class="badge green">✅ ${s.realizado}</span>
-              <span class="badge amber">⚠️ ${s.vacia}</span>
-              <span class="badge red">❌ ${s.nocode}</span>
-              <span class="badge blue">⏳ ${s.pendiente}</span>
+              <span class="badge green">✅ ${s.r}</span>
+              <span class="badge amber">⚠️ ${s.v}</span>
+              <span class="badge red">❌ ${s.n}</span>
+              <span class="badge blue">⏳ ${s.p}</span>
               <span class="badge purple">${pct}% completado</span>
             </div>
           </div>
@@ -670,7 +683,7 @@
           </div>
         </div>`;
     });
-    if (!Object.keys(ops).length) list.innerHTML = '<div style="color:var(--txt-dim);font-size:13px;">Sin datos aún…</div>';
+    if (!Object.keys(mapa).length) list.innerHTML = '<div style="color:var(--txt-dim);font-size:13px;">Sin datos aún…</div>';
   }
 
   // ──────────────────────────────────────────────
@@ -848,55 +861,73 @@
   //  RENDIMIENTO TABLA
   // ──────────────────────────────────────────────
   function renderRendimientoTabla() {
-    // Calcular todo desde rawTareas para consistencia con datos reales
-    const ops = {};
+    // Usa `resultado` (ya calculado por el backend) + `hora` para pendientes
+    const mapa = {};
+
     rawTareas.forEach(t => {
-      const op  = t.operador || 'Sin Asignar';
-      const est = normEstado(!t.hora || t.hora === '' ? '' : t.estado);
-      if (!ops[op]) ops[op] = { realizado:0, vacia:0, nocode:0, pendiente:0, horas:[] };
-      if (est === 'REALIZADO')        ops[op].realizado++;
-      else if (est === 'UBIC. VACÍA') ops[op].vacia++;
-      else if (est === 'PENDIENTE')   ops[op].pendiente++;
-      else                            ops[op].nocode++;
-      if (t.hora && t.hora !== '') {
-        const h24 = parseHora24(t.hora);
-        if (h24 !== null) ops[op].horas.push(h24 + (t.hora.includes(':') ? parseInt(t.hora.split(':')[1]||0)/60 : 0));
+      const op      = String(t.operador || 'Sin Asignar');
+      const horaStr = String(t.hora || '').trim();
+      const isPend  = horaStr === '';
+      // `resultado` = '' cuando pendiente, o el estado real cuando completado
+      const result  = String(t.resultado || t.estado || '').trim().toUpperCase();
+
+      if (!mapa[op]) mapa[op] = { r:0, v:0, n:0, p:0, hrs:[] };
+
+      if (isPend) {
+        mapa[op].p++;
+      } else if (result === 'REALIZADO') {
+        mapa[op].r++;
+        const h24 = parseHora24(horaStr);
+        if (h24 !== null) mapa[op].hrs.push(h24);
+      } else if (result.includes('VAC')) {
+        mapa[op].v++;
+        const h24 = parseHora24(horaStr);
+        if (h24 !== null) mapa[op].hrs.push(h24);
+      } else {
+        mapa[op].n++;
+        const h24 = parseHora24(horaStr);
+        if (h24 !== null) mapa[op].hrs.push(h24);
       }
     });
 
     const tbody = document.getElementById('rendBody');
     tbody.innerHTML = '';
-    const sorted = Object.entries(ops).sort((a,b) => {
-      const totA = a[1].realizado+a[1].vacia+a[1].nocode;
-      const totB = b[1].realizado+b[1].vacia+b[1].nocode;
-      return totB - totA;
-    });
-    if (!sorted.length) {
+
+    const entries = Object.entries(mapa).sort((a,b) =>
+      (b[1].r + b[1].v + b[1].n) - (a[1].r + a[1].v + a[1].n)
+    );
+
+    if (!entries.length) {
       tbody.innerHTML = '<tr><td colspan="8" style="color:var(--txt-dim);text-align:center;padding:20px;">Sin datos…</td></tr>';
       return;
     }
-    sorted.forEach(([op, s]) => {
-      const total = s.realizado + s.vacia + s.nocode + s.pendiente;
-      const comp  = s.realizado + s.vacia + s.nocode;
-      // Calcular pallets/hora desde horas de ejecución
+
+    entries.forEach(([op, s]) => {
+      const comp  = s.r + s.v + s.n;
+      const total = comp + s.p;
+
+      // Pallets/hora: rango entre primera y última ejecución del día
       let ph = '—';
-      if (s.horas.length > 1) {
-        const mn = Math.min(...s.horas), mx = Math.max(...s.horas);
-        const diff = mx - mn;
-        ph = diff >= 0.08 ? (comp / Math.max(diff, 0.5)).toFixed(1) : comp;
+      if (s.hrs.length > 1) {
+        const mn  = Math.min(...s.hrs);
+        const mx  = Math.max(...s.hrs);
+        const hrs = Math.max(mx - mn, 0.5);
+        ph = (comp / hrs).toFixed(1);
       } else if (comp > 0) {
         ph = comp;
       }
-      const pct   = comp > 0 ? Math.round((s.realizado / comp) * 100) : 0;
+
+      const pct   = comp > 0 ? Math.round((s.r / comp) * 100) : 0;
       const color = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : 'var(--red)';
+
       tbody.innerHTML += `
         <tr>
           <td>👷 ${op}</td>
           <td><span class="rend-total">${total}</span></td>
-          <td><span class="badge green">${s.realizado}</span></td>
-          <td><span class="badge amber">${s.vacia}</span></td>
-          <td><span class="badge red">${s.nocode}</span></td>
-          <td><span class="badge blue">${s.pendiente}</span></td>
+          <td><span class="badge green">${s.r}</span></td>
+          <td><span class="badge amber">${s.v}</span></td>
+          <td><span class="badge red">${s.n}</span></td>
+          <td><span class="badge blue">${s.p}</span></td>
           <td><span class="rend-ph">${ph}</span></td>
           <td><span style="font-family:Rajdhani;font-weight:700;font-size:16px;color:${color};">${pct}%</span></td>
         </tr>`;
