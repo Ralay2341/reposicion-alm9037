@@ -507,6 +507,50 @@
   let periodoActivo = 'dia';
 
   // ──────────────────────────────────────────────
+  //  HELPERS DE PARSEO — datos reales del backend
+  // ──────────────────────────────────────────────
+
+  // Normaliza estado: acepta "NO CORRESPONDE", "CÓD. NO CORRESPONDE", etc.
+  function normEstado(s) {
+    const u = (s || '').toUpperCase().trim();
+    if (u === 'REALIZADO')  return 'REALIZADO';
+    if (u.includes('VAC'))  return 'UBIC. VACÍA';   // "UBIC. VACÍA"
+    if (u === '')           return 'PENDIENTE';
+    return 'NO CORRESPONDE';  // "NO CORRESPONDE" / "CÓD. NO CORRESPONDE" / cualquier otro
+  }
+
+  // Parsea "11:23:58 p. m." → hora en 24h (número entero)
+  // Maneja "a. m.", "a.m.", "AM", "p. m.", "p.m.", "PM", etc.
+  function parseHora24(horaStr) {
+    if (!horaStr) return null;
+    const s = horaStr.toString().trim().toLowerCase()
+      .replace(/a\.\s*m\.?/g,'am').replace(/p\.\s*m\.?/g,'pm');
+    const match = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(am|pm)?/);
+    if (!match) return null;
+    let h = parseInt(match[1], 10);
+    const ampm = match[3];
+    if (ampm === 'pm' && h < 12) h += 12;
+    if (ampm === 'am' && h === 12) h = 0;
+    return h;
+  }
+
+  // Parsea fecha "dd/mm/yyyy" o "dd-mm-yyyy" (acepta d/m sin ceros)
+  // Devuelve Date o null
+  function parseFecha(fechaStr) {
+    if (!fechaStr) return null;
+    const s = fechaStr.toString().trim();
+    // Reemplaza guiones por barras para unificar
+    const norm = s.replace(/-/g, '/');
+    const parts = norm.split('/');
+    if (parts.length < 3) return null;
+    const d = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    const y = parseInt(parts[2], 10);
+    if (isNaN(d) || isNaN(m) || isNaN(y)) return null;
+    return new Date(y, m - 1, d);
+  }
+
+  // ──────────────────────────────────────────────
   //  LOADER
   // ──────────────────────────────────────────────
   function showLoader() { document.getElementById('loader').classList.remove('hidden'); }
@@ -541,14 +585,19 @@
   function actualizarDashboard() {
     const d = reportData;
 
-    // KPIs
-    const realizado  = d.porEstado['REALIZADO']           || 0;
-    const vacía      = d.porEstado['UBIC. VACÍA']         || 0;
-    const nocode     = d.porEstado['CÓD. NO CORRESPONDE'] || 0;
-    const pendiente  = d.porEstado['PENDIENTE']           || 0;
-    const total      = d.totalTareas     || 0;
-    const completadas= d.totalCompletadas|| 0;
-    const cumpl      = total > 0 ? Math.round((realizado / total) * 100) : 0;
+    // Contar estados directamente desde rawTareas para manejar variantes reales
+    // ("NO CORRESPONDE", "CÓD. NO CORRESPONDE", "UBIC. VACÍA", etc.)
+    let realizado = 0, vacía = 0, nocode = 0, pendiente = 0;
+    rawTareas.forEach(t => {
+      const est = normEstado(!t.hora || t.hora === '' ? '' : t.estado);
+      if (est === 'REALIZADO')        realizado++;
+      else if (est === 'UBIC. VACÍA') vacía++;
+      else if (est === 'PENDIENTE')   pendiente++;
+      else                            nocode++;
+    });
+    const total       = rawTareas.length;
+    const completadas = realizado + vacía + nocode;
+    const cumpl       = total > 0 ? Math.round((realizado / total) * 100) : 0;
 
     document.getElementById('kTotal').textContent     = total;
     document.getElementById('kRealizadas').textContent = realizado;
@@ -579,16 +628,13 @@
   function renderAvancePorApilador() {
     const ops = {};
     rawTareas.forEach(t => {
-      const op = t.operador || 'Sin Asignar';
+      const op  = t.operador || 'Sin Asignar';
+      const est = normEstado(!t.hora || t.hora === '' ? '' : t.estado);
       if (!ops[op]) ops[op] = { realizado:0, vacia:0, nocode:0, pendiente:0 };
-      if (!t.hora || t.hora === '') {
-        ops[op].pendiente++;
-      } else {
-        const est = (t.estado || '').toUpperCase();
-        if (est === 'REALIZADO')               ops[op].realizado++;
-        else if (est === 'UBIC. VACÍA')        ops[op].vacia++;
-        else                                   ops[op].nocode++;
-      }
+      if (est === 'REALIZADO')        ops[op].realizado++;
+      else if (est === 'UBIC. VACÍA') ops[op].vacia++;
+      else if (est === 'PENDIENTE')   ops[op].pendiente++;
+      else                            ops[op].nocode++;
     });
 
     const list = document.getElementById('apiladorList');
@@ -681,26 +727,22 @@
   function renderPeriodo(periodo) {
     const agg = {};
     rawTareas.forEach(t => {
-      if (!t.fecha_ejec && (!t.hora || t.hora==='')) return;
-      const fecha = t.fecha || '';
-      if (!fecha) return;
+      // Solo tareas completadas (tienen hora de ejecución)
+      if (!t.hora || t.hora === '') return;
+
+      // Usar fecha de solicitud como referencia de día
+      const dateObj = parseFecha(t.fecha);
+      if (!dateObj) return;
 
       let key;
-      // Parsear fecha "dd/mm/yyyy"
-      const parts = fecha.split('/');
-      if (parts.length !== 3) return;
-      const dateObj = new Date(parts[2], parts[1]-1, parts[0]);
-      if (isNaN(dateObj)) return;
-
       if (periodo === 'dia') {
-        key = fecha;
+        key = dateObj.toLocaleDateString('es-CL');
       } else if (periodo === 'semana') {
         key = getISOWeek(dateObj);
       } else {
         const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
         key = meses[dateObj.getMonth()] + ' ' + dateObj.getFullYear();
       }
-
       agg[key] = (agg[key] || 0) + 1;
     });
 
@@ -744,9 +786,27 @@
   //  MOVIMIENTO POR HORA
   // ──────────────────────────────────────────────
   function renderHora() {
-    const d = reportData;
-    const horas  = Object.keys(d.porHoraGrupo || {}).sort().map(h => h+':00');
-    const values = horas.map(h => d.porHoraGrupo[h.split(':')[0]] || 0);
+    // Calcular desde rawTareas con parsing correcto de "11:23:58 p. m."
+    const agg = {};
+    rawTareas.forEach(t => {
+      if (!t.hora || t.hora === '') return;
+      const h = parseHora24(t.hora);
+      if (h === null) return;
+      const key = String(h).padStart(2,'0');
+      agg[key] = (agg[key] || 0) + 1;
+    });
+
+    // Completar horas faltantes entre min y max para eje continuo
+    const keys = Object.keys(agg).map(Number).sort((a,b)=>a-b);
+    const horas  = [];
+    const values = [];
+    if (keys.length) {
+      for (let h = keys[0]; h <= keys[keys.length-1]; h++) {
+        const k = String(h).padStart(2,'0');
+        horas.push(k + ':00');
+        values.push(agg[k] || 0);
+      }
+    }
 
     const ctx = document.getElementById('chartHora').getContext('2d');
     if (charts.hora) charts.hora.destroy();
@@ -788,37 +848,55 @@
   //  RENDIMIENTO TABLA
   // ──────────────────────────────────────────────
   function renderRendimientoTabla() {
-    const d   = reportData;
-    const ops = Object.keys(d.porOperador || {});
-
-    // Pendientes por operador
-    const pendPorOp = {};
+    // Calcular todo desde rawTareas para consistencia con datos reales
+    const ops = {};
     rawTareas.forEach(t => {
-      if (!t.hora || t.hora === '') {
-        const op = t.operador || 'Sin Asignar';
-        pendPorOp[op] = (pendPorOp[op] || 0) + 1;
+      const op  = t.operador || 'Sin Asignar';
+      const est = normEstado(!t.hora || t.hora === '' ? '' : t.estado);
+      if (!ops[op]) ops[op] = { realizado:0, vacia:0, nocode:0, pendiente:0, horas:[] };
+      if (est === 'REALIZADO')        ops[op].realizado++;
+      else if (est === 'UBIC. VACÍA') ops[op].vacia++;
+      else if (est === 'PENDIENTE')   ops[op].pendiente++;
+      else                            ops[op].nocode++;
+      if (t.hora && t.hora !== '') {
+        const h24 = parseHora24(t.hora);
+        if (h24 !== null) ops[op].horas.push(h24 + (t.hora.includes(':') ? parseInt(t.hora.split(':')[1]||0)/60 : 0));
       }
     });
 
-    if (!ops.length) return;
     const tbody = document.getElementById('rendBody');
     tbody.innerHTML = '';
-
-    ops.sort((a,b) => (d.porOperador[b].total||0) - (d.porOperador[a].total||0))
-       .forEach(op => {
-      const s   = d.porOperador[op];
-      const ph  = (d.palletsHoraInd || {})[op] || '—';
-      const pct = s.total > 0 ? Math.round((s.realizado/s.total)*100) : 0;
-      const pend= pendPorOp[op] || 0;
+    const sorted = Object.entries(ops).sort((a,b) => {
+      const totA = a[1].realizado+a[1].vacia+a[1].nocode;
+      const totB = b[1].realizado+b[1].vacia+b[1].nocode;
+      return totB - totA;
+    });
+    if (!sorted.length) {
+      tbody.innerHTML = '<tr><td colspan="8" style="color:var(--txt-dim);text-align:center;padding:20px;">Sin datos…</td></tr>';
+      return;
+    }
+    sorted.forEach(([op, s]) => {
+      const total = s.realizado + s.vacia + s.nocode + s.pendiente;
+      const comp  = s.realizado + s.vacia + s.nocode;
+      // Calcular pallets/hora desde horas de ejecución
+      let ph = '—';
+      if (s.horas.length > 1) {
+        const mn = Math.min(...s.horas), mx = Math.max(...s.horas);
+        const diff = mx - mn;
+        ph = diff >= 0.08 ? (comp / Math.max(diff, 0.5)).toFixed(1) : comp;
+      } else if (comp > 0) {
+        ph = comp;
+      }
+      const pct   = comp > 0 ? Math.round((s.realizado / comp) * 100) : 0;
       const color = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : 'var(--red)';
       tbody.innerHTML += `
         <tr>
           <td>👷 ${op}</td>
-          <td><span class="rend-total">${s.total}</span></td>
+          <td><span class="rend-total">${total}</span></td>
           <td><span class="badge green">${s.realizado}</span></td>
           <td><span class="badge amber">${s.vacia}</span></td>
           <td><span class="badge red">${s.nocode}</span></td>
-          <td><span class="badge blue">${pend}</span></td>
+          <td><span class="badge blue">${s.pendiente}</span></td>
           <td><span class="rend-ph">${ph}</span></td>
           <td><span style="font-family:Rajdhani;font-weight:700;font-size:16px;color:${color};">${pct}%</span></td>
         </tr>`;
