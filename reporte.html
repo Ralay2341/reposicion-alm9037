@@ -24,7 +24,7 @@
     .wrapper { display: flex; gap: 20px; padding: 20px; max-width: 1600px; margin: 0 auto; align-items: flex-start; }
     .sidebar { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
     .main-content { flex-grow: 1; min-width: 0; }
-    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 16px; }
     .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 15px; border-top: 4px solid var(--red); }
     .kpi-val { font-family: 'Rajdhani', sans-serif; font-size: 28px; font-weight: 700; }
     .kpi-label { font-size: 10px; color: var(--txt-dim); text-transform: uppercase; letter-spacing: 1px; }
@@ -33,7 +33,6 @@
     .filter-group { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
     input[type="date"], select { background: #1a2234; border: 1px solid var(--border); color: var(--txt); padding: 8px; border-radius: 5px; font-size: 12px; }
     .btn-filter { background: var(--blue); color: white; border: none; padding: 8px; border-radius: 5px; font-family: 'Rajdhani'; font-weight: bold; cursor: pointer; }
-    #fechaSidebar { font-size: 11px; color: var(--amber); margin-top: 10px; font-weight: bold; }
     .side-panel { position: fixed; right: -450px; top: 0; width: 420px; height: 100%; background: var(--surface); border-left: 3px solid var(--red); z-index: 200; transition: 0.4s; padding: 30px; overflow-y: auto; box-shadow: -10px 0 30px rgba(0,0,0,0.7); }
     .side-panel.open { right: 0; }
     .close-panel { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 20px; color: var(--red); font-weight: bold; }
@@ -56,14 +55,139 @@
     .chart-box { background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; text-align: center; }
     canvas { max-width: 100%; height: 120px !important; }
     .hidden { display: none; }
+
+    /* ── BARRA DE PROGRESO ── */
+    .progress-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+    .progress-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      color: var(--txt-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .progress-pct {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--green);
+    }
+    .progress-pct.warn  { color: var(--amber); }
+    .progress-pct.crit  { color: var(--red); }
+    .progress-track {
+      width: 100%;
+      height: 18px;
+      background: #1a2234;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+    }
+    /* cada segmento ocupa su proporción */
+    .seg-green  { background: var(--green);  height: 100%; transition: width 0.8s ease; }
+    .seg-amber  { background: var(--amber);  height: 100%; transition: width 0.8s ease; }
+    .seg-red    { background: var(--red);    height: 100%; transition: width 0.8s ease; }
+    .progress-legend {
+      display: flex;
+      gap: 16px;
+      margin-top: 8px;
+      font-size: 10px;
+      color: var(--txt-dim);
+    }
+    .progress-legend span { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .progress-counts {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      margin-top: 6px;
+      color: var(--txt-dim);
+    }
+    .progress-counts b { color: var(--txt); }
+
+    /* ── TARJETA PRODUCTO TOP ── */
+    .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 16px; }
+    .top-product-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      border-left: 4px solid var(--purple);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .top-product-card .label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      color: var(--txt-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .top-product-card .product-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--txt);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .top-product-card .product-stats {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .pstat { display: flex; flex-direction: column; align-items: center; }
+    .pstat .val { font-family: 'Rajdhani'; font-size: 20px; font-weight: 700; }
+    .pstat .lbl { font-size: 9px; color: var(--txt-dim); text-transform: uppercase; }
+
+    /* pending counter */
+    .pending-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      border-left: 4px solid var(--blue);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
+    .pending-card .label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      color: var(--txt-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .pending-card .pending-val {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--blue);
+    }
+    .pending-card .pending-sub {
+      font-size: 10px;
+      color: var(--txt-dim);
+    }
   </style>
 </head>
 <body>
 
 <div id="sidePanel" class="side-panel">
   <span class="close-panel" onclick="togglePanel(false)">✕</span>
-  <h2 style="font-family: 'Rajdhani'; color: var(--red); margin-bottom: 5px;">ESTADÍSTICA HISTORIAL (COL O)</h2>
-  <p id="panelFechaLabel" style="font-size: 11px; color: var(--amber); margin-bottom: 20px;"></p>
+  <h2 style="font-family:'Rajdhani';color:var(--red);margin-bottom:5px;">ESTADÍSTICA HISTORIAL</h2>
+  <p id="panelFechaLabel" style="font-size:11px;color:var(--amber);margin-bottom:20px;"></p>
   <div class="panel-kpi-grid" id="panelGeneralStats"></div>
   <div id="filterResult"></div>
 </div>
@@ -71,8 +195,8 @@
 <header>
   <h1>REPOSYSTEM <span>ALM9037</span></h1>
   <div class="header-right">
-    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Validando Fecha...</div>
-    <button class="btn-update" onclick="cargarDatosHoy()" id="btnUpdate">
+    <div id="statusMsg" style="font-size:11px;color:var(--amber);margin-bottom:2px;" class="hidden">Cargando...</div>
+    <button class="btn-update" onclick="cargarDatosHoy()">
       <span id="gearIcon">🔄</span> ACTUALIZAR HOY
     </button>
     <div class="designer-tag">Diseñado Por: Raul Layseca Beas</div>
@@ -90,25 +214,103 @@
           <option value="Semana">Semana</option>
           <option value="Mes">Mes</option>
         </select>
-        <button class="btn-filter" id="btnFilter" onclick="aplicarFiltroHistorico()">CONSULTAR COL O</button>
-        <div id="fechaSidebar" style="font-size:10px; color:var(--txt-dim);">Dashboard: Solo Hoy (Col B)</div>
+        <button class="btn-filter" onclick="aplicarFiltroHistorico()">CONSULTAR HISTORIAL</button>
+        <div id="fechaSidebar" style="font-size:10px;color:var(--txt-dim);margin-top:4px;">Dashboard: Solo Hoy (Col B)</div>
       </div>
     </div>
     <div class="card">
-      <div class="card-title">Productividad / Hora ⚡</div>
+      <div class="card-title">Productividad / Hora ⚡
+        <span style="float:right;font-size:9px;color:var(--txt-dim);">
+          P/H = Realizados ÷ Horas activas
+        </span>
+      </div>
       <div id="prodByHourList" class="prod-list"></div>
     </div>
   </aside>
 
   <main class="main-content">
+
+    <!-- KPIs principales -->
     <div class="kpi-row">
-      <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-label">Solicitadas Hoy (Col B)</div></div>
-      <div class="kpi" style="border-top-color: var(--green);"><div class="kpi-val" id="kRealizadas" style="color: var(--green);">0</div><div class="kpi-label">Realizadas Hoy (Col O)</div></div>
-      <div class="kpi" style="border-top-color: var(--amber);"><div class="kpi-val" id="kVacias" style="color: var(--amber);">0</div><div class="kpi-label">Ubic. Vacías (Col O)</div></div>
-      <div class="kpi" style="border-top-color: var(--red);"><div class="kpi-val" id="kErrores" style="color: var(--red);">0</div><div class="kpi-label">No Corresponde (Col O)</div></div>
+      <div class="kpi">
+        <div class="kpi-val" id="kTotal">0</div>
+        <div class="kpi-label">Solicitadas Hoy (Col B)</div>
+      </div>
+      <div class="kpi" style="border-top-color:var(--green);">
+        <div class="kpi-val" id="kRealizadas" style="color:var(--green);">0</div>
+        <div class="kpi-label">Realizadas (Col N)</div>
+      </div>
+      <div class="kpi" style="border-top-color:var(--amber);">
+        <div class="kpi-val" id="kVacias" style="color:var(--amber);">0</div>
+        <div class="kpi-label">Ubic. Vacías (Col N)</div>
+      </div>
+      <div class="kpi" style="border-top-color:var(--red);">
+        <div class="kpi-val" id="kErrores" style="color:var(--red);">0</div>
+        <div class="kpi-label">No Corresponde (Col N)</div>
+      </div>
     </div>
+
+    <!-- ══ BARRA DE PROGRESO DEL DÍA ══ -->
+    <div class="progress-card">
+      <div class="progress-header">
+        <span class="progress-title">📊 Avance del Día — Reposiciones</span>
+        <span class="progress-pct" id="progressPct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="seg-green" id="segGreen" style="width:0%"></div>
+        <div class="seg-amber" id="segAmber" style="width:0%"></div>
+        <div class="seg-red"   id="segRed"   style="width:0%"></div>
+      </div>
+      <div class="progress-counts">
+        <span>Completadas: <b id="pCompletadas">0</b> / <b id="pTotal">0</b></span>
+        <span>Pendientes: <b id="pPendientes" style="color:var(--blue);">0</b></span>
+      </div>
+      <div class="progress-legend">
+        <span><div class="dot" style="background:var(--green)"></div>Realizadas</span>
+        <span><div class="dot" style="background:var(--amber)"></div>Ubic. Vacías</span>
+        <span><div class="dot" style="background:var(--red)"></div>No Corresponde</span>
+        <span><div class="dot" style="background:#1a2234;border:1px solid var(--border)"></div>Pendientes</span>
+      </div>
+    </div>
+
+    <!-- ══ INFO EXTRA: Producto Top + Pendientes ══ -->
+    <div class="info-row">
+      <!-- Producto más requerido -->
+      <div class="top-product-card">
+        <div class="label">🏆 Producto más Requerido del Día</div>
+        <div class="product-name" id="topProdNombre">—</div>
+        <div class="product-stats">
+          <div class="pstat">
+            <div class="val" id="topProdTotal" style="color:var(--purple)">0</div>
+            <div class="lbl">Solicitado</div>
+          </div>
+          <div style="width:1px;background:var(--border);margin:0 4px;"></div>
+          <div class="pstat">
+            <div class="val" id="topProdMovilizado" style="color:var(--green)">0</div>
+            <div class="lbl">Movilizado</div>
+          </div>
+          <div style="width:1px;background:var(--border);margin:0 4px;"></div>
+          <div class="pstat">
+            <div class="val" id="topProdCantidad" style="color:var(--amber)">0</div>
+            <div class="lbl">Uds / Cant</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pendientes urgentes -->
+      <div class="pending-card">
+        <div class="label">⏳ Pendientes por Ejecutar</div>
+        <div class="pending-val" id="kPendientes">0</div>
+        <div class="pending-sub">reposiciones sin resultado registrado</div>
+        <div style="margin-top:8px;font-size:10px;color:var(--txt-dim);">
+          Efectividad global: <b id="efectividad" style="color:var(--purple);">0%</b>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla operadores -->
     <div class="card">
-      <div class="card-title" id="mainTitle">Monitor de Operaciones del Día 📊</div>
+      <div class="card-title">Monitor de Operaciones del Día 📋</div>
       <table>
         <thead>
           <tr>
@@ -117,7 +319,7 @@
             <th>OK</th>
             <th>Vacías</th>
             <th>Error</th>
-            <th>P/H</th>
+            <th title="Pallets REALIZADOS ÷ horas entre primera y última ejecución">P/H ℹ</th>
             <th>%</th>
           </tr>
         </thead>
@@ -125,14 +327,14 @@
       </table>
       <div class="charts-grid" id="chartsContainer"></div>
     </div>
+
   </main>
 </div>
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; 
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec";
   let chartInstances = [];
 
-  // FUNCIÓN PARA OBTENER FECHA DE HOY FORMATEADA DD-MM-YYYY
   function getTodayString() {
     const hoy = new Date();
     const d = String(hoy.getDate()).padStart(2, '0');
@@ -141,135 +343,234 @@
     return `${d}-${m}-${y}`;
   }
 
-  // CARGAR DATOS DE HOY — backend filtra por Col B, lee estado desde Col N
   async function cargarDatosHoy() {
     const hoy = getTodayString();
     toggleLoading(true, `Sincronizando ${hoy}...`);
     limpiarDashboardPrincipal();
-    
     try {
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${hoy}`);
       const data = await response.json();
-      
       procesarReportePrincipal(data);
       document.getElementById('fechaSidebar').textContent = `Monitor Hoy: ${hoy}`;
-    } catch (e) { 
-        console.error(e);
-        document.getElementById('fechaSidebar').textContent = "Error al sincronizar hoy";
+    } catch (e) {
+      console.error(e);
+      document.getElementById('fechaSidebar').textContent = "Error al sincronizar hoy";
     } finally { toggleLoading(false); }
   }
 
-  // FILTRO HISTÓRICO (SIDEBAR) — misma lógica, distinta fecha
   async function aplicarFiltroHistorico() {
     const rawDate = document.getElementById('inputDate').value;
     if (!rawDate) return alert("Selecciona una fecha");
-    
     const parts = rawDate.split('-');
     const fechaFormateada = `${parts[2]}-${parts[1]}-${parts[0]}`;
-
     toggleLoading(true, "Consultando Historial...");
     limpiarSidebar();
-
     try {
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${fechaFormateada}`);
       const data = await response.json();
-      
-      if(!data || data.totalTareas === 0) {
-        alert(`Sin registros en Col B para el día ${fechaFormateada}`);
+      if (!data || data.totalTareas === 0) {
+        alert(`Sin registros para el día ${fechaFormateada}`);
         togglePanel(false);
       } else {
         mostrarPanelHistorico(data, fechaFormateada);
       }
-    } catch (e) { alert("Error de servidor."); } 
+    } catch (e) { alert("Error de servidor."); }
     finally { toggleLoading(false); }
   }
 
-  function mostrarPanelHistorico(data, fecha) {
-    document.getElementById('panelFechaLabel').textContent = `Auditoría Col B→Col O: ${fecha}`;
-    const pStats = document.getElementById('panelGeneralStats');
-    const res = document.getElementById('filterResult');
-    
-    const solicitadas = data.totalTareas || 0;
-    const ok       = data.porEstado['REALIZADO'] || 0;
-    const vacias   = data.porEstado['UBIC. VACÍA'] || 0;
-    const nocode   = data.porEstado['COD. NO CORRESPONDE'] || 0;
-    const tot      = solicitadas || 1;
+  // ══ ACTUALIZAR BARRA DE PROGRESO ══
+  function actualizarBarra(total, realizadas, vacias, errores) {
+    const completadas = realizadas + vacias + errores;
+    const pendientes  = Math.max(0, total - completadas);
+    const pct = total > 0 ? Math.round((completadas / total) * 100) : 0;
 
-    pStats.innerHTML = `
-      <div class="pkpi"><small>Solicitadas (Col B)</small><div>${solicitadas}</div></div>
-      <div class="pkpi"><small>Realizadas (Col O)</small><div style="color:var(--green)">${ok}</div></div>
-      <div class="pkpi"><small>Ubic. Vacías (Col O)</small><div style="color:var(--amber)">${vacias}</div></div>
-      <div class="pkpi"><small>No Corresponde (Col O)</small><div style="color:var(--red)">${nocode}</div></div>
-      <div class="pkpi" style="grid-column:span 2; border-left-color:var(--purple)">
-        <small>Efectividad (Realizadas / Solicitadas)</small>
-        <div style="color:var(--purple)">${Math.round((ok/tot)*100)}%</div>
-      </div>
-    `;
+    // Porcentaje de cada segmento respecto al total
+    const pGreen = total > 0 ? (realizadas / total * 100).toFixed(1) : 0;
+    const pAmber = total > 0 ? (vacias     / total * 100).toFixed(1) : 0;
+    const pRed   = total > 0 ? (errores    / total * 100).toFixed(1) : 0;
 
-    let html = "";
-    Object.entries(data.rendimientoIndividual || {}).forEach(([nom, s]) => {
-      html += `<div class="card" style="margin-bottom:8px; padding:10px; background:#161f2e;">
-                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                   <span style="font-size:12px; font-weight:bold;">${nom}</span>
-                   <span style="font-size:11px; color:var(--txt-dim);">${s.total} tareas</span>
-                 </div>
-                 <div style="display:flex; gap:8px; font-size:10px;">
-                   <span class="badge green">${s.realizados} OK</span>
-                   <span class="badge amber">${s.vacias} Vacías</span>
-                   <span class="badge red-status">${s.nocode} Error</span>
-                   <span style="color:var(--txt-dim); margin-left:auto;">${s.cumplimiento}%</span>
-                 </div>
-               </div>`;
-    });
-    res.innerHTML = html;
-    togglePanel(true);
+    document.getElementById('segGreen').style.width = pGreen + '%';
+    document.getElementById('segAmber').style.width = pAmber + '%';
+    document.getElementById('segRed').style.width   = pRed   + '%';
+
+    const pctEl = document.getElementById('progressPct');
+    pctEl.textContent = pct + '%';
+    pctEl.className = 'progress-pct' + (pct >= 80 ? '' : pct >= 50 ? ' warn' : ' crit');
+
+    document.getElementById('pCompletadas').textContent = completadas;
+    document.getElementById('pTotal').textContent       = total;
+    document.getElementById('pPendientes').textContent  = pendientes;
+    document.getElementById('kPendientes').textContent  = pendientes;
+    document.getElementById('efectividad').textContent  = 
+      total > 0 ? Math.round((realizadas / total) * 100) + '%' : '0%';
+  }
+
+  // ══ MOSTRAR PRODUCTO MÁS REQUERIDO ══
+  function mostrarTopProducto(productStats) {
+    if (!productStats || Object.keys(productStats).length === 0) return;
+
+    // Ordenar por total solicitado desc
+    const sorted = Object.entries(productStats).sort((a, b) => b[1].total - a[1].total);
+    const [nombre, stats] = sorted[0];
+
+    document.getElementById('topProdNombre').textContent     = nombre || '—';
+    document.getElementById('topProdTotal').textContent      = stats.total || 0;
+    document.getElementById('topProdMovilizado').textContent = stats.realizados || 0;
+    document.getElementById('topProdCantidad').textContent   = stats.cantidadMovilizada || 0;
   }
 
   function procesarReportePrincipal(data) {
-    document.getElementById('kTotal').textContent = data.totalTareas || 0;
-    document.getElementById('kRealizadas').textContent = data.porEstado['REALIZADO'] || 0;
-    document.getElementById('kVacias').textContent = data.porEstado['UBIC. VACÍA'] || 0;
-    document.getElementById('kErrores').textContent = data.porEstado['COD. NO CORRESPONDE'] || 0;
+    const total     = data.totalTareas || 0;
+    const realizadas = data.porEstado['REALIZADO'] || 0;
+    const vacias    = data.porEstado['UBIC. VACÍA'] || 0;
+    const errores   = data.porEstado['COD. NO CORRESPONDE'] || 0;
 
-    const tbody = document.getElementById('rendBody');
+    document.getElementById('kTotal').textContent     = total;
+    document.getElementById('kRealizadas').textContent = realizadas;
+    document.getElementById('kVacias').textContent    = vacias;
+    document.getElementById('kErrores').textContent   = errores;
+
+    // Barra de progreso
+    actualizarBarra(total, realizadas, vacias, errores);
+
+    // Producto top
+    mostrarTopProducto(data.productStats);
+
+    const tbody    = document.getElementById('rendBody');
     const chartCont = document.getElementById('chartsContainer');
     const prodList = document.getElementById('prodByHourList');
 
-    if(!data.rendimientoIndividual || Object.keys(data.rendimientoIndividual).length === 0) {
-        tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:20px; color:var(--txt-dim);'>Sin actividad registrada para hoy.</td></tr>";
-        return;
+    if (!data.rendimientoIndividual || Object.keys(data.rendimientoIndividual).length === 0) {
+      tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;padding:20px;color:var(--txt-dim);'>Sin actividad registrada para hoy.</td></tr>";
+      return;
     }
 
-    Object.entries(data.rendimientoIndividual).forEach(([nom, s], i) => {
+    // Ordenar operadores por realizados desc
+    const operadores = Object.entries(data.rendimientoIndividual)
+      .sort((a, b) => b[1].realizados - a[1].realizados);
+
+    operadores.forEach(([nom, s], i) => {
+      // Barra mini de cumplimiento por operador
+      const pctOp = s.cumplimiento || 0;
+      const barColor = pctOp >= 80 ? 'var(--green)' : pctOp >= 50 ? 'var(--amber)' : 'var(--red)';
+
       tbody.innerHTML += `<tr>
-        <td><strong>${nom}</strong></td><td>${s.total}</td>
+        <td>
+          <strong>${nom}</strong>
+          <div style="margin-top:4px;background:#1a2234;border-radius:999px;height:4px;width:100%;">
+            <div style="width:${pctOp}%;height:4px;background:${barColor};border-radius:999px;transition:width 0.6s;"></div>
+          </div>
+        </td>
+        <td>${s.total}</td>
         <td><span class="badge green">${s.realizados}</span></td>
         <td><span class="badge amber">${s.vacias}</span></td>
         <td><span class="badge red-status">${s.nocode}</span></td>
-        <td>${s.palletsPorHora}</td>
-        <td style="color:var(--green)">${s.cumplimiento}%</td></tr>`;
-      
-      prodList.innerHTML += `<div class="prod-item"><span>${nom}</span><b>${s.palletsPorHora} P/H</b></div>`;
-      
+        <td title="Realizados ÷ horas entre 1ª y última ejecución">${s.palletsPorHora}</td>
+        <td style="color:${barColor};font-weight:bold;">${pctOp}%</td>
+      </tr>`;
+
+      prodList.innerHTML += `<div class="prod-item">
+        <span>${nom}</span>
+        <b style="color:var(--green)">${s.palletsPorHora} P/H</b>
+      </div>`;
+
       const chartId = `c-${i}`;
-      chartCont.innerHTML += `<div class="chart-box"><p style="font-size:9px;">${nom}</p><canvas id="${chartId}"></canvas></div>`;
-      
+      chartCont.innerHTML += `<div class="chart-box">
+        <p style="font-size:9px;margin-bottom:4px;">${nom}</p>
+        <canvas id="${chartId}"></canvas>
+        <p style="font-size:9px;margin-top:4px;color:${barColor}">${pctOp}%</p>
+      </div>`;
+
       setTimeout(() => {
-        const ctx = document.getElementById(chartId).getContext('2d');
+        const ctx = document.getElementById(chartId)?.getContext('2d');
+        if (!ctx) return;
         const c = new Chart(ctx, {
           type: 'doughnut',
-          data: { datasets: [{ data: [s.realizados, s.vacias, s.nocode], backgroundColor: ['#10b981', '#f59e0b', '#e30613'], borderWidth: 0 }] },
-          options: { cutout: '78%', plugins: { legend: { display: false } } }
+          data: {
+            datasets: [{
+              data: [s.realizados, s.vacias, s.nocode, s.pendientes || 0],
+              backgroundColor: ['#10b981', '#f59e0b', '#e30613', '#1e2d45'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            cutout: '78%',
+            plugins: { legend: { display: false } },
+            animation: { animateRotate: true, duration: 800 }
+          }
         });
         chartInstances.push(c);
       }, 0);
     });
   }
 
+  function mostrarPanelHistorico(data, fecha) {
+    document.getElementById('panelFechaLabel').textContent = `Auditoría: ${fecha}`;
+    const pStats = document.getElementById('panelGeneralStats');
+    const res    = document.getElementById('filterResult');
+
+    const sol  = data.totalTareas || 0;
+    const ok   = data.porEstado['REALIZADO'] || 0;
+    const vac  = data.porEstado['UBIC. VACÍA'] || 0;
+    const nc   = data.porEstado['COD. NO CORRESPONDE'] || 0;
+    const pend = data.porEstado['PENDIENTE'] || 0;
+
+    pStats.innerHTML = `
+      <div class="pkpi"><small>Solicitadas</small><div>${sol}</div></div>
+      <div class="pkpi"><small>Realizadas</small><div style="color:var(--green)">${ok}</div></div>
+      <div class="pkpi"><small>Ubic. Vacías</small><div style="color:var(--amber)">${vac}</div></div>
+      <div class="pkpi"><small>No Corresponde</small><div style="color:var(--red)">${nc}</div></div>
+      <div class="pkpi"><small>Pendientes</small><div style="color:var(--blue)">${pend}</div></div>
+      <div class="pkpi" style="border-left-color:var(--purple)">
+        <small>Efectividad</small>
+        <div style="color:var(--purple)">${sol > 0 ? Math.round((ok/sol)*100) : 0}%</div>
+      </div>
+    `;
+
+    // Producto top del día histórico
+    if (data.productStats && Object.keys(data.productStats).length > 0) {
+      const top = Object.entries(data.productStats).sort((a,b) => b[1].total - a[1].total)[0];
+      res.innerHTML += `<div style="background:#1a1f30;border-radius:8px;padding:10px;margin-bottom:12px;border-left:3px solid var(--purple);">
+        <div style="font-size:9px;color:var(--txt-dim);text-transform:uppercase;margin-bottom:4px;">🏆 Producto más requerido</div>
+        <div style="font-size:12px;font-weight:bold;">${top[0]}</div>
+        <div style="font-size:10px;color:var(--txt-dim);margin-top:3px;">${top[1].total} solicitados · ${top[1].realizados} movilizados</div>
+      </div>`;
+    }
+
+    let html = "";
+    Object.entries(data.rendimientoIndividual || {}).forEach(([nom, s]) => {
+      html += `<div class="card" style="margin-bottom:8px;padding:10px;background:#161f2e;">
+                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                   <span style="font-size:12px;font-weight:bold;">${nom}</span>
+                   <span style="font-size:11px;color:var(--txt-dim);">${s.total} tareas</span>
+                 </div>
+                 <div style="display:flex;gap:8px;font-size:10px;">
+                   <span class="badge green">${s.realizados} OK</span>
+                   <span class="badge amber">${s.vacias} Vacías</span>
+                   <span class="badge red-status">${s.nocode} Error</span>
+                   <span style="color:var(--txt-dim);margin-left:auto;">${s.cumplimiento}%</span>
+                 </div>
+               </div>`;
+    });
+    res.innerHTML += html;
+    togglePanel(true);
+  }
+
   function limpiarDashboardPrincipal() {
-    document.getElementById('rendBody').innerHTML = "";
+    document.getElementById('rendBody').innerHTML    = "";
     document.getElementById('chartsContainer').innerHTML = "";
-    document.getElementById('prodByHourList').innerHTML = "";
+    document.getElementById('prodByHourList').innerHTML  = "";
+    // Reset barra
+    ['segGreen','segAmber','segRed'].forEach(id => document.getElementById(id).style.width = '0%');
+    document.getElementById('progressPct').textContent = '0%';
+    document.getElementById('pCompletadas').textContent = '0';
+    document.getElementById('pTotal').textContent = '0';
+    document.getElementById('pPendientes').textContent = '0';
+    document.getElementById('kPendientes').textContent = '0';
+    document.getElementById('topProdNombre').textContent = '—';
+    document.getElementById('topProdTotal').textContent  = '0';
+    document.getElementById('topProdMovilizado').textContent = '0';
+    document.getElementById('topProdCantidad').textContent   = '0';
     chartInstances.forEach(c => c.destroy());
     chartInstances = [];
   }
@@ -279,16 +580,16 @@
     document.getElementById('filterResult').innerHTML = "";
   }
 
-  function toggleLoading(s, txt) { 
+  function toggleLoading(s, txt) {
     const msg = document.getElementById('statusMsg');
-    if(txt) msg.textContent = txt;
+    if (txt) msg.textContent = txt;
     msg.classList.toggle('hidden', !s);
     document.getElementById('gearIcon').classList.toggle('spin', s);
   }
-  
-  function togglePanel(show) { 
+
+  function togglePanel(show) {
     const p = document.getElementById('sidePanel');
-    if(show) p.classList.add('open'); else p.classList.remove('open');
+    if (show) p.classList.add('open'); else p.classList.remove('open');
   }
 
   window.onload = cargarDatosHoy;
