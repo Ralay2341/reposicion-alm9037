@@ -27,21 +27,19 @@
       display: flex; align-items: center; gap: 8px; transition: 0.3s; margin-left: auto;
     }
     .btn-update:disabled { opacity: 0.6; cursor: not-allowed; }
-    .designer-tag { font-size: 11px; color: var(--txt-dim); margin-top: 6px; font-weight: 500; letter-spacing: 0.5px; }
 
-    .spin { animation: spin 2s linear infinite; display: inline-block; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+    /* LAYOUT: SIDEBAR + MAIN */
+    .wrapper { display: flex; gap: 20px; padding: 20px; max-width: 1600px; margin: 0 auto; }
+    .sidebar { width: 300px; flex-shrink: 0; }
+    .main-content { flex-grow: 1; min-width: 0; }
 
-    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
     .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; border-top: 4px solid var(--red); }
     .kpi-val { font-family: 'Rajdhani', sans-serif; font-size: 36px; font-weight: 700; }
     .kpi-label { font-size: 11px; color: var(--txt-dim); text-transform: uppercase; letter-spacing: 1px; }
 
-    .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .full-width { grid-column: 1 / -1; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-    .card-title { font-family: 'Rajdhani', sans-serif; font-size: 14px; color: var(--txt-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .card-title { font-family: 'Rajdhani', sans-serif; font-size: 14px; color: var(--txt-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; }
 
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     th { text-align: left; padding: 12px; color: var(--txt-dim); border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; }
@@ -58,6 +56,8 @@
     
     #loader { position: fixed; inset: 0; background: rgba(7,11,18,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Rajdhani'; letter-spacing: 2px; }
     .hidden { display: none !important; }
+    .spin { animation: spin 2s linear infinite; display: inline-block; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -73,64 +73,55 @@
     <button class="btn-update" onclick="cargarDatos()" id="btnUpdate">
       <span id="gearIcon">🔄</span> ACTUALIZAR DATOS
     </button>
-    <div class="designer-tag">Diseñado por: Raul Layseca Beas</div>
   </div>
 </header>
 
-<div class="container">
-  <div class="kpi-row">
-    <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-label">Tareas Totales</div></div>
-    <div class="kpi" style="border-top-color: var(--green);"><div class="kpi-val" id="kRealizadas" style="color: var(--green);">0</div><div class="kpi-label">Realizadas</div></div>
-    <div class="kpi" style="border-top-color: var(--amber);"><div class="kpi-val" id="kPendientes" style="color: var(--amber);">0</div><div class="kpi-label">Pendientes</div></div>
-    <div class="kpi" style="border-top-color: var(--purple);"><div class="kpi-val" id="kCumpl" style="color: var(--purple);">0%</div><div class="kpi-label">% Cumplimiento</div></div>
-  </div>
-
-  <div class="main-grid">
-    <div class="card full-width">
-      <div class="card-title">Avance General <span id="lastUpdate" style="text-transform:none; font-size:11px; opacity: 0.6;">Sincronizando...</span></div>
-      <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom: 5px;">
-        <span id="avanceTxt">Procesando...</span>
-        <span id="progPct" style="color:var(--red); font-weight:bold;">0%</span>
+<div class="wrapper">
+  <aside class="sidebar">
+    <div class="card">
+      <div class="card-title">Resumen Lateral <span>📋</span></div>
+      <div id="sidebarContent" style="font-size: 13px; line-height: 1.6;">
+        Selecciona "Actualizar" para ver los datos.
       </div>
+      </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-label">Tareas Totales</div></div>
+      <div class="kpi" style="border-top-color: var(--green);"><div class="kpi-val" id="kRealizadas" style="color: var(--green);">0</div><div class="kpi-label">Realizadas</div></div>
+      <div class="kpi" style="border-top-color: var(--amber);"><div class="kpi-val" id="kPendientes" style="color: var(--amber);">0</div><div class="kpi-label">Pendientes</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Avance de Gestión <span id="lastUpdate" style="float:right; opacity:0.5; font-size:10px;"></span></div>
       <div class="prog-wrap"><div id="progGeneral" class="prog-fill" style="width:0%"></div></div>
+      <div id="avanceTxt" style="font-size:12px; color:var(--txt-dim);">Esperando datos...</div>
     </div>
 
     <div class="card">
-      <div class="card-title">Distribución de Estados <span>📊</span></div>
-      <canvas id="chartEstados" height="230"></canvas>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Pallets por Período (Hora) <span>📅</span></div>
-      <canvas id="chartPeriodo" height="230"></canvas>
-    </div>
-
-    <div class="card full-width">
-      <div class="card-title">Rendimiento Individual por Apilador <span>⚡</span></div>
+      <div class="card-title">Rendimiento por Operador ⚡</div>
       <div style="overflow-x: auto;">
         <table>
           <thead>
             <tr>
-              <th>Operador Responzable</th>
+              <th>Operador</th>
               <th>Total</th>
               <th>Realizados</th>
-              <th>Ubic. Vacía</th>
-              <th>Cod. No Corresp.</th>
-              <th>Pendientes</th>
-              <th>Pallets/Hora</th>
-              <th>% Cumplimiento</th>
+              <th>Vacías</th>
+              <th>P/H</th>
+              <th>%</th>
             </tr>
           </thead>
           <tbody id="rendBody"></tbody>
         </table>
       </div>
     </div>
-  </div>
+  </main>
 </div>
 
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; 
-
   let charts = {};
 
   async function cargarDatos() {
@@ -139,91 +130,71 @@
     const loader = document.getElementById('loader');
 
     btn.disabled = true;
-    gear.innerText = "⚙️";
     gear.classList.add('spin');
     loader.classList.remove('hidden');
 
     try {
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos`);
       const data = await response.json();
-      if (data.error) throw new Error(data.error);
       procesarReporte(data);
-      document.getElementById('lastUpdate').textContent = 'Última actualización: ' + new Date().toLocaleTimeString();
+      document.getElementById('lastUpdate').textContent = 'Sincronizado: ' + new Date().toLocaleTimeString();
     } catch (e) {
       console.error(e);
-      alert("Error de conexión: " + e.message);
+      alert("Error al cargar.");
     } finally {
       btn.disabled = false;
-      gear.innerText = "🔄";
       gear.classList.remove('spin');
       loader.classList.add('hidden');
     }
   }
 
   function procesarReporte(data) {
+    // 1. Actualizar KPIs centrales
     document.getElementById('kTotal').textContent = data.totalTareas || 0;
     document.getElementById('kRealizadas').textContent = data.porEstado['REALIZADO'] || 0;
     document.getElementById('kPendientes').textContent = data.porEstado['PENDIENTE'] || 0;
 
+    // 2. Barra de avance
     const total = data.totalTareas || 1;
-    const real = data.porEstado['REALIZADO'] || 0;
-    const cumplTotal = Math.round((real / total) * 100);
-    document.getElementById('kCumpl').textContent = cumplTotal + '%';
-
     const gestionados = total - (data.porEstado['PENDIENTE'] || 0);
     const pct = Math.round((gestionados / total) * 100);
     document.getElementById('progGeneral').style.width = pct + '%';
-    document.getElementById('progPct').textContent = pct + '%';
-    document.getElementById('avanceTxt').textContent = `${gestionados} de ${total} tareas gestionadas`;
+    document.getElementById('avanceTxt').textContent = `${gestionados} de ${total} tareas procesadas (${pct}%)`;
 
+    // 3. Llenar tabla
     const tbody = document.getElementById('rendBody');
     tbody.innerHTML = "";
-    if (data.rendimientoIndividual) {
-      Object.entries(data.rendimientoIndividual).forEach(([nombre, s]) => {
-        tbody.innerHTML += `
-          <tr>
-            <td><strong>👷 ${nombre}</strong></td>
-            <td>${s.total}</td>
-            <td><span class="badge green">${s.realizados}</span></td>
-            <td><span class="badge amber">${s.vacias}</span></td>
-            <td><span class="badge red-status">${s.nocode}</span></td>
-            <td><span class="badge blue">${s.pendientes}</span></td>
-            <td style="font-family:Rajdhani; font-weight:700; font-size:16px;">${s.palletsPorHora}</td>
-            <td style="font-weight:bold; color:${s.cumplimiento > 80 ? '#10b981' : '#f59e0b'}">${s.cumplimiento}%</td>
-          </tr>
-        `;
-      });
-    }
-    actualizarGraficos(data);
+    Object.entries(data.rendimientoIndividual).forEach(([nombre, s]) => {
+      tbody.innerHTML += `
+        <tr>
+          <td><strong>${nombre}</strong></td>
+          <td>${s.total}</td>
+          <td><span class="badge green">${s.realizados}</span></td>
+          <td><span class="badge amber">${s.vacias}</span></td>
+          <td style="font-weight:bold;">${s.palletsPorHora}</td>
+          <td style="color:var(--green)">${s.cumplimiento}%</td>
+        </tr>`;
+    });
+
+    // 4. Sidebar: Actualizamos con texto en lugar de gráficos
+    document.getElementById('sidebarContent').innerHTML = `
+      <p style="color:var(--green)">● Realizados: ${data.porEstado['REALIZADO']}</p>
+      <p style="color:var(--amber)">● Vacíos: ${data.porEstado['UBIC. VACÍA']}</p>
+      <p style="color:var(--red)">● Errores: ${data.porEstado['COD. NO CORRESPONDE']}</p>
+      <hr style="margin:10px 0; border:0; border-top:1px solid var(--border)">
+      <p><b>Peak de paletización:</b> ${Object.keys(data.porHoraGrupo).length} horas activas.</p>
+    `;
+
+    // === COMENTADO PARA ELIMINAR GRÁFICOS VISUALES ===
+    // actualizarGraficos(data); 
   }
 
+  // Se mantiene la función por si quieres reactivar los gráficos después
   function actualizarGraficos(data) {
-    if (charts.estados) charts.estados.destroy();
+    /* if (charts.estados) charts.estados.destroy();
     const ctxE = document.getElementById('chartEstados').getContext('2d');
-    charts.estados = new Chart(ctxE, {
-      type: 'doughnut',
-      data: {
-        labels: ['Realizado', 'Ubic. Vacía', 'Cód. No Corresp.', 'Pendiente'],
-        datasets: [{
-          data: [data.porEstado['REALIZADO'] || 0, data.porEstado['UBIC. VACÍA'] || 0, data.porEstado['COD. NO CORRESPONDE'] || 0, data.porEstado['PENDIENTE'] || 0],
-          backgroundColor: ['#10b981', '#f59e0b', '#e30613', '#3b82f6'],
-          borderWidth: 0
-        }]
-      },
-      options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } } } }
-    });
-
-    if (charts.periodo) charts.periodo.destroy();
-    const ctxP = document.getElementById('chartPeriodo').getContext('2d');
-    const horasLabels = Object.keys(data.porHoraGrupo || {}).sort();
-    charts.periodo = new Chart(ctxP, {
-      type: 'bar',
-      data: {
-        labels: horasLabels.map(h => h + ":00"),
-        datasets: [{ label: 'Pallets', data: horasLabels.map(h => data.porHoraGrupo[h]), backgroundColor: '#e30613', borderRadius: 4 }]
-      },
-      options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } }
-    });
+    charts.estados = new Chart(ctxE, { ... });
+    */
   }
 
   window.onload = cargarDatos;
