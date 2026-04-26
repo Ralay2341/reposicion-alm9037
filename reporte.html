@@ -1,279 +1,878 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOGÍSTICA DASHBOARD - RepoSYSTEM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Plugin para mostrar valores sobre las barras -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <style>
-        :root {
-            --bg: #0b0f18;
-            --card: #131926;
-            --linde-red: #e30613;
-            --blue: #3b82f6;
-            --green: #22c55e;
-            --orange: #f97316;
-            --txt: #e8eaf0;
-            --txt-dim: #8896b0;
-            --border: #1e2d45;
-        }
-        body {
-            font-family: 'Barlow', sans-serif;
-            background-color: var(--bg);
-            color: var(--txt);
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background: #090e1a;
-            padding: 20px;
-            text-align: center;
-            border-bottom: 3px solid var(--linde-red);
-        }
-        header h1 {
-            font-family: 'Barlow Condensed', sans-serif;
-            margin: 0;
-            letter-spacing: 2px;
-            font-size: 24px;
-        }
-        header span { color: var(--linde-red); }
-        
-        .container {
-            padding: 15px;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .card {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-        
-        .card h3 {
-            margin-top: 0;
-            font-size: 15px;
-            color: var(--txt-dim);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LOGÍSTICA DASHBOARD — RepoSYSTEM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+  <style>
+    :root {
+      --bg:         #070b12;
+      --surface:    #0d1420;
+      --card:       #111827;
+      --card2:      #141d2b;
+      --red:        #e30613;
+      --red-dim:    #7a0209;
+      --blue:       #3b82f6;
+      --green:      #10b981;
+      --amber:      #f59e0b;
+      --purple:     #8b5cf6;
+      --txt:        #e2e8f0;
+      --txt-dim:    #64748b;
+      --txt-mid:    #94a3b8;
+      --border:     #1e2d45;
+      --border2:    #243451;
+      --glow:       rgba(227,6,19,0.15);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .stats-summary {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .stat-box {
-            background: #1a2234;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .stat-val {
-            display: block;
-            font-size: 22px;
-            font-weight: bold;
-            color: var(--linde-red);
-        }
-        .stat-label {
-            font-size: 10px;
-            color: var(--txt-dim);
-            text-transform: uppercase;
-        }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--txt);
+      min-height: 100vh;
+    }
 
-        .top-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .top-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #1e2d45;
-            font-size: 12px;
-        }
-        .top-count {
-            background: var(--linde-red);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: bold;
-        }
+    /* ── LOADER OVERLAY ── */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(7,11,18,0.92);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 18px;
+      backdrop-filter: blur(4px);
+      transition: opacity 0.4s;
+    }
+    #loader.hidden { opacity: 0; pointer-events: none; }
 
-        .btn-refresh {
-            background: var(--linde-red);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            display: block;
-            margin: 20px auto;
-            text-transform: uppercase;
-            transition: 0.3s;
-        }
+    .gear-wrap { position: relative; width: 80px; height: 80px; }
+    .gear {
+      position: absolute;
+      border-radius: 50%;
+      border: 4px solid transparent;
+      border-top-color: var(--red);
+      animation: spin 1s linear infinite;
+    }
+    .gear.g1 { inset: 0; }
+    .gear.g2 { inset: 12px; border-top-color: #3b82f6; animation-duration: 0.7s; animation-direction: reverse; }
+    .gear.g3 { inset: 24px; border-top-color: #10b981; animation-duration: 0.5s; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-        footer {
-            text-align: center;
-            padding: 30px;
-            font-size: 12px;
-            color: var(--txt-dim);
-        }
-        footer strong { color: var(--linde-red); }
+    .gear-icon {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      font-size: 22px; animation: spin 3s linear infinite;
+    }
+    #loader p {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 16px; letter-spacing: 3px;
+      color: var(--txt-mid); text-transform: uppercase;
+    }
+    .loader-dots::after {
+      content: '';
+      animation: dots 1.4s infinite;
+    }
+    @keyframes dots {
+      0%   { content: ''; }
+      33%  { content: '.'; }
+      66%  { content: '..'; }
+      100% { content: '...'; }
+    }
 
-        @media (max-width: 600px) {
-            .grid { grid-template-columns: 1fr; }
-            .stats-summary { grid-template-columns: 1fr; }
-        }
-    </style>
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(180deg, #0a0f1c 0%, #070b12 100%);
+      border-bottom: 2px solid var(--red);
+      padding: 18px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+    }
+    .hdr-left { display: flex; align-items: center; gap: 14px; }
+    .hdr-badge {
+      background: var(--red);
+      color: #fff;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700; font-size: 13px;
+      padding: 4px 10px; border-radius: 4px;
+      letter-spacing: 1px;
+    }
+    header h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 22px; font-weight: 700;
+      letter-spacing: 3px; color: var(--txt);
+    }
+    header h1 span { color: var(--red); }
+    .hdr-right { display: flex; align-items: center; gap: 10px; }
+    #lastUpdate {
+      font-size: 11px; color: var(--txt-dim); letter-spacing: 1px;
+    }
+    .btn-refresh {
+      background: var(--red);
+      color: #fff; border: none;
+      padding: 9px 20px; border-radius: 6px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700; font-size: 14px; letter-spacing: 2px;
+      cursor: pointer; text-transform: uppercase;
+      display: flex; align-items: center; gap: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-refresh:hover { background: #c00511; transform: translateY(-1px); }
+    .btn-refresh:active { transform: translateY(0); }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+    /* ── KPI ROW ── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px; margin-bottom: 20px;
+    }
+    .kpi {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      position: relative; overflow: hidden;
+    }
+    .kpi::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .kpi.red::before   { background: var(--red); }
+    .kpi.blue::before  { background: var(--blue); }
+    .kpi.green::before { background: var(--green); }
+    .kpi.amber::before { background: var(--amber); }
+    .kpi.purple::before{ background: var(--purple); }
+    .kpi-val {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 32px; font-weight: 700;
+      line-height: 1;
+    }
+    .kpi.red   .kpi-val { color: var(--red); }
+    .kpi.blue  .kpi-val { color: var(--blue); }
+    .kpi.green .kpi-val { color: var(--green); }
+    .kpi.amber .kpi-val { color: var(--amber); }
+    .kpi.purple .kpi-val{ color: var(--purple); }
+    .kpi-label {
+      font-size: 10px; color: var(--txt-dim);
+      text-transform: uppercase; letter-spacing: 1.5px;
+      margin-top: 4px;
+    }
+    .kpi-icon {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 28px; opacity: 0.12;
+    }
+
+    /* ── MAIN GRID ── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .full-width { grid-column: 1 / -1; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .card-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px; font-weight: 600;
+      color: var(--txt-dim); text-transform: uppercase;
+      letter-spacing: 2px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px; margin-bottom: 18px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title .icon { font-size: 16px; opacity: 0.6; }
+
+    /* ── TAB PILLS ── */
+    .tab-pills {
+      display: flex; gap: 4px;
+      background: #0a0f1a; border-radius: 6px; padding: 3px;
+    }
+    .tab-pill {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 4px;
+      border: none; cursor: pointer; color: var(--txt-dim);
+      background: transparent; transition: all 0.2s;
+    }
+    .tab-pill.active { background: var(--red); color: #fff; }
+
+    /* ── PROGRESO GENERAL ── */
+    .prog-general {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+    }
+    .prog-bar-wrap {
+      flex: 1; height: 10px; background: #1a2234; border-radius: 99px; overflow: hidden;
+    }
+    .prog-bar-fill {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, var(--red), #ff4d5a);
+      transition: width 0.8s ease;
+    }
+    .prog-pct {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 18px; font-weight: 700; color: var(--red); min-width: 48px; text-align: right;
+    }
+    .prog-label { font-size: 11px; color: var(--txt-dim); white-space: nowrap; }
+
+    /* ── AVANCE POR APILADOR ── */
+    .apilador-list { display: flex; flex-direction: column; gap: 14px; }
+    .apilador-row { }
+    .apilador-header {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 5px;
+    }
+    .apilador-name {
+      font-size: 13px; font-weight: 600; color: var(--txt);
+    }
+    .apilador-counts {
+      display: flex; gap: 8px; font-size: 11px;
+    }
+    .badge {
+      padding: 2px 8px; border-radius: 4px;
+      font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 11px;
+    }
+    .badge.green  { background: rgba(16,185,129,0.15); color: var(--green); }
+    .badge.amber  { background: rgba(245,158,11,0.15);  color: var(--amber); }
+    .badge.red    { background: rgba(227,6,19,0.15);    color: var(--red); }
+    .badge.blue   { background: rgba(59,130,246,0.15);  color: var(--blue); }
+    .badge.purple { background: rgba(139,92,246,0.15);  color: var(--purple); }
+    .apilador-track {
+      height: 7px; background: #1a2234; border-radius: 99px; overflow: hidden;
+      display: flex;
+    }
+    .apilador-seg {
+      height: 100%; transition: width 0.8s ease;
+    }
+
+    /* ── TOP PRODUCTOS ── */
+    .prod-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .prod-table th {
+      text-align: left; padding: 8px 10px;
+      color: var(--txt-dim); font-weight: 600; font-size: 10px;
+      text-transform: uppercase; letter-spacing: 1px;
+      border-bottom: 1px solid var(--border);
+    }
+    .prod-table td { padding: 9px 10px; border-bottom: 1px solid #0f1825; }
+    .prod-table tr:hover td { background: #141d2b; }
+    .prod-rank {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      color: var(--txt-dim); font-size: 16px;
+    }
+    .prod-rank.top1 { color: var(--amber); }
+    .prod-rank.top2 { color: var(--txt-mid); }
+    .prod-rank.top3 { color: #cd7f32; }
+    .prod-sap { color: var(--blue); font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 13px; }
+    .prod-desc { color: var(--txt-mid); }
+    .prod-bar-cell { width: 120px; }
+    .prod-bar-bg { background: #1a2234; border-radius: 99px; height: 5px; overflow: hidden; }
+    .prod-bar-fill { height: 100%; background: var(--blue); border-radius: 99px; }
+    .prod-cnt {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      color: var(--txt); font-size: 15px; text-align: right;
+    }
+
+    /* ── RENDIMIENTO TABLA ── */
+    .rend-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .rend-table th {
+      text-align: center; padding: 8px 10px;
+      color: var(--txt-dim); font-size: 10px;
+      text-transform: uppercase; letter-spacing: 1px;
+      border-bottom: 1px solid var(--border);
+    }
+    .rend-table th:first-child { text-align: left; }
+    .rend-table td { padding: 10px; border-bottom: 1px solid #0f1825; text-align: center; }
+    .rend-table td:first-child { text-align: left; font-weight: 600; }
+    .rend-table tr:hover td { background: #141d2b; }
+    .rend-ph {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 18px; color: var(--red);
+    }
+    .rend-total {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 18px; color: var(--blue);
+    }
+
+    footer {
+      text-align: center; padding: 24px;
+      font-size: 11px; color: var(--txt-dim); letter-spacing: 1px;
+    }
+    footer strong { color: var(--red); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .kpi-row { grid-template-columns: repeat(3, 1fr); }
+      .main-grid { grid-template-columns: 1fr; }
+      .full-width { grid-column: auto; }
+      header { flex-direction: column; gap: 10px; }
+    }
+    @media (max-width: 600px) {
+      .kpi-row { grid-template-columns: 1fr 1fr; }
+      header h1 { font-size: 17px; }
+    }
+  </style>
 </head>
 <body>
 
+<!-- ── LOADER ── -->
+<div id="loader">
+  <div class="gear-wrap">
+    <div class="gear g1"></div>
+    <div class="gear g2"></div>
+    <div class="gear g3"></div>
+    <span class="gear-icon">⚙️</span>
+  </div>
+  <p>Procesando datos<span class="loader-dots"></span></p>
+</div>
+
+<!-- ── HEADER ── -->
 <header>
-    <h1>DASHBOARD <span>LOGÍSTICO</span></h1>
+  <div class="hdr-left">
+    <div class="hdr-badge">ALM9037</div>
+    <h1>DASHBOARD <span>LOGÍSTICO</span> — RepoSYSTEM</h1>
+  </div>
+  <div class="hdr-right">
+    <span id="lastUpdate">—</span>
+    <button class="btn-refresh" onclick="cargarTodo()">
+      ⚙️ ACTUALIZAR
+    </button>
+  </div>
 </header>
 
 <div class="container">
-    <div class="stats-summary">
-        <div class="stat-box">
-            <span id="totalTareas" class="stat-val">0</span>
-            <span class="stat-label">Tareas Totales</span>
+
+  <!-- ── KPIs ── -->
+  <div class="kpi-row">
+    <div class="kpi red">
+      <div class="kpi-val" id="kTotal">—</div>
+      <div class="kpi-label">Tareas Totales</div>
+      <div class="kpi-icon">📋</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-val" id="kRealizadas">—</div>
+      <div class="kpi-label">Realizadas</div>
+      <div class="kpi-icon">✅</div>
+    </div>
+    <div class="kpi amber">
+      <div class="kpi-val" id="kPendientes">—</div>
+      <div class="kpi-label">Pendientes</div>
+      <div class="kpi-icon">⏳</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-val" id="kPH">—</div>
+      <div class="kpi-label">Pallets/Hora Equipo</div>
+      <div class="kpi-icon">🚀</div>
+    </div>
+    <div class="kpi purple">
+      <div class="kpi-val" id="kCumpl">—</div>
+      <div class="kpi-label">% Cumplimiento</div>
+      <div class="kpi-icon">🎯</div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+
+    <!-- ── AVANCE GENERAL + POR APILADOR ── -->
+    <div class="card full-width">
+      <div class="card-title">
+        Estado de Avance de Reposiciones
+        <span class="icon">📊</span>
+      </div>
+
+      <!-- General -->
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:12px;color:var(--txt-mid);font-weight:600;">AVANCE GENERAL</span>
+          <span id="avanceTxt" style="font-size:12px;color:var(--txt-dim);">0 / 0 tareas completadas</span>
         </div>
-        <div class="stat-box">
-            <span id="totalRealizadas" class="stat-val">0</span>
-            <span class="stat-label">Realizadas</span>
+        <div class="prog-general">
+          <div class="prog-bar-wrap">
+            <div class="prog-bar-fill" id="progGeneral" style="width:0%"></div>
+          </div>
+          <div class="prog-pct" id="progPct">0%</div>
         </div>
-        <div class="stat-box">
-            <span id="promedioEquipo" class="stat-val">0</span>
-            <span class="stat-label">Pallets/Hora Equipo</span>
-        </div>
+      </div>
+
+      <!-- Por Apilador -->
+      <div style="font-size:10px;color:var(--txt-dim);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;">Por Apilador</div>
+      <div class="apilador-list" id="apiladorList">
+        <div style="color:var(--txt-dim);font-size:13px;">Sin datos aún…</div>
+      </div>
     </div>
 
-    <button class="btn-refresh" onclick="cargarReporte()">Actualizar Reporte</button>
-
-    <div class="grid">
-        <!-- Gráfico de Avance -->
-        <div class="card">
-            <h3>Estado de Reposición (%)</h3>
-            <canvas id="chartEstados"></canvas>
+    <!-- ── PALLETS POR PERÍODO ── -->
+    <div class="card">
+      <div class="card-title">
+        Pallets Movidos por Período
+        <div class="tab-pills">
+          <button class="tab-pill active" onclick="cambiarPeriodo('dia',this)">Día</button>
+          <button class="tab-pill" onclick="cambiarPeriodo('semana',this)">Sem.</button>
+          <button class="tab-pill" onclick="cambiarPeriodo('mes',this)">Mes</button>
         </div>
-
-        <!-- Gráfico de Pallets por Hora Individual -->
-        <div class="card">
-            <h3>Rendimiento Individual (Pallets/Hora)</h3>
-            <canvas id="chartIndiv"></canvas>
-        </div>
-
-        <!-- Gráfico de Pallets por Hora Grupo -->
-        <div class="card">
-            <h3>Movimiento por Hora (Equipo Completo)</h3>
-            <canvas id="chartGrupo"></canvas>
-        </div>
-
-        <!-- Ranking de Productos -->
-        <div class="card">
-            <h3>Top Productos más Movidos</h3>
-            <div id="listaProductos" class="top-list"></div>
-        </div>
+      </div>
+      <canvas id="chartPeriodo" height="220"></canvas>
     </div>
-</div>
 
-<footer>
-    Diseñado por: <strong>Raul Layseca</strong>
-</footer>
+    <!-- ── ESTADO DONUT ── -->
+    <div class="card">
+      <div class="card-title">
+        Distribución de Estados
+        <span class="icon">🥧</span>
+      </div>
+      <canvas id="chartEstados" height="220"></canvas>
+    </div>
+
+    <!-- ── RENDIMIENTO INDIVIDUAL ── -->
+    <div class="card full-width">
+      <div class="card-title">
+        Rendimiento Individual por Apilador
+        <span class="icon">⚡</span>
+      </div>
+      <table class="rend-table" id="rendTable">
+        <thead>
+          <tr>
+            <th>Apilador</th>
+            <th>Total</th>
+            <th>Realizados</th>
+            <th>U. Vacía</th>
+            <th>Cod. NC</th>
+            <th>Pendientes</th>
+            <th>Pallets/Hora</th>
+            <th>% Cumpl.</th>
+          </tr>
+        </thead>
+        <tbody id="rendBody">
+          <tr><td colspan="8" style="color:var(--txt-dim);text-align:center;padding:20px;">Sin datos…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── MOVIMIENTO POR HORA ── -->
+    <div class="card">
+      <div class="card-title">
+        Movimiento por Hora del Día
+        <span class="icon">🕐</span>
+      </div>
+      <canvas id="chartHora" height="220"></canvas>
+    </div>
+
+    <!-- ── TOP PRODUCTOS ── -->
+    <div class="card">
+      <div class="card-title">
+        Top Productos con Mayor Rotación
+        <span class="icon">🔄</span>
+      </div>
+      <table class="prod-table" id="prodTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Cód. SAP</th>
+            <th>Descripción</th>
+            <th style="width:130px;">Rotación</th>
+            <th>Cant.</th>
+          </tr>
+        </thead>
+        <tbody id="prodBody">
+          <tr><td colspan="5" style="color:var(--txt-dim);text-align:center;padding:20px;">Sin datos…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /main-grid -->
+</div><!-- /container -->
+
+<footer>Diseñado por <strong>Raul Layseca</strong> &nbsp;·&nbsp; RepoSYSTEM ALM9037</footer>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; // REEMPLAZAR
+  // ──────────────────────────────────────────────
+  //  CONFIG
+  // ──────────────────────────────────────────────
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec";
 
-    Chart.register(ChartDataLabels);
-    let charts = {};
+  Chart.register(ChartDataLabels);
 
-    window.onload = cargarReporte;
+  let charts    = {};
+  let rawTareas = [];
+  let reportData = {};
+  let periodoActivo = 'dia';
 
-    async function cargarReporte() {
-        try {
-            const resp = await fetch(`${SCRIPT_URL}?action=getReporteDatos`);
-            const data = await resp.json();
-            if (data.error) return alert("Error: " + data.error);
-            actualizarDashboard(data);
-        } catch (err) { alert("Error de conexión"); }
+  // ──────────────────────────────────────────────
+  //  LOADER
+  // ──────────────────────────────────────────────
+  function showLoader() { document.getElementById('loader').classList.remove('hidden'); }
+  function hideLoader() { document.getElementById('loader').classList.add('hidden'); }
+
+  // ──────────────────────────────────────────────
+  //  CARGAR TODO
+  // ──────────────────────────────────────────────
+  async function cargarTodo() {
+    showLoader();
+    try {
+      const [reporte, tareas] = await Promise.all([
+        fetch(`${SCRIPT_URL}?action=getReporteDatos`).then(r => r.json()),
+        fetch(`${SCRIPT_URL}?action=getTareas`).then(r => r.json())
+      ]);
+      if (reporte.error) throw new Error(reporte.error);
+      reportData = reporte;
+      rawTareas  = tareas.tareas || [];
+
+      actualizarDashboard();
+      document.getElementById('lastUpdate').textContent =
+        'Última actualización: ' + new Date().toLocaleTimeString('es-CL');
+    } catch(err) {
+      alert('Error de conexión: ' + err.message);
     }
+    hideLoader();
+  }
 
-    function actualizarDashboard(data) {
-        document.getElementById('totalTareas').innerText = data.totalTareas;
-        document.getElementById('totalRealizadas').innerText = data.porEstado['REALIZADO'] || 0;
-        
-        // Calcular promedio equipo
-        const valsInd = Object.values(data.palletsHoraInd);
-        const prom = valsInd.length ? (valsInd.reduce((a,b)=>a+b,0) / valsInd.length).toFixed(2) : 0;
-        document.getElementById('promedioEquipo').innerText = prom;
+  // ──────────────────────────────────────────────
+  //  DASHBOARD PRINCIPAL
+  // ──────────────────────────────────────────────
+  function actualizarDashboard() {
+    const d = reportData;
 
-        // 1. Gráfico Estados
-        renderChart('chartEstados', 'pie', Object.keys(data.porEstado), Object.values(data.porEstado), ['#22c55e', '#ef4444', '#f97316', '#3b82f6']);
+    // KPIs
+    const realizado  = d.porEstado['REALIZADO']           || 0;
+    const vacía      = d.porEstado['UBIC. VACÍA']         || 0;
+    const nocode     = d.porEstado['CÓD. NO CORRESPONDE'] || 0;
+    const pendiente  = d.porEstado['PENDIENTE']           || 0;
+    const total      = d.totalTareas     || 0;
+    const completadas= d.totalCompletadas|| 0;
+    const cumpl      = total > 0 ? Math.round((realizado / total) * 100) : 0;
 
-        // 2. Gráfico Individual (Pallets/Hora)
-        renderChart('chartIndiv', 'bar', Object.keys(data.palletsHoraInd), Object.values(data.palletsHoraInd), '#e30613', 'Pallets/Hora');
+    document.getElementById('kTotal').textContent     = total;
+    document.getElementById('kRealizadas').textContent = realizado;
+    document.getElementById('kPendientes').textContent = pendiente;
+    document.getElementById('kCumpl').textContent     = cumpl + '%';
 
-        // 3. Gráfico Grupo (Por Hora del día)
-        const horasLabels = Object.keys(data.porHoraGrupo).map(h => h + ":00");
-        renderChart('chartGrupo', 'line', horasLabels, Object.values(data.porHoraGrupo), '#3b82f6', 'Pallets Totales');
+    const valsInd = Object.values(d.palletsHoraInd || {});
+    const promPH  = valsInd.length ? (valsInd.reduce((a,b)=>a+b,0)/valsInd.length).toFixed(1) : '0';
+    document.getElementById('kPH').textContent = promPH;
 
-        // 4. Ranking
-        const lista = document.getElementById('listaProductos');
-        lista.innerHTML = "";
-        Object.entries(data.topProductos).sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([name, count]) => {
-            lista.innerHTML += `<div class="top-item"><span>${name}</span><span class="top-count">${count}</span></div>`;
-        });
-    }
+    // Avance general
+    const pct = total > 0 ? Math.round((completadas / total) * 100) : 0;
+    document.getElementById('progGeneral').style.width = pct + '%';
+    document.getElementById('progPct').textContent     = pct + '%';
+    document.getElementById('avanceTxt').textContent   = completadas + ' / ' + total + ' tareas completadas';
 
-    function renderChart(id, type, labels, data, colors, labelName = '') {
-        const ctx = document.getElementById(id).getContext('2d');
-        if (charts[id]) charts[id].destroy();
-        charts[id] = new Chart(ctx, {
-            type: type,
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: labelName,
-                    data: data,
-                    backgroundColor: colors,
-                    borderColor: type === 'line' ? colors : 'transparent',
-                    tension: 0.3
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: { display: type === 'pie' || type === 'doughnut', labels: { color: '#8896b0' } },
-                    datalabels: {
-                        color: '#fff',
-                        font: { weight: 'bold' },
-                        formatter: (val) => val > 0 ? val : ''
-                    }
-                },
-                scales: type === 'bar' || type === 'line' ? {
-                    y: { grid: { color: '#1e2d45' }, ticks: { color: '#8896b0' } },
-                    x: { ticks: { color: '#8896b0' } }
-                } : {}
+    renderAvancePorApilador();
+    renderEstados(realizado, vacía, nocode, pendiente);
+    renderRendimientoTabla();
+    renderProductos();
+    renderHora();
+    renderPeriodo(periodoActivo);
+  }
+
+  // ──────────────────────────────────────────────
+  //  AVANCE POR APILADOR
+  // ──────────────────────────────────────────────
+  function renderAvancePorApilador() {
+    const ops = {};
+    rawTareas.forEach(t => {
+      const op = t.operador || 'Sin Asignar';
+      if (!ops[op]) ops[op] = { realizado:0, vacia:0, nocode:0, pendiente:0 };
+      if (!t.hora || t.hora === '') {
+        ops[op].pendiente++;
+      } else {
+        const est = (t.estado || '').toUpperCase();
+        if (est === 'REALIZADO')               ops[op].realizado++;
+        else if (est === 'UBIC. VACÍA')        ops[op].vacia++;
+        else                                   ops[op].nocode++;
+      }
+    });
+
+    const list = document.getElementById('apiladorList');
+    list.innerHTML = '';
+
+    Object.entries(ops).sort((a,b) => {
+      const totA = a[1].realizado + a[1].vacia + a[1].nocode + a[1].pendiente;
+      const totB = b[1].realizado + b[1].vacia + b[1].nocode + b[1].pendiente;
+      return totB - totA;
+    }).forEach(([op, s]) => {
+      const tot   = s.realizado + s.vacia + s.nocode + s.pendiente;
+      const pct   = tot > 0 ? Math.round(((s.realizado + s.vacia + s.nocode) / tot) * 100) : 0;
+      const pctR  = tot > 0 ? (s.realizado / tot * 100).toFixed(1) : 0;
+      const pctV  = tot > 0 ? (s.vacia     / tot * 100).toFixed(1) : 0;
+      const pctN  = tot > 0 ? (s.nocode    / tot * 100).toFixed(1) : 0;
+
+      list.innerHTML += `
+        <div class="apilador-row">
+          <div class="apilador-header">
+            <span class="apilador-name">👷 ${op}</span>
+            <div class="apilador-counts">
+              <span class="badge green">✅ ${s.realizado}</span>
+              <span class="badge amber">⚠️ ${s.vacia}</span>
+              <span class="badge red">❌ ${s.nocode}</span>
+              <span class="badge blue">⏳ ${s.pendiente}</span>
+              <span class="badge purple">${pct}% completado</span>
+            </div>
+          </div>
+          <div class="apilador-track">
+            <div class="apilador-seg" style="width:${pctR}%;background:var(--green)"></div>
+            <div class="apilador-seg" style="width:${pctV}%;background:var(--amber)"></div>
+            <div class="apilador-seg" style="width:${pctN}%;background:var(--red)"></div>
+          </div>
+        </div>`;
+    });
+    if (!Object.keys(ops).length) list.innerHTML = '<div style="color:var(--txt-dim);font-size:13px;">Sin datos aún…</div>';
+  }
+
+  // ──────────────────────────────────────────────
+  //  ESTADOS DONUT
+  // ──────────────────────────────────────────────
+  function renderEstados(r, v, n, p) {
+    const ctx = document.getElementById('chartEstados').getContext('2d');
+    if (charts.estados) charts.estados.destroy();
+    charts.estados = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Realizado','Ubic. Vacía','Cód. NC','Pendiente'],
+        datasets: [{
+          data: [r, v, n, p],
+          backgroundColor: ['#10b981','#f59e0b','#e30613','#3b82f6'],
+          borderWidth: 0,
+          hoverOffset: 8
+        }]
+      },
+      options: {
+        cutout: '65%',
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 14, font:{size:11} } },
+          datalabels: {
+            color: '#fff', font:{weight:'bold',size:11},
+            formatter: (v,ctx) => {
+              const tot = ctx.dataset.data.reduce((a,b)=>a+b,0);
+              return tot > 0 && v > 0 ? Math.round(v/tot*100)+'%' : '';
             }
-        });
+          }
+        }
+      }
+    });
+  }
+
+  // ──────────────────────────────────────────────
+  //  PALLETS POR PERÍODO (rawTareas)
+  // ──────────────────────────────────────────────
+  function cambiarPeriodo(periodo, btn) {
+    periodoActivo = periodo;
+    document.querySelectorAll('.tab-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderPeriodo(periodo);
+  }
+
+  function getISOWeek(date) {
+    const d = new Date(date);
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate() + 3 - (d.getDay()+6)%7);
+    const week1 = new Date(d.getFullYear(),0,4);
+    return 'Sem ' + (1 + Math.round(((d-week1)/86400000 - 3 + (week1.getDay()+6)%7)/7));
+  }
+
+  function renderPeriodo(periodo) {
+    const agg = {};
+    rawTareas.forEach(t => {
+      if (!t.fecha_ejec && (!t.hora || t.hora==='')) return;
+      const fecha = t.fecha || '';
+      if (!fecha) return;
+
+      let key;
+      // Parsear fecha "dd/mm/yyyy"
+      const parts = fecha.split('/');
+      if (parts.length !== 3) return;
+      const dateObj = new Date(parts[2], parts[1]-1, parts[0]);
+      if (isNaN(dateObj)) return;
+
+      if (periodo === 'dia') {
+        key = fecha;
+      } else if (periodo === 'semana') {
+        key = getISOWeek(dateObj);
+      } else {
+        const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+        key = meses[dateObj.getMonth()] + ' ' + dateObj.getFullYear();
+      }
+
+      agg[key] = (agg[key] || 0) + 1;
+    });
+
+    const labels = Object.keys(agg);
+    const values = Object.values(agg);
+
+    const ctx = document.getElementById('chartPeriodo').getContext('2d');
+    if (charts.periodo) charts.periodo.destroy();
+
+    const grad = ctx.createLinearGradient(0, 0, 0, 220);
+    grad.addColorStop(0, 'rgba(227,6,19,0.6)');
+    grad.addColorStop(1, 'rgba(227,6,19,0.05)');
+
+    charts.periodo = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Pallets',
+          data: values,
+          backgroundColor: grad,
+          borderColor: 'var(--red)',
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          datalabels: { color:'#fff', font:{weight:'bold',size:10}, anchor:'end', align:'top' }
+        },
+        scales: {
+          y: { grid:{color:'#1e2d45'}, ticks:{color:'#64748b'}, beginAtZero:true },
+          x: { ticks:{color:'#64748b'} }
+        }
+      }
+    });
+  }
+
+  // ──────────────────────────────────────────────
+  //  MOVIMIENTO POR HORA
+  // ──────────────────────────────────────────────
+  function renderHora() {
+    const d = reportData;
+    const horas  = Object.keys(d.porHoraGrupo || {}).sort().map(h => h+':00');
+    const values = horas.map(h => d.porHoraGrupo[h.split(':')[0]] || 0);
+
+    const ctx = document.getElementById('chartHora').getContext('2d');
+    if (charts.hora) charts.hora.destroy();
+
+    const grad = ctx.createLinearGradient(0,0,0,220);
+    grad.addColorStop(0,'rgba(59,130,246,0.5)');
+    grad.addColorStop(1,'rgba(59,130,246,0.02)');
+
+    charts.hora = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: horas,
+        datasets: [{
+          label: 'Pallets',
+          data: values,
+          borderColor: '#3b82f6',
+          backgroundColor: grad,
+          borderWidth: 2,
+          pointBackgroundColor: '#3b82f6',
+          pointRadius: 4,
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        plugins: {
+          legend:{display:false},
+          datalabels:{color:'#94a3b8',font:{size:9},anchor:'end',align:'top'}
+        },
+        scales: {
+          y:{grid:{color:'#1e2d45'},ticks:{color:'#64748b'},beginAtZero:true},
+          x:{ticks:{color:'#64748b'}}
+        }
+      }
+    });
+  }
+
+  // ──────────────────────────────────────────────
+  //  RENDIMIENTO TABLA
+  // ──────────────────────────────────────────────
+  function renderRendimientoTabla() {
+    const d   = reportData;
+    const ops = Object.keys(d.porOperador || {});
+
+    // Pendientes por operador
+    const pendPorOp = {};
+    rawTareas.forEach(t => {
+      if (!t.hora || t.hora === '') {
+        const op = t.operador || 'Sin Asignar';
+        pendPorOp[op] = (pendPorOp[op] || 0) + 1;
+      }
+    });
+
+    if (!ops.length) return;
+    const tbody = document.getElementById('rendBody');
+    tbody.innerHTML = '';
+
+    ops.sort((a,b) => (d.porOperador[b].total||0) - (d.porOperador[a].total||0))
+       .forEach(op => {
+      const s   = d.porOperador[op];
+      const ph  = (d.palletsHoraInd || {})[op] || '—';
+      const pct = s.total > 0 ? Math.round((s.realizado/s.total)*100) : 0;
+      const pend= pendPorOp[op] || 0;
+      const color = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : 'var(--red)';
+      tbody.innerHTML += `
+        <tr>
+          <td>👷 ${op}</td>
+          <td><span class="rend-total">${s.total}</span></td>
+          <td><span class="badge green">${s.realizado}</span></td>
+          <td><span class="badge amber">${s.vacia}</span></td>
+          <td><span class="badge red">${s.nocode}</span></td>
+          <td><span class="badge blue">${pend}</span></td>
+          <td><span class="rend-ph">${ph}</span></td>
+          <td><span style="font-family:Rajdhani;font-weight:700;font-size:16px;color:${color};">${pct}%</span></td>
+        </tr>`;
+    });
+  }
+
+  // ──────────────────────────────────────────────
+  //  TOP PRODUCTOS (con SAP y descripción separados)
+  // ──────────────────────────────────────────────
+  function renderProductos() {
+    // Construir desde rawTareas para mayor detalle
+    const prods = {};
+    rawTareas.forEach(t => {
+      const sap  = t.sap  || '';
+      const desc = t.descripcion || '';
+      if (!sap && !desc) return;
+      const key = sap + '||' + desc;
+      if (!prods[key]) prods[key] = { sap, desc, count:0 };
+      prods[key].count++;
+    });
+
+    const sorted = Object.values(prods).sort((a,b) => b.count - a.count).slice(0, 8);
+    const maxCnt = sorted[0]?.count || 1;
+
+    const rankClass = i => i===0?'top1':i===1?'top2':i===2?'top3':'';
+    const tbody = document.getElementById('prodBody');
+    tbody.innerHTML = '';
+
+    if (!sorted.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="color:var(--txt-dim);text-align:center;padding:20px;">Sin datos…</td></tr>';
+      return;
     }
+
+    sorted.forEach((p, i) => {
+      const bar = Math.round((p.count / maxCnt) * 100);
+      tbody.innerHTML += `
+        <tr>
+          <td><span class="prod-rank ${rankClass(i)}">${i+1}</span></td>
+          <td><span class="prod-sap">${p.sap || '—'}</span></td>
+          <td class="prod-desc">${p.desc || '—'}</td>
+          <td class="prod-bar-cell">
+            <div class="prod-bar-bg">
+              <div class="prod-bar-fill" style="width:${bar}%"></div>
+            </div>
+          </td>
+          <td class="prod-cnt">${p.count}</td>
+        </tr>`;
+    });
+  }
+
+  // ──────────────────────────────────────────────
+  //  INIT
+  // ──────────────────────────────────────────────
+  window.onload = cargarTodo;
 </script>
 </body>
 </html>
