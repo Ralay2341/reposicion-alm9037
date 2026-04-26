@@ -70,7 +70,7 @@
 <header>
   <h1>REPOSYSTEM <span>ALM9037</span></h1>
   <div class="header-right">
-    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Conectando...</div>
+    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Consultando Columna O...</div>
     <button class="btn-update" onclick="cargarDatos()" id="btnUpdate">
       <span id="gearIcon">🔄</span> ACTUALIZAR
     </button>
@@ -152,6 +152,7 @@
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos`);
       const data = await response.json();
       procesarReporte(data);
+      document.getElementById('fechaSidebar').textContent = "Consulta: Tiempo Real";
     } catch (e) { console.error(e); } 
     finally { toggleLoading(false); }
   }
@@ -160,7 +161,12 @@
     const rawDate = document.getElementById('inputDate').value;
     if (!rawDate) return alert("Selecciona una fecha");
 
-    // FORMATEO PARA COLUMNA O (Día-Mes-Año)
+    // --- LIMPIEZA INICIAL DEL SIDEBAR (Para que no se quede pegado el 02-04-2026) ---
+    document.getElementById('panelGeneralStats').innerHTML = "";
+    document.getElementById('filterResult').innerHTML = "<p style='color:var(--txt-dim); font-size:11px;'>Buscando...</p>";
+    document.getElementById('fechaSidebar').textContent = "Sincronizando...";
+
+    // --- FORMATEO ESTRICTO DD-MM-YYYY (Para Columna O) ---
     const parts = rawDate.split('-');
     const fechaFormateada = `${parts[2]}-${parts[1]}-${parts[0]}`;
     const rango = document.getElementById('inputRange').value;
@@ -174,14 +180,19 @@
       
       if(!data || !data.totalTareas || data.totalTareas == 0) {
         document.getElementById('fechaSidebar').textContent = `SIN DATOS: ${fechaFormateada}`;
-        alert(`Sin registros en Columna O para: ${fechaFormateada}`);
+        document.getElementById('panelGeneralStats').innerHTML = "<div style='grid-column:span 2; color:var(--red); padding:10px;'>No existen tareas en Columna O</div>";
+        document.getElementById('filterResult').innerHTML = "";
+        alert(`Confirmado: La fecha ${fechaFormateada} no tiene registros en la Columna O.`);
       } else {
-        document.getElementById('fechaSidebar').textContent = `Consulta: ${fechaFormateada}`;
+        document.getElementById('fechaSidebar').textContent = `Consulta Col O: ${fechaFormateada}`;
         mostrarPanelHistorial(data);
         procesarReporte(data);
       }
-    } catch (e) { alert("Error de servidor."); } 
-    finally { toggleLoading(false); }
+    } catch (e) { 
+      alert("Error de servidor."); 
+    } finally { 
+      toggleLoading(false); 
+    }
   }
 
   function mostrarPanelHistorial(data) {
@@ -189,15 +200,24 @@
     const pStats = document.getElementById('panelGeneralStats');
     const res = document.getElementById('filterResult');
     
+    const tot = data.totalTareas || 0;
+    const ok = data.porEstado['REALIZADO'] || 0;
+    const efec = tot > 0 ? Math.round((ok / tot) * 100) : 0;
+
     pStats.innerHTML = `
-      <div class="pkpi"><small>Total</small><div>${data.totalTareas}</div></div>
-      <div class="pkpi"><small>Eficiencia</small><div style="color:var(--purple)">${Math.round((data.porEstado['REALIZADO'] / data.totalTareas) * 100)}%</div></div>
+      <div class="pkpi"><small>Total</small><div>${tot}</div></div>
+      <div class="pkpi"><small>Correctas</small><div style="color:var(--green)">${ok}</div></div>
+      <div class="pkpi"><small>Ub. Vacías</small><div style="color:var(--amber)">${data.porEstado['UBIC. VACÍA'] || 0}</div></div>
+      <div class="pkpi"><small>Eficiencia</small><div style="color:var(--purple)">${efec}%</div></div>
     `;
 
-    let html = "";
+    let html = "<h3 style='font-size:11px; color:var(--txt-dim); margin-bottom:10px;'>DETALLE OPERADORES</h3>";
     Object.entries(data.rendimientoIndividual || {}).forEach(([nom, s]) => {
-      html += `<div class="card" style="margin-bottom:10px; padding:10px; background:#161f2e;">
-                <b style="font-size:12px;">${nom}</b>: ${s.realizados} OK
+      html += `<div class="card" style="margin-bottom:8px; padding:10px; background:#161f2e; border:1px solid #1e2d45;">
+                <div style="display:flex; justify-content:space-between;">
+                  <b style="font-size:12px;">${nom}</b>
+                  <span style="color:var(--purple); font-weight:bold;">${s.cumplimiento}%</span>
+                </div>
                </div>`;
     });
     res.innerHTML = html;
@@ -210,19 +230,23 @@
     document.getElementById('kVacias').textContent = data.porEstado['UBIC. VACÍA'] || 0;
     document.getElementById('kErrores').textContent = data.porEstado['COD. NO CORRESPONDE'] || 0;
 
+    const tbody = document.getElementById('rendBody');
+    const chartCont = document.getElementById('chartsContainer');
+    const prodList = document.getElementById('prodByHourList');
+
     Object.entries(data.rendimientoIndividual || {}).forEach(([nom, s], i) => {
-      document.getElementById('rendBody').innerHTML += `<tr>
+      tbody.innerHTML += `<tr>
         <td><strong>${nom}</strong></td><td>${s.total}</td>
         <td><span class="badge green">${s.realizados}</span></td>
         <td><span class="badge amber">${s.vacias}</span></td>
         <td><span class="badge red-status">${s.nocode}</span></td>
-        <td>${s.palletsPorHora}</td>
+        <td style="font-weight:bold;">${s.palletsPorHora}</td>
         <td style="color:var(--green)">${s.cumplimiento}%</td></tr>`;
       
-      document.getElementById('prodByHourList').innerHTML += `<div class="prod-item"><span>${nom}</span><b>${s.palletsPorHora} P/H</b></div>`;
+      prodList.innerHTML += `<div class="prod-item"><span>${nom}</span><b>${s.palletsPorHora} P/H</b></div>`;
       
       const chartId = `c-${i}`;
-      document.getElementById('chartsContainer').innerHTML += `<div class="chart-box"><p style="font-size:9px;">${nom}</p><canvas id="${chartId}"></canvas></div>`;
+      chartCont.innerHTML += `<div class="chart-box"><p style="font-size:9px;">${nom}</p><canvas id="${chartId}"></canvas></div>`;
       
       setTimeout(() => {
         const ctx = document.getElementById(chartId).getContext('2d');
