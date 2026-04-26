@@ -141,17 +141,14 @@
     return `${d}-${m}-${y}`;
   }
 
-  // CARGAR DATOS DE HOY
-  // Lógica: fecha de solicitud en Col B → estado real en Col O
+  // CARGAR DATOS DE HOY — backend filtra por Col B, lee estado desde Col N
   async function cargarDatosHoy() {
     const hoy = getTodayString();
     toggleLoading(true, `Sincronizando ${hoy}...`);
     limpiarDashboardPrincipal();
     
     try {
-      // filterCol=B  → filtra filas donde Col B == fecha de hoy (Solicitadas)
-      // statusCol=O  → lee el estado de cada fila desde Col O (Realizadas / Vacías / No Corresponde)
-      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${hoy}&filterCol=B&statusCol=O`);
+      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${hoy}`);
       const data = await response.json();
       
       procesarReportePrincipal(data);
@@ -162,9 +159,7 @@
     } finally { toggleLoading(false); }
   }
 
-  // FILTRO HISTÓRICO (SIDEBAR)
-  // Misma lógica que hoy: fecha en Col B → estado en Col O
-  // ⚠️ BUG ORIGINAL: enviaba targetCol=O, lo que hacía filtrar fechas en Col O (incorrecto)
+  // FILTRO HISTÓRICO (SIDEBAR) — misma lógica, distinta fecha
   async function aplicarFiltroHistorico() {
     const rawDate = document.getElementById('inputDate').value;
     if (!rawDate) return alert("Selecciona una fecha");
@@ -176,9 +171,7 @@
     limpiarSidebar();
 
     try {
-      // filterCol=B  → filtra por fecha en Col B (igual que el dashboard principal)
-      // statusCol=O  → lee el estado real desde Col O
-      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${fechaFormateada}&filterCol=B&statusCol=O`);
+      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${fechaFormateada}`);
       const data = await response.json();
       
       if(!data || data.totalTareas === 0) {
