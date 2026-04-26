@@ -27,18 +27,17 @@
       border-radius: 5px; cursor: pointer; font-family: 'Rajdhani'; font-weight: bold; 
       display: flex; align-items: center; gap: 8px; transition: 0.3s; margin-left: auto;
     }
-    .btn-update:hover { background: #b3050f; }
-    .designer-tag { font-size: 10px; color: var(--txt-dim); margin-top: 5px; font-weight: 500; letter-spacing: 0.5px; }
+    .btn-update:disabled { opacity: 0.6; cursor: not-allowed; }
+    .designer-tag { font-size: 11px; color: var(--txt-dim); margin-top: 6px; font-weight: 500; letter-spacing: 0.5px; }
 
-    /* Animación del engranaje */
-    .spin { animation: spin 2s linear infinite; }
+    .spin { animation: spin 2s linear infinite; display: inline-block; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
 
     .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-    .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; border-top: 3px solid var(--red); }
-    .kpi-val { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700; }
-    .kpi-label { font-size: 11px; color: var(--txt-dim); text-transform: uppercase; }
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; border-top: 4px solid var(--red); }
+    .kpi-val { font-family: 'Rajdhani', sans-serif; font-size: 36px; font-weight: 700; }
+    .kpi-label { font-size: 11px; color: var(--txt-dim); text-transform: uppercase; letter-spacing: 1px; }
 
     .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .full-width { grid-column: 1 / -1; }
@@ -46,27 +45,27 @@
     .card-title { font-family: 'Rajdhani', sans-serif; font-size: 14px; color: var(--txt-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; }
 
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th { text-align: left; padding: 12px; color: var(--txt-dim); border-bottom: 1px solid var(--border); font-size: 11px; }
+    th { text-align: left; padding: 12px; color: var(--txt-dim); border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; }
     td { padding: 12px; border-bottom: 1px solid #1a2234; }
     
-    .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-family: 'Rajdhani'; font-size: 12px; }
+    .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-family: 'Rajdhani'; }
     .green { background: rgba(16,185,129,0.1); color: var(--green); }
     .amber { background: rgba(245,158,11,0.1); color: var(--amber); }
-    .red { background: rgba(227,6,19,0.1); color: var(--red); }
+    .red-status { background: rgba(227,6,19,0.1); color: var(--red); }
     .blue { background: rgba(59,130,246,0.1); color: var(--blue); }
 
-    .prog-wrap { height: 8px; background: #1a2234; border-radius: 10px; overflow: hidden; margin: 10px 0; }
-    .prog-fill { height: 100%; background: var(--red); transition: width 1s ease-in-out; }
+    .prog-wrap { height: 10px; background: #1a2234; border-radius: 10px; overflow: hidden; margin: 12px 0; }
+    .prog-fill { height: 100%; background: var(--red); transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
     
-    #loader { position: fixed; inset: 0; background: rgba(7,11,18,0.9); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Rajdhani'; letter-spacing: 2px; }
+    #loader { position: fixed; inset: 0; background: rgba(7,11,18,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Rajdhani'; letter-spacing: 2px; }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
 <div id="loader">
-  <div style="font-size: 40px; margin-bottom: 10px;" class="spin">⚙️</div>
-  <span>SINCRONIZANDO DATOS...</span>
+  <div style="font-size: 50px; margin-bottom: 15px;" class="spin">⚙️</div>
+  <span>SINCRONIZANDO SISTEMA...</span>
 </div>
 
 <header>
@@ -84,14 +83,14 @@
     <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-label">Tareas Totales</div></div>
     <div class="kpi" style="border-top-color: var(--green);"><div class="kpi-val" id="kRealizadas" style="color: var(--green);">0</div><div class="kpi-label">Realizadas</div></div>
     <div class="kpi" style="border-top-color: var(--amber);"><div class="kpi-val" id="kPendientes" style="color: var(--amber);">0</div><div class="kpi-label">Pendientes</div></div>
-    <div class="kpi" style="border-top-color: var(--purple);"><div class="kpi-val" id="kCumpl" style="color: var(--purple);">0%</div><div class="kpi-label">% Cumplimiento</div></div>
+    <div class="kpi" style="border-top-color: var(--purple);"><div class="kpi-val" id="kCumpl" style="color: var(--purple);">0%</div><div class="kpi-label">% Cumplimiento Total</div></div>
   </div>
 
   <div class="main-grid">
     <div class="card full-width">
-      <div class="card-title">Avance de Reposiciones <span id="lastUpdate" style="text-transform:none; font-size:11px;">-</span></div>
-      <div style="display:flex; justify-content:space-between; font-size:12px;">
-        <span id="avanceTxt">Iniciando...</span>
+      <div class="card-title">Avance de Reposiciones <span id="lastUpdate" style="text-transform:none; font-size:11px; opacity: 0.6;">Sincronizando...</span></div>
+      <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom: 5px;">
+        <span id="avanceTxt">Procesando registros...</span>
         <span id="progPct" style="color:var(--red); font-weight:bold;">0%</span>
       </div>
       <div class="prog-wrap"><div id="progGeneral" class="prog-fill" style="width:0%"></div></div>
@@ -99,37 +98,38 @@
 
     <div class="card">
       <div class="card-title">Distribución de Estados <span>📊</span></div>
-      <canvas id="chartEstados" height="220"></canvas>
+      <canvas id="chartEstados" height="230"></canvas>
     </div>
 
     <div class="card">
-      <div class="card-title">Pallets por Período <span>📅</span></div>
-      <canvas id="chartPeriodo" height="220"></canvas>
+      <div class="card-title">Pallets por Período (Hora) <span>📅</span></div>
+      <canvas id="chartPeriodo" height="230"></canvas>
     </div>
 
     <div class="card full-width">
       <div class="card-title">Rendimiento Individual por Apilador <span>⚡</span></div>
-      <table>
-        <thead>
-          <tr>
-            <th>Operador Responzable</th>
-            <th>Total</th>
-            <th>Realizados</th>
-            <th>Ubic. Vacía</th>
-            <th>Cód. No Corresp.</th>
-            <th>Pendientes</th>
-            <th>Pallets/Hora</th>
-            <th>% Cumplimiento</th>
-          </tr>
-        </thead>
-        <tbody id="rendBody"></tbody>
-      </table>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Operador Responzable</th>
+              <th>Total</th>
+              <th>Realizados</th>
+              <th>Ubic. Vacía</th>
+              <th>Cod. No Corresp.</th>
+              <th>Pendientes</th>
+              <th>Pallets/Hora</th>
+              <th>% Cumplimiento</th>
+            </tr>
+          </thead>
+          <tbody id="rendBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-  // URL de tu implementación de Google Apps Script
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; 
 
   let charts = {};
@@ -139,7 +139,6 @@
     const gear = document.getElementById('gearIcon');
     const loader = document.getElementById('loader');
 
-    // Efecto de carga
     btn.disabled = true;
     gear.innerText = "⚙️";
     gear.classList.add('spin');
@@ -152,10 +151,10 @@
       if (data.error) throw new Error(data.error);
       
       procesarReporte(data);
-      document.getElementById('lastUpdate').textContent = 'Última actualización: ' + new Date().toLocaleTimeString();
+      document.getElementById('lastUpdate').textContent = 'Sincronizado: ' + new Date().toLocaleTimeString();
     } catch (e) {
-      console.error(e);
-      alert("Error al sincronizar: " + e.message);
+      console.error("Error de Sincronización:", e);
+      alert("Error al obtener datos: " + e.message);
     } finally {
       btn.disabled = false;
       gear.innerText = "🔄";
@@ -165,85 +164,101 @@
   }
 
   function procesarReporte(data) {
-    // 1. KPIs
+    // 1. Cargar KPIs Principales
     document.getElementById('kTotal').textContent = data.totalTareas || 0;
     document.getElementById('kRealizadas').textContent = data.porEstado['REALIZADO'] || 0;
     document.getElementById('kPendientes').textContent = data.porEstado['PENDIENTE'] || 0;
 
-    const tot = data.totalTareas || 1;
+    const total = data.totalTareas || 1;
     const real = data.porEstado['REALIZADO'] || 0;
-    const cumplGen = Math.round((real / tot) * 100);
-    document.getElementById('kCumpl').textContent = cumplGen + '%';
+    const cumplTotal = Math.round((real / total) * 100);
+    document.getElementById('kCumpl').textContent = cumplTotal + '%';
 
-    // 2. Barra de Avance
-    const gestionados = tot - (data.porEstado['PENDIENTE'] || 0);
-    const pct = Math.round((gestionados / tot) * 100);
+    // 2. Actualizar Barra de Progreso
+    const gestionados = total - (data.porEstado['PENDIENTE'] || 0);
+    const pct = Math.round((gestionados / total) * 100);
     document.getElementById('progGeneral').style.width = pct + '%';
     document.getElementById('progPct').textContent = pct + '%';
-    document.getElementById('avanceTxt').textContent = `${gestionados} de ${tot} tareas procesadas`;
+    document.getElementById('avanceTxt').textContent = `${gestionados} de ${total} tareas completadas`;
 
-    // 3. Tabla de Apiladores
+    // 3. Renderizar Tabla de Apiladores
     const tbody = document.getElementById('rendBody');
     tbody.innerHTML = "";
     
-    Object.entries(data.rendimientoIndividual).forEach(([nombre, s]) => {
-      tbody.innerHTML += `
-        <tr>
-          <td><strong>👷 ${nombre}</strong></td>
-          <td>${s.total}</td>
-          <td><span class="badge green">${s.realizados}</span></td>
-          <td><span class="badge amber">${s.vacias}</span></td>
-          <td><span class="badge red">${s.nocode}</span></td>
-          <td><span class="badge blue">${s.pendientes}</span></td>
-          <td style="font-family:Rajdhani; font-weight:700; font-size:16px;">${s.palletsPorHora}</td>
-          <td style="font-weight:bold; color:${s.cumplimiento > 80 ? '#10b981' : '#f59e0b'}">${s.cumplimiento}%</td>
-        </tr>
-      `;
-    });
+    if (data.rendimientoIndividual) {
+      Object.entries(data.rendimientoIndividual).forEach(([nombre, s]) => {
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>👷 ${nombre}</strong></td>
+            <td>${s.total}</td>
+            <td><span class="badge green">${s.realizados}</span></td>
+            <td><span class="badge amber">${s.vacias}</span></td>
+            <td><span class="badge red-status">${s.nocode}</span></td>
+            <td><span class="badge blue">${s.pendientes}</span></td>
+            <td style="font-family:Rajdhani; font-weight:700; font-size:16px;">${s.palletsPorHora}</td>
+            <td style="font-weight:bold; color:${s.cumplimiento > 80 ? '#10b981' : '#f59e0b'}">${s.cumplimiento}%</td>
+          </tr>
+        `;
+      });
+    }
 
     actualizarGraficos(data);
   }
 
   function actualizarGraficos(data) {
+    // Gráfico de Estados
     if (charts.estados) charts.estados.destroy();
-    
-    const ctx = document.getElementById('chartEstados').getContext('2d');
-    charts.estados = new Chart(ctx, {
+    const ctxE = document.getElementById('chartEstados').getContext('2d');
+    charts.estados = new Chart(ctxE, {
       type: 'doughnut',
       data: {
-        labels: Object.keys(data.porEstado),
+        labels: ['Realizado', 'Ubic. Vacía', 'Cód. No Corresp.', 'Pendiente'],
         datasets: [{
-          data: Object.values(data.porEstado),
+          data: [
+            data.porEstado['REALIZADO'] || 0, 
+            data.porEstado['UBIC. VACÍA'] || 0, 
+            data.porEstado['COD. NO CORRESPONDE'] || 0, 
+            data.porEstado['PENDIENTE'] || 0
+          ],
           backgroundColor: ['#10b981', '#f59e0b', '#e30613', '#3b82f6'],
           borderWidth: 0
         }]
       },
-      options: { plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } } } }
+      options: { 
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 }, padding: 20 } } } 
+      }
     });
 
-    // Simulación de gráfico de períodos con datos recibidos
+    // Gráfico de Períodos
     if (charts.periodo) charts.periodo.destroy();
-    const ctx2 = document.getElementById('chartPeriodo').getContext('2d');
-    charts.periodo = new Chart(ctx2, {
+    const ctxP = document.getElementById('chartPeriodo').getContext('2d');
+    const horasLabels = Object.keys(data.porHoraGrupo || {}).sort();
+    const horasData = horasLabels.map(h => data.porHoraGrupo[h]);
+
+    charts.periodo = new Chart(ctxP, {
       type: 'bar',
       data: {
-        labels: Object.keys(data.porHoraGrupo),
+        labels: horasLabels.map(h => h + ":00"),
         datasets: [{
-          label: 'Pallets/Hora',
-          data: Object.values(data.porHoraGrupo),
-          backgroundColor: '#e30613'
+          label: 'Pallets Movidos',
+          data: horasData,
+          backgroundColor: '#e30613',
+          borderRadius: 4
         }]
       },
       options: { 
+        maintainAspectRatio: false,
         scales: { 
-          y: { beginAtZero: true, grid: { color: '#1e2d45' } },
-          x: { grid: { display: false } }
+          y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } },
+          x: { grid: { display: false }, ticks: { color: '#64748b' } }
         },
         plugins: { legend: { display: false } }
       }
     });
   }
 
+  // Carga inicial al abrir la página
   window.onload = cargarDatos;
 </script>
 </body>
