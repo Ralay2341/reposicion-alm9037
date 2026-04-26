@@ -21,84 +21,90 @@
     header h1 { font-family: 'Rajdhani', sans-serif; font-size: 20px; letter-spacing: 2px; }
     header h1 span { color: var(--red); }
 
+    .header-controls { text-align: right; }
+    .btn-update { 
+      background: var(--red); color: white; border: none; padding: 10px 20px; 
+      border-radius: 5px; cursor: pointer; font-family: 'Rajdhani'; font-weight: bold; 
+      display: flex; align-items: center; gap: 8px; transition: 0.3s; margin-left: auto;
+    }
+    .btn-update:hover { background: #b3050f; }
+    .designer-tag { font-size: 10px; color: var(--txt-dim); margin-top: 5px; font-weight: 500; letter-spacing: 0.5px; }
+
+    /* Animación del engranaje */
+    .spin { animation: spin 2s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
     .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
     .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-    .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; position: relative; border-top: 3px solid var(--red); }
-    .kpi-val { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700; margin-bottom: 5px; }
-    .kpi-label { font-size: 11px; color: var(--txt-dim); text-transform: uppercase; letter-spacing: 1px; }
+    .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; border-top: 3px solid var(--red); }
+    .kpi-val { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700; }
+    .kpi-label { font-size: 11px; color: var(--txt-dim); text-transform: uppercase; }
 
     .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .full-width { grid-column: 1 / -1; }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
     .card-title { font-family: 'Rajdhani', sans-serif; font-size: 14px; color: var(--txt-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; }
 
-    /* Tablas */
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th { text-align: left; padding: 12px; color: var(--txt-dim); border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; }
+    th { text-align: left; padding: 12px; color: var(--txt-dim); border-bottom: 1px solid var(--border); font-size: 11px; }
     td { padding: 12px; border-bottom: 1px solid #1a2234; }
-    .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-family: 'Rajdhani'; }
+    
+    .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-family: 'Rajdhani'; font-size: 12px; }
     .green { background: rgba(16,185,129,0.1); color: var(--green); }
     .amber { background: rgba(245,158,11,0.1); color: var(--amber); }
     .red { background: rgba(227,6,19,0.1); color: var(--red); }
     .blue { background: rgba(59,130,246,0.1); color: var(--blue); }
 
-    /* Progress Bar */
     .prog-wrap { height: 8px; background: #1a2234; border-radius: 10px; overflow: hidden; margin: 10px 0; }
-    .prog-fill { height: 100%; background: var(--red); transition: width 0.5s; }
-
-    #loader { position: fixed; inset: 0; background: rgba(7,11,18,0.9); z-index: 999; display: flex; align-items: center; justify-content: center; }
-    #loader.hidden { display: none; }
+    .prog-fill { height: 100%; background: var(--red); transition: width 1s ease-in-out; }
+    
+    #loader { position: fixed; inset: 0; background: rgba(7,11,18,0.9); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Rajdhani'; letter-spacing: 2px; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-<div id="loader">⚙️ PROCESANDO REPORTE...</div>
+<div id="loader">
+  <div style="font-size: 40px; margin-bottom: 10px;" class="spin">⚙️</div>
+  <span>SINCRONIZANDO DATOS...</span>
+</div>
 
 <header>
   <h1>REPOSYSTEM <span>ALM9037</span></h1>
-  <div id="lastUpdate" style="font-size: 12px; color: var(--txt-dim);">Actualizando...</div>
+  <div class="header-controls">
+    <button class="btn-update" onclick="cargarDatos()" id="btnUpdate">
+      <span id="gearIcon">🔄</span> ACTUALIZAR DATOS
+    </button>
+    <div class="designer-tag">Diseñado por: Raul Layseca Beas</div>
+  </div>
 </header>
 
 <div class="container">
   <div class="kpi-row">
-    <div class="kpi">
-      <div class="kpi-val" id="kTotal">0</div>
-      <div class="kpi-label">Tareas Totales</div>
-    </div>
-    <div class="kpi" style="border-top-color: var(--green);">
-      <div class="kpi-val" id="kRealizadas" style="color: var(--green);">0</div>
-      <div class="kpi-label">Realizadas</div>
-    </div>
-    <div class="kpi" style="border-top-color: var(--amber);">
-      <div class="kpi-val" id="kPendientes" style="color: var(--amber);">0</div>
-      <div class="kpi-label">Pendientes</div>
-    </div>
-    <div class="kpi" style="border-top-color: var(--purple);">
-      <div class="kpi-val" id="kCumpl" style="color: var(--purple);">0%</div>
-      <div class="kpi-label">% Cumplimiento</div>
-    </div>
+    <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-label">Tareas Totales</div></div>
+    <div class="kpi" style="border-top-color: var(--green);"><div class="kpi-val" id="kRealizadas" style="color: var(--green);">0</div><div class="kpi-label">Realizadas</div></div>
+    <div class="kpi" style="border-top-color: var(--amber);"><div class="kpi-val" id="kPendientes" style="color: var(--amber);">0</div><div class="kpi-label">Pendientes</div></div>
+    <div class="kpi" style="border-top-color: var(--purple);"><div class="kpi-val" id="kCumpl" style="color: var(--purple);">0%</div><div class="kpi-label">% Cumplimiento</div></div>
   </div>
 
   <div class="main-grid">
     <div class="card full-width">
-      <div class="card-title">Avance de Reposiciones <span>📊</span></div>
+      <div class="card-title">Avance de Reposiciones <span id="lastUpdate" style="text-transform:none; font-size:11px;">-</span></div>
       <div style="display:flex; justify-content:space-between; font-size:12px;">
-        <span id="avanceTxt">Cargando...</span>
+        <span id="avanceTxt">Iniciando...</span>
         <span id="progPct" style="color:var(--red); font-weight:bold;">0%</span>
       </div>
-      <div class="prog-wrap">
-        <div id="progGeneral" class="prog-fill" style="width:0%"></div>
-      </div>
+      <div class="prog-wrap"><div id="progGeneral" class="prog-fill" style="width:0%"></div></div>
     </div>
 
     <div class="card">
-      <div class="card-title">Distribución de Estados <span>🥧</span></div>
-      <canvas id="chartEstados" height="200"></canvas>
+      <div class="card-title">Distribución de Estados <span>📊</span></div>
+      <canvas id="chartEstados" height="220"></canvas>
     </div>
 
     <div class="card">
       <div class="card-title">Pallets por Período <span>📅</span></div>
-      <canvas id="chartPeriodo" height="200"></canvas>
+      <canvas id="chartPeriodo" height="220"></canvas>
     </div>
 
     <div class="card full-width">
@@ -106,154 +112,134 @@
       <table>
         <thead>
           <tr>
-            <th>Apilador</th>
+            <th>Operador Responzable</th>
             <th>Total</th>
             <th>Realizados</th>
-            <th>U. Vacía</th>
-            <th>Cód. NC</th>
+            <th>Ubic. Vacía</th>
+            <th>Cód. No Corresp.</th>
             <th>Pendientes</th>
             <th>Pallets/Hora</th>
-            <th>% Cumpl.</th>
+            <th>% Cumplimiento</th>
           </tr>
         </thead>
-        <tbody id="rendBody">
-          <tr><td colspan="8">Esperando datos...</td></tr>
-        </tbody>
+        <tbody id="rendBody"></tbody>
       </table>
     </div>
   </div>
 </div>
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; // REEMPLAZAR
+  // URL de tu implementación de Google Apps Script
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; 
 
-  // Helper para convertir hora (ej: "14:30") a decimal para cálculos
-  function horaADecimal(horaStr) {
-    if (!horaStr || horaStr === "") return null;
-    const parts = horaStr.split(':');
-    if (parts.length < 2) return null;
-    return parseInt(parts[0]) + (parseInt(parts[1]) / 60);
-  }
+  let charts = {};
 
   async function cargarDatos() {
-    document.getElementById('loader').classList.remove('hidden');
+    const btn = document.getElementById('btnUpdate');
+    const gear = document.getElementById('gearIcon');
+    const loader = document.getElementById('loader');
+
+    // Efecto de carga
+    btn.disabled = true;
+    gear.innerText = "⚙️";
+    gear.classList.add('spin');
+    loader.classList.remove('hidden');
+
     try {
-      const response = await fetch(`${SCRIPT_URL}?action=getTareas`);
+      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos`);
       const data = await response.json();
-      const tareas = data.tareas || [];
       
-      procesarTodo(tareas);
+      if (data.error) throw new Error(data.error);
       
-      document.getElementById('lastUpdate').textContent = 'Ult. Sincro: ' + new Date().toLocaleTimeString();
+      procesarReporte(data);
+      document.getElementById('lastUpdate').textContent = 'Última actualización: ' + new Date().toLocaleTimeString();
     } catch (e) {
       console.error(e);
+      alert("Error al sincronizar: " + e.message);
+    } finally {
+      btn.disabled = false;
+      gear.innerText = "🔄";
+      gear.classList.remove('spin');
+      loader.classList.add('hidden');
     }
-    document.getElementById('loader').classList.add('hidden');
   }
 
-  function procesarTodo(tareas) {
-    let stats = { total: tareas.length, realizado: 0, vacia: 0, nocode: 0, pendiente: 0 };
-    const apiladores = {};
+  function procesarReporte(data) {
+    // 1. KPIs
+    document.getElementById('kTotal').textContent = data.totalTareas || 0;
+    document.getElementById('kRealizadas').textContent = data.porEstado['REALIZADO'] || 0;
+    document.getElementById('kPendientes').textContent = data.porEstado['PENDIENTE'] || 0;
 
-    tareas.forEach(t => {
-      // Normalizar nombres de columnas del objeto t (según tu Excel)
-      const estado = (t.Estado || "").toUpperCase();
-      const hora = (t.Hora || "").trim();
-      const op = t.Operador || "Sin Asignar";
-
-      if (!apiladores[op]) {
-        apiladores[op] = { total: 0, realizado: 0, vacia: 0, nocode: 0, pendiente: 0, horas: [] };
-      }
-      
-      apiladores[op].total++;
-      const hDec = horaADecimal(hora);
-
-      if (hora === "") {
-        stats.pendiente++;
-        apiladores[op].pendiente++;
-      } else {
-        if (hDec) apiladores[op].horas.push(hDec);
-        
-        if (estado.includes("REALIZADO")) {
-          stats.realizado++;
-          apiladores[op].realizado++;
-        } else if (estado.includes("VAC")) {
-          stats.vacia++;
-          apiladores[op].vacia++;
-        } else {
-          stats.nocode++;
-          apiladores[op].nocode++;
-        }
-      }
-    });
-
-    // Actualizar KPIs
-    document.getElementById('kTotal').textContent = stats.total;
-    document.getElementById('kRealizadas').textContent = stats.realizado;
-    document.getElementById('kPendientes').textContent = stats.pendiente;
-    const cumplGen = stats.total > 0 ? Math.round((stats.realizado / stats.total) * 100) : 0;
+    const tot = data.totalTareas || 1;
+    const real = data.porEstado['REALIZADO'] || 0;
+    const cumplGen = Math.round((real / tot) * 100);
     document.getElementById('kCumpl').textContent = cumplGen + '%';
 
-    // Barra de Avance
-    const gestionados = stats.realizado + stats.vacia + stats.nocode;
-    const pct = stats.total > 0 ? Math.round((gestionados / stats.total) * 100) : 0;
+    // 2. Barra de Avance
+    const gestionados = tot - (data.porEstado['PENDIENTE'] || 0);
+    const pct = Math.round((gestionados / tot) * 100);
     document.getElementById('progGeneral').style.width = pct + '%';
     document.getElementById('progPct').textContent = pct + '%';
-    document.getElementById('avanceTxt').textContent = `${gestionados} de ${stats.total} tareas finalizadas`;
+    document.getElementById('avanceTxt').textContent = `${gestionados} de ${tot} tareas procesadas`;
 
-    renderTabla(apiladores);
-    renderGraficoEstados(stats);
-  }
-
-  function renderTabla(data) {
+    // 3. Tabla de Apiladores
     const tbody = document.getElementById('rendBody');
     tbody.innerHTML = "";
-
-    Object.entries(data).forEach(([nombre, s]) => {
-      const gestionados = s.realizado + s.vacia + s.nocode;
-      
-      // Cálculo Pallets por Hora
-      let ph = "0.0";
-      if (s.horas.length > 1) {
-        const span = Math.max(...s.horas) - Math.min(...s.horas);
-        ph = (gestionados / (span || 1)).toFixed(1);
-      } else if (gestionados > 0) {
-        ph = gestionados + ".0"; // Si solo tiene una tarea
-      }
-
-      const cumpl = s.total > 0 ? Math.round((s.realizado / s.total) * 100) : 0;
-
+    
+    Object.entries(data.rendimientoIndividual).forEach(([nombre, s]) => {
       tbody.innerHTML += `
         <tr>
-          <td><strong>${nombre}</strong></td>
+          <td><strong>👷 ${nombre}</strong></td>
           <td>${s.total}</td>
-          <td><span class="badge green">${s.realizado}</span></td>
-          <td><span class="badge amber">${s.vacia}</span></td>
+          <td><span class="badge green">${s.realizados}</span></td>
+          <td><span class="badge amber">${s.vacias}</span></td>
           <td><span class="badge red">${s.nocode}</span></td>
-          <td><span class="badge blue">${s.pendiente}</span></td>
-          <td style="font-family:Rajdhani; font-weight:700; font-size:16px;">${ph}</td>
-          <td style="font-weight:bold; color:${cumpl > 80 ? '#10b981' : '#f59e0b'}">${cumpl}%</td>
+          <td><span class="badge blue">${s.pendientes}</span></td>
+          <td style="font-family:Rajdhani; font-weight:700; font-size:16px;">${s.palletsPorHora}</td>
+          <td style="font-weight:bold; color:${s.cumplimiento > 80 ? '#10b981' : '#f59e0b'}">${s.cumplimiento}%</td>
         </tr>
       `;
     });
+
+    actualizarGraficos(data);
   }
 
-  function renderGraficoEstados(s) {
+  function actualizarGraficos(data) {
+    if (charts.estados) charts.estados.destroy();
+    
     const ctx = document.getElementById('chartEstados').getContext('2d');
-    new Chart(ctx, {
+    charts.estados = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: ['Realizado', 'U. Vacía', 'Cód. NC', 'Pendiente'],
+        labels: Object.keys(data.porEstado),
         datasets: [{
-          data: [s.realizado, s.vacia, s.nocode, s.pendiente],
+          data: Object.values(data.porEstado),
           backgroundColor: ['#10b981', '#f59e0b', '#e30613', '#3b82f6'],
           borderWidth: 0
         }]
       },
-      options: {
-        plugins: { 
-          legend: { position: 'bottom', labels: { color: '#94a3b8' } }
-        }
+      options: { plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } } } }
+    });
+
+    // Simulación de gráfico de períodos con datos recibidos
+    if (charts.periodo) charts.periodo.destroy();
+    const ctx2 = document.getElementById('chartPeriodo').getContext('2d');
+    charts.periodo = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(data.porHoraGrupo),
+        datasets: [{
+          label: 'Pallets/Hora',
+          data: Object.values(data.porHoraGrupo),
+          backgroundColor: '#e30613'
+        }]
+      },
+      options: { 
+        scales: { 
+          y: { beginAtZero: true, grid: { color: '#1e2d45' } },
+          x: { grid: { display: false } }
+        },
+        plugins: { legend: { display: false } }
       }
     });
   }
