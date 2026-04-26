@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LOGÍSTICA DASHBOARD — RepoSYSTEM</title>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --bg: #070b12; --surface: #0d1420; --card: #111827;
@@ -26,23 +27,25 @@
       display: flex; align-items: center; gap: 8px; transition: 0.3s;
     }
     .btn-update:disabled { background: #4b0000; cursor: not-allowed; }
-    
     .designer-tag { font-size: 10px; color: var(--txt-dim); margin-top: 5px; font-family: 'Rajdhani'; letter-spacing: 1px; text-transform: uppercase; }
-    
-    /* Mensaje sutil de actualización */
-    #statusMsg { font-size: 11px; color: var(--amber); font-weight: bold; margin-bottom: 2px; height: 14px; transition: 0.3s; }
+    #statusMsg { font-size: 11px; color: var(--amber); font-weight: bold; height: 14px; transition: 0.3s; }
 
     .wrapper { display: flex; gap: 20px; padding: 20px; max-width: 1600px; margin: 0 auto; align-items: flex-start; }
     .sidebar { width: 300px; flex-shrink: 0; }
     .main-content { flex-grow: 1; min-width: 0; }
 
-    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-    .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; border-top: 4px solid var(--red); }
-    .kpi-val { font-family: 'Rajdhani', sans-serif; font-size: 36px; font-weight: 700; }
-    .kpi-label { font-size: 11px; color: var(--txt-dim); text-transform: uppercase; letter-spacing: 1px; }
+    /* KPIs de 4 columnas */
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+    .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 15px; border-top: 4px solid var(--red); }
+    .kpi-val { font-family: 'Rajdhani', sans-serif; font-size: 28px; font-weight: 700; }
+    .kpi-label { font-size: 10px; color: var(--txt-dim); text-transform: uppercase; letter-spacing: 1px; }
 
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
     .card-title { font-family: 'Rajdhani', sans-serif; font-size: 14px; color: var(--txt-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; }
+
+    /* Filtros Calendario */
+    .filter-group { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+    input[type="date"], select { background: #1a2234; border: 1px solid var(--border); color: var(--txt); padding: 5px; border-radius: 4px; font-size: 12px; font-family: 'DM Sans'; }
 
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
     th { text-align: left; padding: 10px; color: var(--txt-dim); border-bottom: 1px solid var(--border); font-size: 10px; text-transform: uppercase; }
@@ -56,11 +59,13 @@
     .prog-wrap { height: 10px; background: #1a2234; border-radius: 10px; overflow: hidden; margin: 12px 0; }
     .prog-fill { height: 100%; background: var(--red); transition: width 1.2s ease-in-out; }
     
-    /* Animación de rotación solo para el icono */
     .spin { animation: spin 1s linear infinite; display: inline-block; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
-    
     .hidden { visibility: hidden; opacity: 0; }
+
+    /* Contenedor de gráficos bajo la tabla */
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 20px; }
+    canvas { max-height: 200px; }
   </style>
 </head>
 <body>
@@ -81,14 +86,24 @@
     <div class="card">
       <div class="card-title">Alertas de Calidad ⚠️</div>
       <div id="sidebarContent" style="font-size: 13px; line-height: 1.8;">
-        Cargando incidencias...
+        <p style="color:var(--red)">Mayor Incidencia Cód:</p>
+        <p style="font-size:16px; font-weight:bold;">0</p>
+        <p style="font-size:11px; color:var(--txt-dim)">Registra 0 errores.</p>
       </div>
     </div>
     
     <div class="card">
       <div class="card-title">Actividad Reciente 🕒</div>
-      <div id="activityStats" style="font-size: 12px; color: var(--txt-dim);">
-        Calculando tiempos...
+      <div id="activityStats" style="font-size: 12px; color: var(--txt-dim);">Calculando...</div>
+      
+      <div class="filter-group">
+        <label style="font-size: 10px; color: var(--txt-dim);">SELECCIONAR FECHA</label>
+        <input type="date" id="dashDate" value="2026-04-26">
+        <select id="dashRange">
+          <option value="day">Vista Diaria</option>
+          <option value="week">Vista Semanal</option>
+          <option value="month">Vista Mensual</option>
+        </select>
       </div>
     </div>
   </aside>
@@ -96,27 +111,28 @@
   <main class="main-content">
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-label">Tareas Totales</div></div>
-      <div class="kpi" style="border-top-color: var(--green);"><div class="kpi-val" id="kRealizadas" style="color: var(--green);">0</div><div class="kpi-label">Realizadas</div></div>
-      <div class="kpi" style="border-top-color: var(--red);"><div class="kpi-val" id="kErrores" style="color: var(--red);">0</div><div class="kpi-label">Cod. No Corresp.</div></div>
+      <div class="kpi" style="border-top-color: var(--green);"><div class="kpi-val" id="kRealizadas" style="color: var(--green);">0</div><div class="kpi-label">Realizadas Correctas</div></div>
+      <div class="kpi" style="border-top-color: var(--amber);"><div class="kpi-val" id="kVacias" style="color: var(--amber);">0</div><div class="kpi-label">Ubicac. Vacías</div></div>
+      <div class="kpi" style="border-top-color: var(--red);"><div class="kpi-val" id="kErrores" style="color: var(--red);">0</div><div class="kpi-label">COD NO CORRESPONDE</div></div>
     </div>
 
     <div class="card">
-      <div class="card-title">Cumplimiento Operativo <span id="lastUpdate" style="float:right; opacity:0.5; font-size:10px;"></span></div>
+      <div class="card-title">Cumplimiento General <span id="lastUpdate" style="float:right; opacity:0.5; font-size:10px;"></span></div>
       <div class="prog-wrap"><div id="progGeneral" class="prog-fill" style="width:0%"></div></div>
-      <div id="avanceTxt" style="font-size:12px; color:var(--txt-dim);">Procesando...</div>
+      <div id="avanceTxt" style="font-size:11px; color:var(--txt-dim);">Sincronizando...</div>
     </div>
 
     <div class="card">
       <div class="card-title">Rendimiento Detallado por Apilador ⚡</div>
       <div style="overflow-x: auto;">
-        <table>
+        <table id="rendTable">
           <thead>
             <tr>
               <th>Operador</th>
               <th>Total</th>
-              <th>Realizados</th>
+              <th>OK</th>
               <th>Vacías</th>
-              <th>Cod. No Corresp.</th>
+              <th>Error Cód.</th>
               <th>P/H</th>
               <th>%</th>
             </tr>
@@ -124,12 +140,15 @@
           <tbody id="rendBody"></tbody>
         </table>
       </div>
+      
+      <div class="charts-grid" id="chartsContainer"></div>
     </div>
   </main>
 </div>
 
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; 
+  let activeCharts = [];
 
   async function cargarDatos() {
     const gear = document.getElementById('gearIcon');
@@ -144,7 +163,7 @@
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos`);
       const data = await response.json();
       procesarReporte(data);
-      document.getElementById('lastUpdate').textContent = 'Sincronizado: ' + new Date().toLocaleTimeString();
+      document.getElementById('lastUpdate').textContent = 'Refrescado: ' + new Date().toLocaleTimeString();
     } catch (e) {
       console.error(e);
       alert("Error al conectar con RepoSYSTEM");
@@ -156,26 +175,35 @@
   }
 
   function procesarReporte(data) {
+    // 1. KPIs Nivel Superior
     document.getElementById('kTotal').textContent = data.totalTareas || 0;
     document.getElementById('kRealizadas').textContent = data.porEstado['REALIZADO'] || 0;
+    document.getElementById('kVacias').textContent = data.porEstado['UBIC. VACÍA'] || 0;
     document.getElementById('kErrores').textContent = data.porEstado['COD. NO CORRESPONDE'] || 0;
 
     const total = data.totalTareas || 1;
     const realizados = data.porEstado['REALIZADO'] || 0;
     const pct = Math.round((realizados / total) * 100);
     document.getElementById('progGeneral').style.width = pct + '%';
-    document.getElementById('avanceTxt').textContent = `${realizados} de ${total} tareas completadas correctamente (${pct}%)`;
+    document.getElementById('avanceTxt').textContent = `${realizados} de ${total} confirmados correctamente (${pct}%)`;
 
+    // 2. Limpiar tabla y gráficos antiguos
     const tbody = document.getElementById('rendBody');
+    const chartCont = document.getElementById('chartsContainer');
     tbody.innerHTML = "";
-    
-    let maxErroresOp = { nombre: 'N/A', cantidad: 0 };
+    chartCont.innerHTML = "";
+    activeCharts.forEach(c => c.destroy());
+    activeCharts = [];
 
-    Object.entries(data.rendimientoIndividual).forEach(([nombre, s]) => {
+    let maxErroresOp = { nombre: '0', cantidad: 0 };
+
+    Object.entries(data.rendimientoIndividual).forEach(([nombre, s], index) => {
+      // Tracking de alertas
       if(s.nocode > maxErroresOp.cantidad) {
         maxErroresOp = { nombre: nombre, cantidad: s.nocode };
       }
 
+      // Fila de Tabla
       tbody.innerHTML += `
         <tr>
           <td><strong>${nombre}</strong></td>
@@ -183,27 +211,49 @@
           <td><span class="badge green">${s.realizados}</span></td>
           <td><span class="badge amber">${s.vacias}</span></td>
           <td><span class="badge red-status">${s.nocode}</span></td>
-          <td style="font-weight:bold;">${s.palletsPorHora}</td>
+          <td>${s.palletsPorHora}</td>
           <td style="color:${s.cumplimiento > 80 ? 'var(--green)' : 'var(--amber)'}">${s.cumplimiento}%</td>
         </tr>`;
+
+      // Crear mini-gráfico para este operador
+      const canvasId = `chart-${index}`;
+      const div = document.createElement('div');
+      div.style.textAlign = 'center';
+      div.innerHTML = `<p style="font-size:10px; margin-bottom:5px;">${nombre}</p><canvas id="${canvasId}"></canvas>`;
+      chartCont.appendChild(div);
+
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      const newChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['OK', 'Vacío', 'Error'],
+          datasets: [{
+            data: [s.realizados, s.vacias, s.nocode],
+            backgroundColor: ['#10b981', '#f59e0b', '#e30613'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          cutout: '70%'
+        }
+      });
+      activeCharts.push(newChart);
     });
 
+    // 3. Alertas Calidad (Inicializador 0 si no hay datos)
     document.getElementById('sidebarContent').innerHTML = `
       <p style="color:var(--red)">Mayor Incidencia Cód:</p>
-      <p style="font-size:16px; font-weight:bold;">${maxErroresOp.nombre}</p>
+      <p style="font-size:16px; font-weight:bold;">${maxErroresOp.nombre === '0' ? 'SIN INCIDENCIAS' : maxErroresOp.nombre}</p>
       <p style="font-size:11px; color:var(--txt-dim)">Registra ${maxErroresOp.cantidad} errores de código.</p>
       <hr style="margin:12px 0; border:0; border-top:1px solid var(--border)">
-      <p style="color:var(--blue)">● Total Errores Cód: <b>${data.porEstado['COD. NO CORRESPONDE']}</b></p>
+      <p style="color:var(--blue)">● Total Errores Cód: <b>${data.porEstado['COD. NO CORRESPONDE'] || 0}</b></p>
     `;
 
     const horasActivas = Object.keys(data.porHoraGrupo).length;
-    document.getElementById('activityStats').innerHTML = `
-      <p>Rango Horario: ${horasActivas} horas.</p>
-      <p>Promedio General: ${(realizados / (horasActivas || 1)).toFixed(1)} pallets/hora.</p>
-    `;
+    document.getElementById('activityStats').textContent = `Operación activa: ${horasActivas} hrs.`;
   }
 
-  // Carga inicial automática
   window.onload = cargarDatos;
 </script>
 </body>
