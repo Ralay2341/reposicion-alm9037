@@ -25,7 +25,12 @@
       border-radius: 5px; cursor: pointer; font-family: 'Rajdhani'; font-weight: bold; 
       display: flex; align-items: center; gap: 8px; transition: 0.3s;
     }
+    .btn-update:disabled { background: #4b0000; cursor: not-allowed; }
+    
     .designer-tag { font-size: 10px; color: var(--txt-dim); margin-top: 5px; font-family: 'Rajdhani'; letter-spacing: 1px; text-transform: uppercase; }
+    
+    /* Mensaje sutil de actualización */
+    #statusMsg { font-size: 11px; color: var(--amber); font-weight: bold; margin-bottom: 2px; height: 14px; transition: 0.3s; }
 
     .wrapper { display: flex; gap: 20px; padding: 20px; max-width: 1600px; margin: 0 auto; align-items: flex-start; }
     .sidebar { width: 300px; flex-shrink: 0; }
@@ -51,22 +56,19 @@
     .prog-wrap { height: 10px; background: #1a2234; border-radius: 10px; overflow: hidden; margin: 12px 0; }
     .prog-fill { height: 100%; background: var(--red); transition: width 1.2s ease-in-out; }
     
-    #loader { position: fixed; inset: 0; background: rgba(7,11,18,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Rajdhani'; letter-spacing: 2px; }
-    .hidden { display: none !important; }
-    .spin { animation: spin 2s linear infinite; display: inline-block; }
+    /* Animación de rotación solo para el icono */
+    .spin { animation: spin 1s linear infinite; display: inline-block; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
+    
+    .hidden { visibility: hidden; opacity: 0; }
   </style>
 </head>
 <body>
 
-<div id="loader">
-  <div style="font-size: 50px; margin-bottom: 15px;" class="spin">⚙️</div>
-  <span>SINCRONIZANDO REPOSYSTEM...</span>
-</div>
-
 <header>
   <h1>REPOSYSTEM <span>ALM9037</span></h1>
   <div class="header-right">
+    <div id="statusMsg" class="hidden">Actualizando datos...</div>
     <button class="btn-update" onclick="cargarDatos()" id="btnUpdate">
       <span id="gearIcon">🔄</span> ACTUALIZAR
     </button>
@@ -79,14 +81,14 @@
     <div class="card">
       <div class="card-title">Alertas de Calidad ⚠️</div>
       <div id="sidebarContent" style="font-size: 13px; line-height: 1.8;">
-        Actualiza para ver incidencias.
+        Cargando incidencias...
       </div>
     </div>
     
     <div class="card">
       <div class="card-title">Actividad Reciente 🕒</div>
       <div id="activityStats" style="font-size: 12px; color: var(--txt-dim);">
-        Esperando datos...
+        Calculando tiempos...
       </div>
     </div>
   </aside>
@@ -131,10 +133,12 @@
 
   async function cargarDatos() {
     const gear = document.getElementById('gearIcon');
-    const loader = document.getElementById('loader');
-    document.getElementById('btnUpdate').disabled = true;
+    const btn = document.getElementById('btnUpdate');
+    const statusMsg = document.getElementById('statusMsg');
+
+    btn.disabled = true;
     gear.classList.add('spin');
-    loader.classList.remove('hidden');
+    statusMsg.classList.remove('hidden');
 
     try {
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos`);
@@ -145,9 +149,9 @@
       console.error(e);
       alert("Error al conectar con RepoSYSTEM");
     } finally {
-      document.getElementById('btnUpdate').disabled = false;
+      btn.disabled = false;
       gear.classList.remove('spin');
-      loader.classList.add('hidden');
+      statusMsg.classList.add('hidden');
     }
   }
 
@@ -199,6 +203,7 @@
     `;
   }
 
+  // Carga inicial automática
   window.onload = cargarDatos;
 </script>
 </body>
