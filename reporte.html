@@ -29,7 +29,7 @@
     .designer-tag { font-size: 10px; color: var(--txt-dim); margin-top: 5px; font-family: 'Rajdhani'; letter-spacing: 1px; text-transform: uppercase; }
 
     .wrapper { display: flex; gap: 20px; padding: 20px; max-width: 1600px; margin: 0 auto; align-items: flex-start; }
-    .sidebar { width: 280px; flex-shrink: 0; }
+    .sidebar { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
     .main-content { flex-grow: 1; min-width: 0; }
 
     .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
@@ -37,20 +37,29 @@
     .kpi-val { font-family: 'Rajdhani', sans-serif; font-size: 28px; font-weight: 700; }
     .kpi-label { font-size: 10px; color: var(--txt-dim); text-transform: uppercase; letter-spacing: 1px; }
 
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
     .card-title { font-family: 'Rajdhani', sans-serif; font-size: 14px; color: var(--txt-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; }
 
     .filter-group { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
     input[type="date"], select { background: #1a2234; border: 1px solid var(--border); color: var(--txt); padding: 8px; border-radius: 5px; font-size: 12px; }
     .btn-filter { background: var(--blue); color: white; border: none; padding: 8px; border-radius: 5px; font-family: 'Rajdhani'; font-weight: bold; cursor: pointer; }
 
-    /* Panel Lateral Derecho */
+    /* Estilos Panel Lateral */
     .side-panel { position: fixed; right: -450px; top: 0; width: 420px; height: 100%; background: var(--surface); border-left: 3px solid var(--red); z-index: 200; transition: 0.4s; padding: 30px; overflow-y: auto; box-shadow: -10px 0 30px rgba(0,0,0,0.7); }
     .side-panel.open { right: 0; }
     .close-panel { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 20px; color: var(--red); font-weight: bold; }
 
+    .panel-kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .pkpi { background: #1a2234; padding: 10px; border-radius: 6px; border-left: 3px solid var(--blue); }
+    .pkpi small { font-size: 9px; color: var(--txt-dim); text-transform: uppercase; }
+    .pkpi div { font-family: 'Rajdhani'; font-size: 18px; font-weight: bold; }
+
+    /* Lista Productividad Sidebar */
+    .prod-list { font-size: 11px; max-height: 250px; overflow-y: auto; }
+    .prod-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #1a2234; }
+
     table { width: 100%; border-collapse: collapse; font-size: 11px; }
-    th { text-align: left; padding: 10px; color: var(--txt-dim); border-bottom: 1px solid var(--border); text-transform: uppercase; }
+    th { text-align: left; padding: 10px; color: var(--txt-dim); border-bottom: 1px solid var(--border); }
     td { padding: 10px; border-bottom: 1px solid #1a2234; }
     
     .badge { padding: 3px 6px; border-radius: 4px; font-weight: bold; font-family: 'Rajdhani'; }
@@ -60,11 +69,9 @@
 
     .spin { animation: spin 1s linear infinite; display: inline-block; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
-    
-    /* Contenedor Gráficos */
-    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; }
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 20px; }
     .chart-box { background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; text-align: center; }
-    canvas { max-width: 100%; height: 140px !important; }
+    canvas { max-width: 100%; height: 120px !important; }
     .hidden { display: none; }
   </style>
 </head>
@@ -72,15 +79,19 @@
 
 <div id="sidePanel" class="side-panel">
   <span class="close-panel" onclick="togglePanel()">✕</span>
-  <h2 style="font-family: 'Rajdhani'; color: var(--red); margin-bottom: 10px;">HISTORIAL POR OPERADOR</h2>
-  <p id="filterTag" style="font-size: 11px; color: var(--txt-dim); margin-bottom: 20px;"></p>
+  <h2 style="font-family: 'Rajdhani'; color: var(--red); margin-bottom: 15px;">ESTADÍSTICA GENERAL</h2>
+  
+  <div class="panel-kpi-grid" id="panelGeneralStats">
+     </div>
+
+  <h3 style="font-family: 'Rajdhani'; font-size: 14px; color: var(--txt-dim); margin-bottom: 10px; text-transform: uppercase;">Detalle por Responsable</h3>
   <div id="filterResult"></div>
 </div>
 
 <header>
   <h1>REPOSYSTEM <span>ALM9037</span></h1>
   <div class="header-right">
-    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Sincronizando datos...</div>
+    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Actualizando...</div>
     <button class="btn-update" onclick="cargarDatos()" id="btnUpdate">
       <span id="gearIcon">🔄</span> ACTUALIZAR
     </button>
@@ -91,37 +102,44 @@
 <div class="wrapper">
   <aside class="sidebar">
     <div class="card">
-      <div class="card-title">Alertas de Calidad ⚠️</div>
-      <div id="sidebarContent">
-        <p id="alertOp" style="font-size:16px; font-weight:bold;">0</p>
-        <p id="alertQty" style="font-size:11px; color:var(--txt-dim)">Iniciando sistema...</p>
-      </div>
-    </div>
-    
-    <div class="card">
       <div class="card-title">Consultar Histórico 📅</div>
       <div class="filter-group">
         <input type="date" id="inputDate">
         <select id="inputRange">
           <option value="Día">Día Seleccionado</option>
-          <option value="Semana">Semana Correspondiente</option>
-          <option value="Mes">Mes Completo</option>
+          <option value="Semana">Semana</option>
+          <option value="Mes">Mes</option>
         </select>
         <button class="btn-filter" onclick="aplicarFiltro()">GENERAR ESTADÍSTICA</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Productividad / Hora ⚡</div>
+      <div id="prodByHourList" class="prod-list">
+        <p style="color:var(--txt-dim); font-size:10px;">Sin datos activos...</p>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Alertas de Calidad ⚠️</div>
+      <div id="sidebarContent">
+        <p id="alertOp" style="font-size:16px; font-weight:bold;">0</p>
+        <p id="alertQty" style="font-size:11px; color:var(--txt-dim)">Sistema listo.</p>
       </div>
     </div>
   </aside>
 
   <main class="main-content">
     <div class="kpi-row">
-      <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-label">Tareas Totales</div></div>
-      <div class="kpi" style="border-top-color: var(--green);"><div class="kpi-val" id="kRealizadas" style="color: var(--green);">0</div><div class="kpi-label">Realizadas Correctas</div></div>
+      <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-label">Reposiciones Totales</div></div>
+      <div class="kpi" style="border-top-color: var(--green);"><div class="kpi-val" id="kRealizadas" style="color: var(--green);">0</div><div class="kpi-label">Correctas</div></div>
       <div class="kpi" style="border-top-color: var(--amber);"><div class="kpi-val" id="kVacias" style="color: var(--amber);">0</div><div class="kpi-label">Ubicac. Vacías</div></div>
-      <div class="kpi" style="border-top-color: var(--red);"><div class="kpi-val" id="kErrores" style="color: var(--red);">0</div><div class="kpi-label">COD NO CORRESPONDE</div></div>
+      <div class="kpi" style="border-top-color: var(--red);"><div class="kpi-val" id="kErrores" style="color: var(--red);">0</div><div class="kpi-label">No Corresponde</div></div>
     </div>
 
     <div class="card">
-      <div class="card-title">Productividad y Estados por Apilador ⚡</div>
+      <div class="card-title">Desempeño Individual y Gráficos 📊</div>
       <div style="overflow-x: auto;">
         <table>
           <thead>
@@ -172,18 +190,20 @@
 
     const tbody = document.getElementById('rendBody');
     const chartCont = document.getElementById('chartsContainer');
+    const prodList = document.getElementById('prodByHourList');
+    
     tbody.innerHTML = "";
     chartCont.innerHTML = "";
-    
-    // Limpiar gráficos anteriores
+    prodList.innerHTML = "";
     chartInstances.forEach(c => c.destroy());
     chartInstances = [];
 
-    let maxErrOp = { n: "SIN ERRORES", q: 0 };
+    let maxErrOp = { n: "N/A", q: 0 };
 
     Object.entries(data.rendimientoIndividual).forEach(([nom, s], i) => {
       if(s.nocode > maxErrOp.q) maxErrOp = { n: nom, q: s.nocode };
 
+      // Llenar Tabla Principal
       tbody.innerHTML += `
         <tr>
           <td><strong>${nom}</strong></td>
@@ -195,10 +215,16 @@
           <td style="color:var(--green)">${s.cumplimiento}%</td>
         </tr>`;
 
-      // Crear caja de gráfico
+      // Llenar Lista Productividad Sidebar (P/H)
+      prodList.innerHTML += `
+        <div class="prod-item">
+          <span>${nom}</span>
+          <b style="color:var(--blue)">${s.palletsPorHora} P/H</b>
+        </div>`;
+
+      // Generar Gráfico de Dona
       const chartId = `c-${i}`;
-      chartCont.innerHTML += `<div class="chart-box"><p style="font-size:9px; margin-bottom:5px;">${nom}</p><canvas id="${chartId}"></canvas></div>`;
-      
+      chartCont.innerHTML += `<div class="chart-box"><p style="font-size:9px;">${nom}</p><canvas id="${chartId}"></canvas></div>`;
       setTimeout(() => {
         const ctx = document.getElementById(chartId).getContext('2d');
         const c = new Chart(ctx, {
@@ -210,47 +236,58 @@
               borderWidth: 0
             }]
           },
-          options: { cutout: '75%', plugins: { legend: { display: false } } }
+          options: { cutout: '78%', plugins: { legend: { display: false } } }
         });
         chartInstances.push(c);
       }, 0);
     });
 
     document.getElementById('alertOp').textContent = maxErrOp.n;
-    document.getElementById('alertQty').textContent = `Registra ${maxErrOp.q} errores de validación.`;
+    document.getElementById('alertQty').textContent = `Peor desempeño en validación (${maxErrOp.q} err).`;
   }
 
   function aplicarFiltro() {
-    if(!lastData) return alert("Primero actualice los datos.");
-    
-    const fecha = document.getElementById('inputDate').value || "Hoy";
-    const rango = document.getElementById('inputRange').value;
+    if(!lastData) return;
     const panel = document.getElementById('sidePanel');
+    const pStats = document.getElementById('panelGeneralStats');
     const res = document.getElementById('filterResult');
     
-    document.getElementById('filterTag').textContent = `Periodo: ${rango} | Fecha Base: ${fecha}`;
-    panel.classList.add('open');
+    // Cálculo de efectividad general
+    const tot = lastData.totalTareas || 1;
+    const ok = lastData.porEstado['REALIZADO'] || 0;
+    const efec = Math.round((ok / tot) * 100);
 
-    // Generar la estadística por operador en el panel
+    // 1. Cabecera General del Panel Lateral
+    pStats.innerHTML = `
+      <div class="pkpi"><small>Total Reposic.</small><div>${tot}</div></div>
+      <div class="pkpi"><small>Correctas</small><div style="color:var(--green)">${ok}</div></div>
+      <div class="pkpi"><small>Ub. Vacías</small><div style="color:var(--amber)">${lastData.porEstado['UBIC. VACÍA']}</div></div>
+      <div class="pkpi"><small>No Corresp.</small><div style="color:var(--red)">${lastData.porEstado['COD. NO CORRESPONDE']}</div></div>
+      <div class="pkpi" style="grid-column: span 2; border-left-color: var(--purple);"><small>% Efectividad Global</small><div style="color:var(--purple)">${efec}%</div></div>
+    `;
+
+    // 2. Detalle por Responsable
     let html = "";
     Object.entries(lastData.rendimientoIndividual).forEach(([nom, s]) => {
       html += `
-        <div class="card" style="margin-bottom:10px; padding:15px; border-left:4px solid ${s.cumplimiento > 85 ? 'var(--green)' : 'var(--amber)'}">
-          <p style="font-weight:bold; color:var(--txt);">${nom}</p>
-          <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:12px;">
-             <span>Total: <b>${s.total}</b></span>
+        <div class="card" style="margin-bottom:10px; padding:12px; background:#161f2e;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <b style="color:var(--txt)">${nom}</b>
+            <span class="badge" style="background:rgba(139,92,246,0.1); color:var(--purple);">${s.cumplimiento}% Efec.</span>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px; margin-top:8px; font-size:10px; color:var(--txt-dim);">
              <span>OK: <b style="color:var(--green)">${s.realizados}</b></span>
+             <span>Err: <b style="color:var(--red)">${s.nocode}</b></span>
              <span>P/H: <b>${s.palletsPorHora}</b></span>
           </div>
-          <p style="font-size:10px; color:var(--txt-dim); margin-top:5px;">Efectividad: ${s.cumplimiento}% | Errores: ${s.nocode}</p>
         </div>
       `;
     });
     res.innerHTML = html;
+    panel.classList.add('open');
   }
 
   function togglePanel() { document.getElementById('sidePanel').classList.remove('open'); }
-
   window.onload = cargarDatos;
 </script>
 </body>
