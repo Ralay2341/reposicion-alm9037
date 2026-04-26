@@ -62,7 +62,7 @@
 
 <div id="sidePanel" class="side-panel">
   <span class="close-panel" onclick="togglePanel(false)">✕</span>
-  <h2 style="font-family: 'Rajdhani'; color: var(--red); margin-bottom: 5px;">ESTADÍSTICA HISTORIAL</h2>
+  <h2 style="font-family: 'Rajdhani'; color: var(--red); margin-bottom: 5px;">ESTADÍSTICA HISTORIAL (COL O)</h2>
   <p id="panelFechaLabel" style="font-size: 11px; color: var(--amber); margin-bottom: 20px;"></p>
   <div class="panel-kpi-grid" id="panelGeneralStats"></div>
   <div id="filterResult"></div>
@@ -71,7 +71,7 @@
 <header>
   <h1>REPOSYSTEM <span>ALM9037</span></h1>
   <div class="header-right">
-    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Sincronizando...</div>
+    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Validando Fecha...</div>
     <button class="btn-update" onclick="cargarDatosHoy()" id="btnUpdate">
       <span id="gearIcon">🔄</span> ACTUALIZAR HOY
     </button>
@@ -82,7 +82,7 @@
 <div class="wrapper">
   <aside class="sidebar">
     <div class="card">
-      <div class="card-title">Historial por Fecha (Col O) 📅</div>
+      <div class="card-title">Auditoría Histórica 📅</div>
       <div class="filter-group">
         <input type="date" id="inputDate">
         <select id="inputRange">
@@ -90,8 +90,8 @@
           <option value="Semana">Semana</option>
           <option value="Mes">Mes</option>
         </select>
-        <button class="btn-filter" id="btnFilter" onclick="aplicarFiltroHistorico()">FILTRAR COLUMNA O</button>
-        <div id="fechaSidebar" style="font-size:10px; color:var(--txt-dim);">Monitor Actual: Columna B</div>
+        <button class="btn-filter" id="btnFilter" onclick="aplicarFiltroHistorico()">CONSULTAR COL O</button>
+        <div id="fechaSidebar" style="font-size:10px; color:var(--txt-dim);">Dashboard: Solo Hoy (Col B)</div>
       </div>
     </div>
     <div class="card">
@@ -108,7 +108,7 @@
       <div class="kpi" style="border-top-color: var(--red);"><div class="kpi-val" id="kErrores" style="color: var(--red);">0</div><div class="kpi-label">No Corresponde (Col O)</div></div>
     </div>
     <div class="card">
-      <div class="card-title">Desempeño Operadores (Basado en Columna O) 📊</div>
+      <div class="card-title" id="mainTitle">Monitor de Operaciones del Día 📊</div>
       <table>
         <thead>
           <tr>
@@ -132,37 +132,51 @@
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; 
   let chartInstances = [];
 
-  // CARGA DE HOY: Conteo Solicitudes (B) vs Realizaciones (O)
-  async function cargarDatosHoy() {
-    toggleLoading(true, "Cargando Hoy...");
-    limpiarDashboardPrincipal();
-    try {
-      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos`);
-      const data = await response.json();
-      // data.totalTareas viene filtrado por Columna B en el GS para el KPI "Solicitadas"
-      // data.porEstado viene filtrado por Columna O en el GS para el resto
-      procesarReportePrincipal(data);
-    } catch (e) { console.error(e); } 
-    finally { toggleLoading(false); }
+  // FUNCIÓN PARA OBTENER FECHA DE HOY FORMATEADA DD-MM-YYYY
+  function getTodayString() {
+    const hoy = new Date();
+    const d = String(hoy.getDate()).padStart(2, '0');
+    const m = String(hoy.getMonth() + 1).padStart(2, '0');
+    const y = hoy.getFullYear();
+    return `${d}-${m}-${y}`;
   }
 
-  // FILTRO HISTÓRICO: Exclusivo para Auditoría en Columna O
+  // CARGAR DATOS DE HOY (OBLIGA AL SERVIDOR A USAR LA FECHA ACTUAL)
+  async function cargarDatosHoy() {
+    const hoy = getTodayString();
+    toggleLoading(true, `Sincronizando ${hoy}...`);
+    limpiarDashboardPrincipal();
+    
+    try {
+      // Enviamos la fecha de hoy explícitamente para que no traiga días pasados de la Col B
+      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${hoy}&targetCol=B`);
+      const data = await response.json();
+      
+      procesarReportePrincipal(data);
+      document.getElementById('fechaSidebar').textContent = `Monitor Hoy: ${hoy}`;
+    } catch (e) { 
+        console.error(e);
+        document.getElementById('fechaSidebar').textContent = "Error al sincronizar hoy";
+    } finally { toggleLoading(false); }
+  }
+
+  // FILTRO HISTÓRICO (EXCLUSIVO PARA SIDEBAR - COLUMNA O)
   async function aplicarFiltroHistorico() {
     const rawDate = document.getElementById('inputDate').value;
-    if (!rawDate) return alert("Selecciona fecha");
+    if (!rawDate) return alert("Selecciona una fecha");
+    
     const parts = rawDate.split('-');
     const fechaFormateada = `${parts[2]}-${parts[1]}-${parts[0]}`;
-    
-    toggleLoading(true, "Buscando en Col O...");
+
+    toggleLoading(true, "Consultando Historial...");
     limpiarSidebar();
 
     try {
-      // Forzamos targetCol=O para que el servidor busque solo realizaciones pasadas
-      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${fechaFormateada}&rango=Día&targetCol=O`);
+      const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${fechaFormateada}&targetCol=O`);
       const data = await response.json();
       
       if(!data || data.totalTareas === 0) {
-        alert("Sin registros en Columna O para esa fecha.");
+        alert(`Sin registros en Columna O para el día ${fechaFormateada}`);
         togglePanel(false);
       } else {
         mostrarPanelHistorico(data, fechaFormateada);
@@ -172,7 +186,7 @@
   }
 
   function mostrarPanelHistorico(data, fecha) {
-    document.getElementById('panelFechaLabel').textContent = `Auditoría Columna O: ${fecha}`;
+    document.getElementById('panelFechaLabel').textContent = `Auditoría Realizaciones (Col O): ${fecha}`;
     const pStats = document.getElementById('panelGeneralStats');
     const res = document.getElementById('filterResult');
     
@@ -185,10 +199,10 @@
     `;
 
     let html = "";
-    Object.entries(data.rendimientoIndividual).forEach(([nom, s]) => {
+    Object.entries(data.rendimientoIndividual || {}).forEach(([nom, s]) => {
       html += `<div class="card" style="margin-bottom:8px; padding:10px; background:#161f2e;">
-                 <div style="display:flex; justify-content:space-between;">
-                   <span>${nom}</span><b>${s.realizados} OK</b>
+                 <div style="display:flex; justify-content:space-between; align-items:center;">
+                   <span style="font-size:12px;">${nom}</span><b>${s.realizados} OK</b>
                  </div>
                </div>`;
     });
@@ -197,9 +211,7 @@
   }
 
   function procesarReportePrincipal(data) {
-    // KPI 1: Solicitudes (Viene de Col B)
     document.getElementById('kTotal').textContent = data.totalTareas || 0;
-    // KPIs Restantes: Realizaciones (Viene de Col O)
     document.getElementById('kRealizadas').textContent = data.porEstado['REALIZADO'] || 0;
     document.getElementById('kVacias').textContent = data.porEstado['UBIC. VACÍA'] || 0;
     document.getElementById('kErrores').textContent = data.porEstado['COD. NO CORRESPONDE'] || 0;
@@ -207,6 +219,11 @@
     const tbody = document.getElementById('rendBody');
     const chartCont = document.getElementById('chartsContainer');
     const prodList = document.getElementById('prodByHourList');
+
+    if(!data.rendimientoIndividual || Object.keys(data.rendimientoIndividual).length === 0) {
+        tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:20px; color:var(--txt-dim);'>Sin actividad registrada para hoy.</td></tr>";
+        return;
+    }
 
     Object.entries(data.rendimientoIndividual).forEach(([nom, s], i) => {
       tbody.innerHTML += `<tr>
