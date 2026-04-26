@@ -6,7 +6,6 @@
   <title>LOGÍSTICA DASHBOARD — RepoSYSTEM</title>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
   <style>
     :root {
       --bg: #070b12; --surface: #0d1420; --card: #111827;
@@ -55,7 +54,7 @@
     .blue { background: rgba(59,130,246,0.1); color: var(--blue); }
 
     .prog-wrap { height: 10px; background: #1a2234; border-radius: 10px; overflow: hidden; margin: 12px 0; }
-    .prog-fill { height: 100%; background: var(--red); transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    .prog-fill { height: 100%; background: var(--red); transition: width 1.2s ease-in-out; }
     
     #loader { position: fixed; inset: 0; background: rgba(7,11,18,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Rajdhani'; letter-spacing: 2px; }
     .hidden { display: none !important; }
@@ -65,7 +64,7 @@
 
 <div id="loader">
   <div style="font-size: 50px; margin-bottom: 15px;" class="spin">⚙️</div>
-  <span>SINCRONIZANDO SISTEMA...</span>
+  <span>SINCRONIZANDO REPOSYSTEM...</span>
 </div>
 
 <header>
@@ -83,14 +82,14 @@
     <div class="kpi"><div class="kpi-val" id="kTotal">0</div><div class="kpi-label">Tareas Totales</div></div>
     <div class="kpi" style="border-top-color: var(--green);"><div class="kpi-val" id="kRealizadas" style="color: var(--green);">0</div><div class="kpi-label">Realizadas</div></div>
     <div class="kpi" style="border-top-color: var(--amber);"><div class="kpi-val" id="kPendientes" style="color: var(--amber);">0</div><div class="kpi-label">Pendientes</div></div>
-    <div class="kpi" style="border-top-color: var(--purple);"><div class="kpi-val" id="kCumpl" style="color: var(--purple);">0%</div><div class="kpi-label">% Cumplimiento Total</div></div>
+    <div class="kpi" style="border-top-color: var(--purple);"><div class="kpi-val" id="kCumpl" style="color: var(--purple);">0%</div><div class="kpi-label">% Cumplimiento</div></div>
   </div>
 
   <div class="main-grid">
     <div class="card full-width">
-      <div class="card-title">Avance de Reposiciones <span id="lastUpdate" style="text-transform:none; font-size:11px; opacity: 0.6;">Sincronizando...</span></div>
+      <div class="card-title">Avance General <span id="lastUpdate" style="text-transform:none; font-size:11px; opacity: 0.6;">Sincronizando...</span></div>
       <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom: 5px;">
-        <span id="avanceTxt">Procesando registros...</span>
+        <span id="avanceTxt">Procesando...</span>
         <span id="progPct" style="color:var(--red); font-weight:bold;">0%</span>
       </div>
       <div class="prog-wrap"><div id="progGeneral" class="prog-fill" style="width:0%"></div></div>
@@ -147,14 +146,12 @@
     try {
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos`);
       const data = await response.json();
-      
       if (data.error) throw new Error(data.error);
-      
       procesarReporte(data);
-      document.getElementById('lastUpdate').textContent = 'Sincronizado: ' + new Date().toLocaleTimeString();
+      document.getElementById('lastUpdate').textContent = 'Última actualización: ' + new Date().toLocaleTimeString();
     } catch (e) {
-      console.error("Error de Sincronización:", e);
-      alert("Error al obtener datos: " + e.message);
+      console.error(e);
+      alert("Error de conexión: " + e.message);
     } finally {
       btn.disabled = false;
       gear.innerText = "🔄";
@@ -164,7 +161,6 @@
   }
 
   function procesarReporte(data) {
-    // 1. Cargar KPIs Principales
     document.getElementById('kTotal').textContent = data.totalTareas || 0;
     document.getElementById('kRealizadas').textContent = data.porEstado['REALIZADO'] || 0;
     document.getElementById('kPendientes').textContent = data.porEstado['PENDIENTE'] || 0;
@@ -174,17 +170,14 @@
     const cumplTotal = Math.round((real / total) * 100);
     document.getElementById('kCumpl').textContent = cumplTotal + '%';
 
-    // 2. Actualizar Barra de Progreso
     const gestionados = total - (data.porEstado['PENDIENTE'] || 0);
     const pct = Math.round((gestionados / total) * 100);
     document.getElementById('progGeneral').style.width = pct + '%';
     document.getElementById('progPct').textContent = pct + '%';
-    document.getElementById('avanceTxt').textContent = `${gestionados} de ${total} tareas completadas`;
+    document.getElementById('avanceTxt').textContent = `${gestionados} de ${total} tareas gestionadas`;
 
-    // 3. Renderizar Tabla de Apiladores
     const tbody = document.getElementById('rendBody');
     tbody.innerHTML = "";
-    
     if (data.rendimientoIndividual) {
       Object.entries(data.rendimientoIndividual).forEach(([nombre, s]) => {
         tbody.innerHTML += `
@@ -201,12 +194,10 @@
         `;
       });
     }
-
     actualizarGraficos(data);
   }
 
   function actualizarGraficos(data) {
-    // Gráfico de Estados
     if (charts.estados) charts.estados.destroy();
     const ctxE = document.getElementById('chartEstados').getContext('2d');
     charts.estados = new Chart(ctxE, {
@@ -214,51 +205,27 @@
       data: {
         labels: ['Realizado', 'Ubic. Vacía', 'Cód. No Corresp.', 'Pendiente'],
         datasets: [{
-          data: [
-            data.porEstado['REALIZADO'] || 0, 
-            data.porEstado['UBIC. VACÍA'] || 0, 
-            data.porEstado['COD. NO CORRESPONDE'] || 0, 
-            data.porEstado['PENDIENTE'] || 0
-          ],
+          data: [data.porEstado['REALIZADO'] || 0, data.porEstado['UBIC. VACÍA'] || 0, data.porEstado['COD. NO CORRESPONDE'] || 0, data.porEstado['PENDIENTE'] || 0],
           backgroundColor: ['#10b981', '#f59e0b', '#e30613', '#3b82f6'],
           borderWidth: 0
         }]
       },
-      options: { 
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 }, padding: 20 } } } 
-      }
+      options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } } } }
     });
 
-    // Gráfico de Períodos
     if (charts.periodo) charts.periodo.destroy();
     const ctxP = document.getElementById('chartPeriodo').getContext('2d');
     const horasLabels = Object.keys(data.porHoraGrupo || {}).sort();
-    const horasData = horasLabels.map(h => data.porHoraGrupo[h]);
-
     charts.periodo = new Chart(ctxP, {
       type: 'bar',
       data: {
         labels: horasLabels.map(h => h + ":00"),
-        datasets: [{
-          label: 'Pallets Movidos',
-          data: horasData,
-          backgroundColor: '#e30613',
-          borderRadius: 4
-        }]
+        datasets: [{ label: 'Pallets', data: horasLabels.map(h => data.porHoraGrupo[h]), backgroundColor: '#e30613', borderRadius: 4 }]
       },
-      options: { 
-        maintainAspectRatio: false,
-        scales: { 
-          y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } },
-          x: { grid: { display: false }, ticks: { color: '#64748b' } }
-        },
-        plugins: { legend: { display: false } }
-      }
+      options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } }
     });
   }
 
-  // Carga inicial al abrir la página
   window.onload = cargarDatos;
 </script>
 </body>
