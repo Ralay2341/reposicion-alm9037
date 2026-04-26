@@ -87,7 +87,7 @@
 <header>
   <h1>REPOSYSTEM <span>ALM9037</span></h1>
   <div class="header-right">
-    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Conectando...</div>
+    <div id="statusMsg" style="font-size: 11px; color: var(--amber); margin-bottom: 2px;" class="hidden">Consultando Columna O...</div>
     <button class="btn-update" onclick="cargarDatos()" id="btnUpdate">
       <span id="gearIcon">🔄</span> ACTUALIZAR
     </button>
@@ -120,7 +120,7 @@
       <div class="card-title">Alertas de Calidad ⚠️</div>
       <div id="sidebarContent">
         <p id="alertOp" style="font-size:16px; font-weight:bold;">0</p>
-        <p id="alertQty" style="font-size:11px; color:var(--txt-dim)">A la espera de datos.</p>
+        <p id="alertQty" style="font-size:11px; color:var(--txt-dim)">-</p>
       </div>
     </div>
   </aside>
@@ -157,35 +157,54 @@
 </div>
 
 <script>
-  // URL de tu Script de Google Sheets
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec"; 
   let chartInstances = [];
 
+  function resetDashboard() {
+    document.getElementById('kTotal').textContent = "0";
+    document.getElementById('kRealizadas').textContent = "0";
+    document.getElementById('kVacias').textContent = "0";
+    document.getElementById('kErrores').textContent = "0";
+    document.getElementById('rendBody').innerHTML = "";
+    document.getElementById('chartsContainer').innerHTML = "";
+    document.getElementById('prodByHourList').innerHTML = "";
+    chartInstances.forEach(c => c.destroy());
+    chartInstances = [];
+  }
+
   async function cargarDatos() {
     toggleLoading(true);
+    resetDashboard();
     try {
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos`);
       const data = await response.json();
       procesarReporte(data);
       document.getElementById('fechaSidebar').textContent = "Consulta: Tiempo Real";
-    } catch (e) { console.error("Error cargando tiempo real:", e); } 
+    } catch (e) { console.error(e); } 
     finally { toggleLoading(false); }
   }
 
   async function aplicarFiltro() {
     const fecha = document.getElementById('inputDate').value;
     const rango = document.getElementById('inputRange').value;
-    if (!fecha) return alert("Selecciona una fecha para filtrar por Columna O");
+    if (!fecha) return alert("Seleccione una fecha");
 
     toggleLoading(true);
+    resetDashboard(); 
+
     try {
-      // Importante: El servidor recibirá el parámetro 'columna=O' para filtrar correctamente
       const response = await fetch(`${SCRIPT_URL}?action=getReporteDatos&fecha=${fecha}&rango=${rango}&targetCol=O`);
       const data = await response.json();
       
-      document.getElementById('fechaSidebar').textContent = `Filtrado Col O: ${fecha}`;
-      mostrarPanelHistorial(data);
-    } catch (e) { alert("Error consultando historial en Columna O"); } 
+      if(!data.totalTareas || data.totalTareas == 0) {
+        document.getElementById('fechaSidebar').textContent = `Sin datos en Col O: ${fecha}`;
+        alert("No se encontraron registros en la Columna O.");
+      } else {
+        document.getElementById('fechaSidebar').textContent = `Filtrado Col O: ${fecha}`;
+        mostrarPanelHistorial(data);
+        procesarReporte(data);
+      }
+    } catch (e) { alert("Error de conexión."); } 
     finally { toggleLoading(false); }
   }
 
@@ -193,21 +212,20 @@
     const panel = document.getElementById('sidePanel');
     const pStats = document.getElementById('panelGeneralStats');
     const res = document.getElementById('filterResult');
-    
-    const tot = data.totalTareas || 1;
+    const tot = data.totalTareas || 0;
     const ok = data.porEstado['REALIZADO'] || 0;
-    const efec = Math.round((ok / tot) * 100);
+    const efec = tot > 0 ? Math.round((ok / tot) * 100) : 0;
 
     pStats.innerHTML = `
       <div class="pkpi"><small>Total Reposic.</small><div>${tot}</div></div>
       <div class="pkpi"><small>Correctas</small><div style="color:var(--green)">${ok}</div></div>
       <div class="pkpi"><small>Ub. Vacías</small><div style="color:var(--amber)">${data.porEstado['UBIC. VACÍA'] || 0}</div></div>
       <div class="pkpi"><small>No Corresp.</small><div style="color:var(--red)">${data.porEstado['COD. NO CORRESPONDE'] || 0}</div></div>
-      <div class="pkpi" style="grid-column: span 2; border-left-color: var(--purple);"><small>% Efec. Periodo</small><div style="color:var(--purple)">${efec}%</div></div>
+      <div class="pkpi" style="grid-column: span 2; border-left-color: var(--purple);"><small>% Efec. Global (Histórico)</small><div style="color:var(--purple)">${efec}%</div></div>
     `;
 
     let html = "";
-    Object.entries(data.rendimientoIndividual).forEach(([nom, s]) => {
+    Object.entries(data.rendimientoIndividual || {}).forEach(([nom, s]) => {
       html += `
         <div class="card" style="margin-bottom:10px; padding:12px; background:#161f2e;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -230,19 +248,13 @@
     document.getElementById('kRealizadas').textContent = data.porEstado['REALIZADO'] || 0;
     document.getElementById('kVacias').textContent = data.porEstado['UBIC. VACÍA'] || 0;
     document.getElementById('kErrores').textContent = data.porEstado['COD. NO CORRESPONDE'] || 0;
-
     const tbody = document.getElementById('rendBody');
     const chartCont = document.getElementById('chartsContainer');
     const prodList = document.getElementById('prodByHourList');
-    
-    tbody.innerHTML = ""; chartCont.innerHTML = ""; prodList.innerHTML = "";
-    chartInstances.forEach(c => c.destroy()); chartInstances = [];
-
     let maxErrOp = { n: "N/A", q: 0 };
 
-    Object.entries(data.rendimientoIndividual).forEach(([nom, s], i) => {
+    Object.entries(data.rendimientoIndividual || {}).forEach(([nom, s], i) => {
       if(s.nocode > maxErrOp.q) maxErrOp = { n: nom, q: s.nocode };
-
       tbody.innerHTML += `<tr>
         <td><strong>${nom}</strong></td><td>${s.total}</td>
         <td><span class="badge green">${s.realizados}</span></td>
@@ -250,9 +262,7 @@
         <td><span class="badge red-status">${s.nocode}</span></td>
         <td style="font-weight:bold;">${s.palletsPorHora}</td>
         <td style="color:var(--green)">${s.cumplimiento}%</td></tr>`;
-
       prodList.innerHTML += `<div class="prod-item"><span>${nom}</span><b style="color:var(--blue)">${s.palletsPorHora} P/H</b></div>`;
-
       const chartId = `c-${i}`;
       chartCont.innerHTML += `<div class="chart-box"><p style="font-size:9px;">${nom}</p><canvas id="${chartId}"></canvas></div>`;
       setTimeout(() => {
@@ -266,21 +276,14 @@
       }, 0);
     });
     document.getElementById('alertOp').textContent = maxErrOp.n;
-    document.getElementById('alertQty').textContent = `Máximas incidencias (${maxErrOp.q} err).`;
+    document.getElementById('alertQty').textContent = `Máximas incidencias (${maxErrOp.q}).`;
   }
 
   function toggleLoading(isLoading) {
     const gear = document.getElementById('gearIcon');
     const msg = document.getElementById('statusMsg');
-    const btnU = document.getElementById('btnUpdate');
-    const btnF = document.getElementById('btnFilter');
-    if (isLoading) {
-      msg.classList.remove('hidden'); gear.classList.add('spin');
-      btnU.disabled = true; btnF.disabled = true;
-    } else {
-      msg.classList.add('hidden'); gear.classList.remove('spin');
-      btnU.disabled = false; btnF.disabled = false;
-    }
+    if (isLoading) { msg.classList.remove('hidden'); gear.classList.add('spin'); } 
+    else { msg.classList.add('hidden'); gear.classList.remove('spin'); }
   }
 
   function togglePanel() { document.getElementById('sidePanel').classList.remove('open'); }
