@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Almacenamiento ALM9037</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   VARIABLES & RESET
+═══════════════════════════════════════════ */
+:root {
+  --bg:       #080c14;
+  --surface:  #0e1520;
+  --card:     #121c2e;
+  --card2:    #182236;
+  --border:   #1e3050;
+  --gold:     #f0a500;
+  --gold2:    #ffd060;
+  --cyan:     #00d4ff;
+  --green:    #00e676;
+  --red:      #ff4444;
+  --orange:   #ff8c00;
+  --txt:      #d0e4ff;
+  --txt2:     #6b8aac;
+  --txt3:     #2a4060;
+
+  --g1: linear-gradient(135deg,#f0a500,#ff6b00);
+  --g2: linear-gradient(135deg,#00d4ff,#0066ff);
+  --g3: linear-gradient(135deg,#00e676,#00b248);
+  --g4: linear-gradient(135deg,#ff4444,#cc0000);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
+  font-family:'Exo 2',sans-serif;}
+
+/* ═══════════════════════════════════════════
+   SCANLINE OVERLAY
+═══════════════════════════════════════════ */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.08) 0px,rgba(0,0,0,.08) 1px,transparent 1px,transparent 3px);
+}
+
+/* ═══════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════ */
+.hdr{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:linear-gradient(180deg,#0a1020 0%,rgba(8,12,20,.95) 100%);
+  border-bottom:2px solid var(--gold);
+  padding:10px 18px;
+  display:flex;align-items:center;gap:12px;
+}
+.hdr-logo{
+  font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;
+  color:var(--gold);letter-spacing:3px;text-transform:uppercase;
+  text-shadow:0 0 20px rgba(240,165,0,.5);
+}
+.hdr-sub{font-size:11px;color:var(--txt2);letter-spacing:1px;}
+.hdr-right{margin-left:auto;text-align:right;}
+.hdr-clock{font-family:'Share Tech Mono',monospace;font-size:20px;
+  color:var(--cyan);letter-spacing:2px;text-shadow:0 0 15px rgba(0,212,255,.4);}
+.hdr-date{font-size:10px;color:var(--txt3);letter-spacing:.5px;}
+
+/* ═══════════════════════════════════════════
+   SCREENS
+═══════════════════════════════════════════ */
+.screen{
+  position:fixed;inset:0;padding-top:62px;
+  display:none;flex-direction:column;
+  overflow-y:auto;z-index:10;
+}
+.screen.on{display:flex;}
+
+/* ═══════════════════════════════════════════
+   LANDING — SELECCIÓN DE GRUERO
+═══════════════════════════════════════════ */
+#s-landing{
+  align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 0%,rgba(240,165,0,.08) 0%,transparent 60%);
+}
+.landing-wrap{width:100%;max-width:480px;padding:20px;}
+.landing-title{
+  font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;
+  color:var(--gold);letter-spacing:3px;text-transform:uppercase;
+  text-align:center;margin-bottom:4px;
+  text-shadow:0 0 30px rgba(240,165,0,.4);
+}
+.landing-sub{font-size:12px;color:var(--txt2);text-align:center;
+  letter-spacing:1px;margin-bottom:24px;}
+
+.gruero-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.gruero-btn{
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:16px;padding:20px 12px;
+  cursor:pointer;text-align:center;
+  transition:all .2s;display:flex;flex-direction:column;
+  align-items:center;gap:8px;
+  position:relative;overflow:hidden;
+}
+.gruero-btn::before{
+  content:'';position:absolute;inset:0;opacity:0;
+  transition:opacity .2s;
+}
+.gruero-btn.c1::before{background:linear-gradient(135deg,rgba(240,165,0,.12),transparent);}
+.gruero-btn.c2::before{background:linear-gradient(135deg,rgba(0,212,255,.12),transparent);}
+.gruero-btn.c3::before{background:linear-gradient(135deg,rgba(0,230,118,.12),transparent);}
+.gruero-btn.c4::before{background:linear-gradient(135deg,rgba(255,68,68,.12),transparent);}
+.gruero-btn:active{transform:scale(.96);}
+.gruero-btn:active::before{opacity:1;}
+.gruero-num{
+  font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+}
+.gruero-btn.c1 .gruero-num{color:var(--gold);}
+.gruero-btn.c2 .gruero-num{color:var(--cyan);}
+.gruero-btn.c3 .gruero-num{color:var(--green);}
+.gruero-btn.c4 .gruero-num{color:var(--red);}
+.gruero-icon{font-size:36px;line-height:1;}
+.gruero-name{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
+  color:var(--txt);letter-spacing:.5px;line-height:1.2;}
+.gruero-tasks{font-size:10px;color:var(--txt3);margin-top:2px;}
+.gruero-btn.c1{border-color:rgba(240,165,0,.25);}
+.gruero-btn.c2{border-color:rgba(0,212,255,.25);}
+.gruero-btn.c3{border-color:rgba(0,230,118,.25);}
+.gruero-btn.c4{border-color:rgba(255,68,68,.25);}
+
+.sync-bar{
+  margin-top:16px;background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:10px 14px;
+  display:flex;align-items:center;gap:8px;font-size:11px;color:var(--txt2);
+}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 8px var(--green);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* ═══════════════════════════════════════════
+   PANTALLA PRINCIPAL GRUERO
+═══════════════════════════════════════════ */
+#s-main{padding:10px 12px 80px;}
+
+.user-bar{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:10px 14px;
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:12px;
+}
+.user-bar .name{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;
+  color:var(--txt);letter-spacing:.5px;}
+.user-bar .role{font-size:10px;color:var(--txt2);letter-spacing:.5px;}
+.user-color-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.btn-logout{margin-left:auto;background:transparent;border:1px solid var(--border);
+  border-radius:8px;color:var(--txt2);font-size:11px;font-weight:600;
+  padding:5px 10px;cursor:pointer;letter-spacing:.5px;font-family:'Exo 2',sans-serif;}
+
+/* PROGRESS */
+.prog-section{margin-bottom:12px;}
+.prog-info{display:flex;justify-content:space-between;font-size:11px;
+  color:var(--txt2);margin-bottom:5px;letter-spacing:.5px;}
+.prog-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:width .5s ease;}
+
+/* SECCIÓN LABEL */
+.sec-label{
+  font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;
+  color:var(--gold);letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:8px;display:flex;align-items:center;gap:6px;
+}
+.sec-label::before{content:'';width:3px;height:13px;background:var(--gold);border-radius:2px;}
+
+/* ═══════════════════════════════════════════
+   RUEDA DE PALLETS (DRUM PICKER)
+═══════════════════════════════════════════ */
+.drum-container{
+  position:relative;height:280px;overflow:hidden;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;margin-bottom:12px;
+  cursor:grab;user-select:none;
+}
+.drum-container:active{cursor:grabbing;}
+
+/* línea de selección */
+.drum-container::before,
+.drum-container::after{
+  content:'';position:absolute;left:0;right:0;z-index:10;pointer-events:none;
+}
+.drum-container::before{
+  top:0;height:90px;
+  background:linear-gradient(180deg,var(--card) 0%,transparent 100%);
+}
+.drum-container::after{
+  bottom:0;height:90px;
+  background:linear-gradient(0deg,var(--card) 0%,transparent 100%);
+}
+
+.drum-selector{
+  position:absolute;top:50%;left:8px;right:8px;transform:translateY(-50%);
+  height:64px;border:2px solid var(--gold);border-radius:10px;
+  background:rgba(240,165,0,.06);z-index:5;pointer-events:none;
+  box-shadow:0 0 20px rgba(240,165,0,.15);
+}
+
+.drum-track{
+  position:absolute;left:0;right:0;top:0;
+  transition:transform .3s cubic-bezier(.25,.46,.45,.94);
+  will-change:transform;
+}
+
+.drum-item{
+  height:64px;display:flex;align-items:center;
+  padding:0 16px;gap:12px;
+  transition:opacity .2s;
+}
+.drum-item.selected .di-content{opacity:1;}
+.drum-item:not(.selected) .di-content{opacity:.35;}
+.drum-item.taken .di-content{opacity:.15;}
+.drum-item.taken .di-sap{text-decoration:line-through;}
+
+.di-content{display:flex;align-items:center;gap:12px;width:100%;transition:opacity .2s;}
+.di-index{
+  font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--txt3);
+  width:28px;flex-shrink:0;text-align:right;
+}
+.di-body{flex:1;min-width:0;}
+.di-sap{
+  font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--cyan);
+  letter-spacing:1px;line-height:1;
+}
+.di-desc{font-size:11px;color:var(--txt2);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;margin-top:2px;}
+.di-qty{
+  font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
+  color:var(--gold);flex-shrink:0;
+}
+.di-taken-tag{
+  font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:2px 6px;border-radius:4px;flex-shrink:0;
+  background:rgba(255,68,68,.15);color:var(--red);border:1px solid rgba(255,68,68,.3);
+}
+.di-taken-by{font-size:9px;color:var(--txt3);}
+
+/* ═══════════════════════════════════════════
+   DETALLE PALLET SELECCIONADO
+═══════════════════════════════════════════ */
+.pallet-detail{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:14px;margin-bottom:12px;
+}
+.pd-row{display:flex;justify-content:space-between;align-items:center;
+  padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.pd-row:last-child{border-bottom:none;}
+.pd-k{font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
+.pd-v{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--txt);}
+.pd-v.hl{color:var(--cyan);}
+.pd-v.gold{color:var(--gold);}
+
+/* UBICACIÓN DESTINO */
+.ubic-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.ubic-btn{
+  background:var(--card);border:2px solid var(--border);
+  border-radius:10px;padding:10px 8px;
+  cursor:pointer;text-align:center;transition:all .18s;
+}
+.ubic-btn:active{transform:scale(.97);}
+.ubic-btn.sel{border-color:var(--cyan);background:rgba(0,212,255,.08);
+  box-shadow:0 0 12px rgba(0,212,255,.15);}
+.ubic-btn.ocupada{border-color:rgba(255,68,68,.3);background:rgba(255,68,68,.05);cursor:not-allowed;}
+.ubic-code{font-family:'Share Tech Mono',monospace;font-size:12px;
+  color:var(--cyan);letter-spacing:.5px;line-height:1.2;}
+.ubic-btn.ocupada .ubic-code{color:var(--txt3);}
+.ubic-type{font-size:9px;color:var(--txt3);text-transform:uppercase;
+  letter-spacing:.5px;margin-top:3px;}
+.ubic-badge{font-size:9px;font-weight:700;color:var(--red);
+  text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+
+/* BOTÓN ALMACENAR */
+.btn-store{
+  width:100%;padding:18px;border-radius:14px;border:none;
+  font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:800;
+  text-transform:uppercase;letter-spacing:2px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.btn-store::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.1) 50%,transparent 100%);
+  transform:translateX(-100%);transition:transform .4s;
+}
+.btn-store:not(:disabled):hover::before{transform:translateX(100%);}
+.btn-store:not(:disabled):active{transform:scale(.98);}
+.btn-store:disabled{opacity:.3;cursor:not-allowed;}
+.btn-store.ready{
+  background:linear-gradient(135deg,#00e676,#00b248);color:#001a0a;
+  box-shadow:0 4px 24px rgba(0,230,118,.3);
+}
+.btn-store.not-ready{background:var(--card2);color:var(--txt3);}
+
+/* BOTÓN VOLVER */
+.btn-back{
+  width:100%;padding:13px;border-radius:10px;
+  background:transparent;border:1px solid var(--border);
+  font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;
+  color:var(--txt2);letter-spacing:1px;text-transform:uppercase;
+  cursor:pointer;margin-top:8px;
+}
+
+/* ═══════════════════════════════════════════
+   SUCCESS
+═══════════════════════════════════════════ */
+#s-success{
+  align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 40%,rgba(0,230,118,.08) 0%,transparent 60%);
+}
+.succ-wrap{text-align:center;padding:24px 20px;width:100%;max-width:400px;}
+.succ-ico{font-size:72px;animation:pop .4s cubic-bezier(.34,1.56,.64,1);margin-bottom:12px;}
+@keyframes pop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+.succ-title{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:800;
+  color:var(--green);letter-spacing:2px;text-transform:uppercase;
+  text-shadow:0 0 30px rgba(0,230,118,.5);margin-bottom:6px;}
+.succ-sub{font-size:13px;color:var(--txt2);margin-bottom:20px;}
+.succ-card{
+  background:var(--card);border:1px solid rgba(0,230,118,.2);
+  border-radius:14px;padding:14px;text-align:left;margin-bottom:20px;
+}
+.succ-row{display:flex;justify-content:space-between;padding:8px 0;
+  border-bottom:1px solid var(--border);font-size:13px;}
+.succ-row:last-child{border-bottom:none;}
+.succ-k{font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;}
+.succ-v{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--txt);}
+.succ-v.green{color:var(--green);}
+
+/* SPINNER */
+.spin{display:inline-block;width:22px;height:22px;
+  border:3px solid rgba(0,26,10,.3);border-top-color:#001a0a;
+  border-radius:50%;animation:sp .6s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:20px;left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:var(--card2);border:1px solid var(--border);
+  color:var(--txt2);padding:10px 20px;border-radius:8px;
+  font-size:13px;font-weight:600;z-index:999;
+  transition:transform .3s;white-space:nowrap;
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.err{border-color:var(--red);color:var(--red);}
+.toast.ok{border-color:var(--green);color:var(--green);}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:40px 20px;color:var(--txt3);}
+.empty-state .ei{font-size:40px;margin-bottom:10px;}
+
+/* LOADING PULSE */
+.pulse{animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div>
+    <div class="hdr-logo">⚡ ALM9037</div>
+    <div class="hdr-sub">SISTEMA DE ALMACENAMIENTO</div>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-clock" id="clk">--:--:--</div>
+    <div class="hdr-date" id="clk-d">--</div>
+  </div>
+</div>
+
+<!-- ══ LANDING: SELECCIONAR GRUERO ══ -->
+<div class="screen on" id="s-landing">
+  <div class="landing-wrap">
+    <div class="landing-title">🏗️ Almacenamiento</div>
+    <div class="landing-sub">SELECCIONA TU GRÚA PARA COMENZAR</div>
+    <div class="gruero-grid" id="gruero-grid">
+      <!-- generado por JS -->
+    </div>
+    <div class="sync-bar">
+      <div class="sync-dot"></div>
+      <span id="sync-info">Sincronizando pallets desde Google Sheets...</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN: OPERACIÓN ══ -->
+<div class="screen" id="s-main">
+  <!-- barra usuario -->
+  <div class="user-bar" id="user-bar">
+    <div class="user-color-dot" id="user-dot"></div>
+    <div>
+      <div class="name" id="user-name">--</div>
+      <div class="role">OPERADOR DE GRÚA</div>
+    </div>
+    <button class="btn-logout" onclick="logout()">← Cambiar</button>
+  </div>
+
+  <!-- progreso -->
+  <div class="prog-section">
+    <div class="prog-info">
+      <span id="prog-txt">Cargando...</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" id="prog-fill" style="width:0%;background:var(--gold);"></div>
+    </div>
+  </div>
+
+  <!-- rueda de pallets -->
+  <div class="sec-label">Selecciona un pallet</div>
+  <div class="drum-container" id="drum"
+    ontouchstart="drumTouchStart(event)"
+    ontouchmove="drumTouchMove(event)"
+    ontouchend="drumTouchEnd(event)"
+    onmousedown="drumMouseStart(event)">
+    <div class="drum-selector"></div>
+    <div class="drum-track" id="drum-track"></div>
+    <div class="drum-container" style="display:none;"></div>
+  </div>
+
+  <!-- detalle pallet -->
+  <div class="sec-label">Detalle del pallet</div>
+  <div class="pallet-detail" id="pallet-detail">
+    <div class="empty-state" style="padding:16px;">
+      <div class="ei">☝️</div>
+      <p style="font-size:12px;">Desliza para seleccionar un pallet</p>
+    </div>
+  </div>
+
+  <!-- ubicación destino -->
+  <div class="sec-label" id="ubic-label" style="display:none;">Ubicación destino</div>
+  <div class="ubic-grid" id="ubic-grid"></div>
+
+  <!-- botón almacenar -->
+  <button class="btn-store not-ready" id="btn-store" onclick="almacenar()" disabled>
+    📦 Selecciona pallet y ubicación
+  </button>
+  <button class="btn-back" onclick="logout()">← Volver al menú</button>
+</div>
+
+<!-- ══ SUCCESS ══ -->
+<div class="screen" id="s-success">
+  <div class="succ-wrap">
+    <div class="succ-ico">✅</div>
+    <div class="succ-title">¡Almacenado!</div>
+    <div class="succ-sub" id="succ-sub">Pallet registrado correctamente</div>
+    <div class="succ-card" id="succ-card"></div>
+    <button class="btn-store ready" style="margin-bottom:8px;" onclick="siguientePallet()">
+      ➡️ Siguiente pallet
+    </button>
+    <button class="btn-back" onclick="logout()">🏠 Cambiar operador</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  ⚙️  CONFIGURACIÓN — editar estas líneas
+// ══════════════════════════════════════════════════════
+const SCRIPT_URL  = 'https://script.google.com/macros/s/TU_SCRIPT_ID/exec';
+const UBIC_ORIGEN = 'ALM9037-04-93-A1';  // Siempre fija
+
+// Operadores
+const OPERADORES = [
+  { id:'G1', nombre:'Francisco Vigueras', color:'#f0a500', clase:'c1', emoji:'🔋' },
+  { id:'G2', nombre:'Diego Nahuelcheo',   color:'#00d4ff', clase:'c2', emoji:'🔋' },
+  { id:'G3', nombre:'Gonzalo Díaz',       color:'#00e676', clase:'c3', emoji:'🔋' },
+  { id:'G4', nombre:'Jorge González',     color:'#ff4444', clase:'c4', emoji:'🔋' },
+];
+
+// Ubicaciones de destino — vienen de columna J de la hoja DRIVE
+// Se cargan dinámicamente desde los pallets
+// Estas son las fijas disponibles (doble profundidad D / simple S)
+const UBICACIONES_FIJAS = [
+  { code:'ALM9037-01-01-A1', tipo:'D' },
+  { code:'ALM9037-01-01-A2', tipo:'D' },
+  { code:'ALM9037-01-02-A1', tipo:'D' },
+  { code:'ALM9037-01-02-A2', tipo:'D' },
+  { code:'ALM9037-02-01-A1', tipo:'S' },
+  { code:'ALM9037-02-01-A2', tipo:'S' },
+  { code:'ALM9037-02-02-A1', tipo:'S' },
+  { code:'ALM9037-02-02-A2', tipo:'S' },
+  { code:'ALM9037-03-01-B1', tipo:'D' },
+  { code:'ALM9037-03-01-B2', tipo:'D' },
+  { code:'ALM9037-04-01-A1', tipo:'S' },
+  { code:'ALM9037-04-01-A2', tipo:'S' },
+  { code:'ALM9037-05-01-C1', tipo:'D' },
+  { code:'ALM9037-05-02-C1', tipo:'D' },
+  { code:'ALM9037-06-01-A1', tipo:'S' },
+  { code:'ALM9037-07-01-A1', tipo:'S' },
+];
+
+// ══════════════════════════════════════════════════════
+//  ESTADO GLOBAL
+// ══════════════════════════════════════════════════════
+let opActual     = null;
+let importNum    = '';     // número de importación (4 dígitos)
+let pallets      = [];
+let selPalletIdx = -1;
+let selUbic      = null;
+let ubicOcupadas = new Set();
+
+// Drum picker state
+const ITEM_H    = 64;
+const VISIBLE   = 3; // ítems visibles arriba/abajo del centro
+let drumY       = 0;
+let drumTarget  = 0;
+let dragStartY  = 0;
+let dragStartDrumY = 0;
+let isDragging  = false;
+let animId      = null;
+
+// ══════════════════════════════════════════════════════
+//  RELOJ
+// ══════════════════════════════════════════════════════
+function tick(){
+  const n = new Date();
+  document.getElementById('clk').textContent  = n.toLocaleTimeString('es-CL');
+  document.getElementById('clk-d').textContent = n.toLocaleDateString('es-CL',
+    {weekday:'short',day:'2-digit',month:'short'});
+}
+tick(); setInterval(tick,1000);
+
+// ══════════════════════════════════════════════════════
+//  CARGAR PALLETS DESDE APPS SCRIPT
+// ══════════════════════════════════════════════════════
+async function cargarPallets() {
+  document.getElementById('sync-info').textContent = 'Sincronizando...';
+  try {
+    const res  = await fetch(SCRIPT_URL + '?action=getPallets');
+    const data = await res.json();
+    if (data.pallets) {
+      pallets      = data.pallets;
+      ubicOcupadas = new Set(data.ubicOcupadas || []);
+      actualizarGrueroGrid();
+      if (opActual) { renderDrum(); renderUbicaciones(); }
+    }
+    document.getElementById('sync-info').textContent =
+      `${pallets.length} pallets · ${pallets.filter(p=>!p.tomado).length} disponibles · ` +
+      new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    document.getElementById('sync-info').textContent = 'Error de conexión — usando datos locales';
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  GRID DE GRUEROS
+// ══════════════════════════════════════════════════════
+function actualizarGrueroGrid() {
+  const grid = document.getElementById('gruero-grid');
+  grid.innerHTML = OPERADORES.map(op => {
+    const misPend = pallets.filter(p =>
+      !p.tomado || (p.tomado && p.grueroId === op.id && !p.almacenado)
+    ).length;
+    const misAlm = pallets.filter(p => p.almacenado && p.grueroId === op.id).length;
+    return `
+    <div class="gruero-btn ${op.clase}" onclick="selGruero('${op.id}')">
+      <div class="gruero-num">Grúa ${op.id}</div>
+      <div class="gruero-icon">${op.emoji}</div>
+      <div class="gruero-name">${op.nombre.split(' ').slice(0,2).join('<br>')}</div>
+      <div class="gruero-tasks">${misAlm} almacenados</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+//  SELECCIONAR GRUERO
+// ══════════════════════════════════════════════════════
+function selGruero(id) {
+  opActual  = OPERADORES.find(o => o.id === id);
+  selPalletIdx = -1;
+  selUbic   = null;
+
+  // Header
+  document.getElementById('user-name').textContent = opActual.nombre;
+  document.getElementById('user-dot').style.background = opActual.color;
+  document.getElementById('user-dot').style.boxShadow = `0 0 10px ${opActual.color}`;
+
+  // Prog fill color
+  document.getElementById('prog-fill').style.background = opActual.color;
+
+  showScreen('s-main');
+  renderDrum();
+  renderUbicaciones();
+  actualizarProgreso();
+}
+
+function logout() {
+  opActual = null;
+  selPalletIdx = -1;
+  selUbic = null;
+  showScreen('s-landing');
+}
+
+// ══════════════════════════════════════════════════════
+//  DRUM PICKER
+// ══════════════════════════════════════════════════════
+function palletsDisp() {
+  // Todos los pallets: disponibles + tomados por mí no almacenados
+  return pallets.filter(p =>
+    !p.tomado || (p.grueroId === opActual?.id && !p.almacenado)
+  );
+}
+
+function renderDrum() {
+  const track = document.getElementById('drum-track');
+  const items  = palletsDisp();
+
+  if (!items.length) {
+    track.innerHTML = '';
+    document.getElementById('pallet-detail').innerHTML = `
+      <div class="empty-state">
+        <div class="ei">🎉</div>
+        <p style="font-size:12px;">¡Todos los pallets almacenados!</p>
+      </div>`;
+    document.getElementById('ubic-label').style.display = 'none';
+    setBtnStore(false, '¡Todos los pallets están almacenados!');
+    return;
+  }
+
+  // Padding arriba/abajo para centrar primer/último ítem
+  const pad = VISIBLE;
+  const paddedItems = [
+    ...Array(pad).fill(null),
+    ...items,
+    ...Array(pad).fill(null)
+  ];
+
+  track.innerHTML = paddedItems.map((p, i) => {
+    if (!p) return `<div class="drum-item" style="height:${ITEM_H}px;"></div>`;
+    const isMine = p.grueroId === opActual?.id;
+    return `
+    <div class="drum-item ${p.tomado && !isMine ? 'taken' : ''}" data-idx="${i - pad}">
+      <div class="di-content">
+        <span class="di-index">${(i-pad+1).toString().padStart(2,'0')}</span>
+        <div class="di-body">
+          <div class="di-sap">${p.sap}</div>
+          <div class="di-desc">${p.descripcion || '—'}</div>
+        </div>
+        <span class="di-qty">${p.cantidad || ''}</span>
+        ${p.tomado && !isMine
+          ? `<div><div class="di-taken-tag">Tomado</div><div class="di-taken-by">${p.grueroNombre?.split(' ')[0]||''}</div></div>`
+          : isMine && !p.almacenado
+          ? `<div class="di-taken-tag" style="color:var(--gold);border-color:rgba(240,165,0,.3);">Mío</div>`
+          : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Si hay ítem preseleccionado
+  if (selPalletIdx >= 0 && selPalletIdx < items.length) {
+    setDrumIndex(selPalletIdx, false);
+  } else {
+    setDrumIndex(0, false);
+  }
+}
+
+function setDrumIndex(idx, animate = true) {
+  const items = palletsDisp();
+  if (!items.length) return;
+  idx = Math.max(0, Math.min(idx, items.length - 1));
+  selPalletIdx = idx;
+  drumTarget   = -idx * ITEM_H;
+
+  if (animate) {
+    animateDrum();
+  } else {
+    drumY = drumTarget;
+    applyDrumY();
+  }
+
+  updateSelected();
+}
+
+function applyDrumY() {
+  const pad  = VISIBLE;
+  const offset = pad * ITEM_H;
+  const container = document.getElementById('drum');
+  const centerY   = (container.offsetHeight / 2) - (ITEM_H / 2);
+  document.getElementById('drum-track').style.transform =
+    `translateY(${drumY + centerY}px)`;
+  updateSelected();
+}
+
+function animateDrum() {
+  if (animId) cancelAnimationFrame(animId);
+  function step() {
+    const diff = drumTarget - drumY;
+    if (Math.abs(diff) < 0.5) { drumY = drumTarget; applyDrumY(); return; }
+    drumY += diff * 0.18;
+    applyDrumY();
+    animId = requestAnimationFrame(step);
+  }
+  animId = requestAnimationFrame(step);
+}
+
+function updateSelected() {
+  document.querySelectorAll('.drum-item').forEach((el, i) => {
+    const pad  = VISIBLE;
+    el.classList.toggle('selected', i - pad === selPalletIdx);
+  });
+  renderPalletDetail();
+  checkReady();
+}
+
+// Touch / Mouse drag
+function drumTouchStart(e) { dragStart(e.touches[0].clientY); }
+function drumTouchMove(e)  { e.preventDefault(); dragMove(e.touches[0].clientY); }
+function drumTouchEnd(e)   { dragEnd(); }
+
+function drumMouseStart(e) {
+  dragStart(e.clientY);
+  const up = () => { dragEnd(); document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
+  const move = (e) => dragMove(e.clientY);
+  document.addEventListener('mousemove', move);
+  document.addEventListener('mouseup', up);
+}
+
+function dragStart(y) {
+  isDragging     = true;
+  dragStartY     = y;
+  dragStartDrumY = drumY;
+  if (animId) cancelAnimationFrame(animId);
+}
+
+function dragMove(y) {
+  if (!isDragging) return;
+  const dy   = y - dragStartY;
+  const items = palletsDisp();
+  const minY = -(items.length - 1) * ITEM_H;
+  drumY = Math.max(minY, Math.min(0, dragStartDrumY + dy));
+  applyDrumY();
+  // Update selPalletIdx live
+  selPalletIdx = Math.round(-drumY / ITEM_H);
+  selPalletIdx = Math.max(0, Math.min(selPalletIdx, items.length - 1));
+}
+
+function dragEnd() {
+  if (!isDragging) return;
+  isDragging = false;
+  const items = palletsDisp();
+  selPalletIdx = Math.round(-drumY / ITEM_H);
+  selPalletIdx = Math.max(0, Math.min(selPalletIdx, items.length - 1));
+  setDrumIndex(selPalletIdx, true);
+}
+
+// ══════════════════════════════════════════════════════
+//  DETALLE PALLET
+// ══════════════════════════════════════════════════════
+function renderPalletDetail() {
+  const items = palletsDisp();
+  const box   = document.getElementById('pallet-detail');
+  if (!items.length || selPalletIdx < 0) return;
+  const p = items[selPalletIdx];
+  if (!p) return;
+
+  const isMine = p.tomado && p.grueroId === opActual?.id;
+  const isTaken = p.tomado && !isMine;
+
+  box.innerHTML = `
+    <div class="pd-row"><span class="pd-k">SAP</span><span class="pd-v hl">${p.sap}</span></div>
+    <div class="pd-row"><span class="pd-k">Descripción</span><span class="pd-v">${p.descripcion||'—'}</span></div>
+    <div class="pd-row"><span class="pd-k">Cantidad</span><span class="pd-v gold">${p.cantidad||'—'}</span></div>
+    <div class="pd-row"><span class="pd-k">Lote</span><span class="pd-v">${p.lote||'—'}</span></div>
+    <div class="pd-row"><span class="pd-k">Vencimiento</span><span class="pd-v">${p.venc||'—'}</span></div>
+    ${isTaken ? `<div class="pd-row"><span class="pd-k">Estado</span><span class="pd-v" style="color:var(--red);">Tomado por ${p.grueroNombre?.split(' ')[0]||'otro'}</span></div>` : ''}
+    ${isMine  ? `<div class="pd-row"><span class="pd-k">Estado</span><span class="pd-v" style="color:var(--gold);">En tu poder</span></div>` : ''}
+  `;
+}
+
+// ══════════════════════════════════════════════════════
+//  UBICACIONES
+// ══════════════════════════════════════════════════════
+function renderUbicaciones() {
+  const grid = document.getElementById('ubic-grid');
+  const lbl  = document.getElementById('ubic-label');
+  lbl.style.display = 'block';
+
+  grid.innerHTML = UBICACIONES.map(u => {
+    const ocup = ubicOcupadas.has(u.code);
+    const isSel = selUbic === u.code;
+    return `
+    <div class="ubic-btn ${isSel?'sel':''} ${ocup?'ocupada':''}"
+      onclick="${ocup ? '' : `selUbicacion('${u.code}')`}">
+      <div class="ubic-code">${u.code}</div>
+      <div class="ubic-type">${u.tipo === 'D' ? '⬛⬛ Doble prof.' : '⬜ Rack simple'}</div>
+      ${ocup ? `<div class="ubic-badge">Ocupada</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function selUbicacion(code) {
+  selUbic = code;
+  renderUbicaciones();
+  checkReady();
+}
+
+// ══════════════════════════════════════════════════════
+//  CHECK LISTO PARA ALMACENAR
+// ══════════════════════════════════════════════════════
+function checkReady() {
+  const items  = palletsDisp();
+  const pallet = items[selPalletIdx];
+  const listo  = pallet && !pallet.tomado && selUbic;
+
+  if (!pallet) {
+    setBtnStore(false, '📦 Sin pallets disponibles');
+  } else if (pallet.tomado && pallet.grueroId !== opActual?.id) {
+    setBtnStore(false, '⛔ Este pallet ya fue tomado');
+  } else if (!selUbic) {
+    setBtnStore(false, '📍 Selecciona ubicación destino');
+  } else {
+    setBtnStore(true, '✅ ALMACENADO');
+  }
+}
+
+function setBtnStore(ready, txt) {
+  const btn = document.getElementById('btn-store');
+  btn.disabled = !ready;
+  btn.className = `btn-store ${ready ? 'ready' : 'not-ready'}`;
+  btn.innerHTML = ready
+    ? `<span class="spin" id="store-spin" style="display:none;"></span><span id="store-txt">${txt}</span>`
+    : txt;
+}
+
+// ══════════════════════════════════════════════════════
+//  ALMACENAR
+// ══════════════════════════════════════════════════════
+async function almacenar() {
+  const items  = palletsDisp();
+  const pallet = items[selPalletIdx];
+  if (!pallet || !selUbic) return;
+
+  // Spinner
+  const btn = document.getElementById('btn-store');
+  btn.disabled = true;
+  const spinEl = document.getElementById('store-spin');
+  const txtEl  = document.getElementById('store-txt');
+  if (spinEl) spinEl.style.display = 'inline-block';
+  if (txtEl)  txtEl.textContent    = 'Registrando...';
+
+  const now   = new Date();
+  const fecha = now.toLocaleDateString('es-CL');
+  const hora  = now.toLocaleTimeString('es-CL');
+
+  const payload = {
+    action:       'almacenar',
+    palletId:     pallet.id,
+    sap:          pallet.sap,
+    descripcion:  pallet.descripcion,
+    cantidad:     pallet.cantidad,
+    lote:         pallet.lote,
+    venc:         pallet.venc,
+    grueroId:     opActual.id,
+    grueroNombre: opActual.nombre,
+    ubicDestino:  selUbic,
+    fecha,
+    hora
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+  } catch(_) {}
+
+  // Actualizar localmente
+  pallet.tomado      = true;
+  pallet.almacenado  = true;
+  pallet.grueroId    = opActual.id;
+  pallet.grueroNombre = opActual.nombre;
+  pallet.ubicDestino = selUbic;
+  ubicOcupadas.add(selUbic);
+
+  showSuccess({ pallet, fecha, hora });
+}
+
+function showSuccess(d) {
+  const { pallet, fecha, hora } = d;
+  document.getElementById('succ-sub').textContent =
+    `${fecha} — ${hora}`;
+  document.getElementById('succ-card').innerHTML = `
+    <div class="succ-row"><span class="succ-k">Operador</span><span class="succ-v">${opActual.nombre}</span></div>
+    <div class="succ-row"><span class="succ-k">SAP</span><span class="succ-v">${pallet.sap}</span></div>
+    <div class="succ-row"><span class="succ-k">Descripción</span><span class="succ-v">${pallet.descripcion||'—'}</span></div>
+    <div class="succ-row"><span class="succ-k">Cantidad</span><span class="succ-v">${pallet.cantidad||'—'}</span></div>
+    <div class="succ-row"><span class="succ-k">Ubicación</span><span class="succ-v green">${selUbic}</span></div>
+    <div class="succ-row"><span class="succ-k">Hora</span><span class="succ-v green">${hora}</span></div>
+  `;
+  selUbic      = null;
+  selPalletIdx = -1;
+  showScreen('s-success');
+}
+
+function siguientePallet() {
+  showScreen('s-main');
+  renderDrum();
+  renderUbicaciones();
+  actualizarProgreso();
+  checkReady();
+}
+
+// ══════════════════════════════════════════════════════
+//  PROGRESO
+// ══════════════════════════════════════════════════════
+function actualizarProgreso() {
+  const total = pallets.length;
+  const alm   = pallets.filter(p => p.almacenado).length;
+  const pct   = total ? Math.round((alm / total) * 100) : 0;
+  document.getElementById('prog-txt').textContent  =
+    `${alm} / ${total} almacenados`;
+  document.getElementById('prog-pct').textContent  = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+}
+
+// ══════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0, 0);
+}
+
+function toast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  setTimeout(() => t.className = 'toast', 2800);
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+actualizarGrueroGrid();
+cargarPallets();
+
+// Sincronizar cada 30 segundos
+setInterval(cargarPallets, 30000);
+</script>
+</body>
+</html>
