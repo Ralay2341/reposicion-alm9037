@@ -6,91 +6,114 @@
 <title>Almacenamiento ALM9037</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════════════════
    VARIABLES & RESET
-═══════════════════════════════════════ */
+═══════════════════════════════════════════ */
 :root {
-  --bg:      #080c14;
-  --surface: #0e1520;
-  --card:    #121c2e;
-  --card2:   #182236;
-  --border:  #1e3050;
-  --gold:    #f0a500;
-  --gold2:   #ffd060;
-  --cyan:    #00d4ff;
-  --green:   #00e676;
-  --red:     #ff4444;
-  --orange:  #ff8c00;
-  --txt:     #d0e4ff;
-  --txt2:    #6b8aac;
-  --txt3:    #2a4060;
+  --bg:       #080c14;
+  --surface:  #0e1520;
+  --card:     #121c2e;
+  --card2:    #182236;
+  --border:   #1e3050;
+  --gold:     #f0a500;
+  --gold2:    #ffd060;
+  --cyan:     #00d4ff;
+  --green:    #00e676;
+  --red:      #ff4444;
+  --orange:   #ff8c00;
+  --txt:      #d0e4ff;
+  --txt2:     #6b8aac;
+  --txt3:     #2a4060;
+
+  --g1: linear-gradient(135deg,#f0a500,#ff6b00);
+  --g2: linear-gradient(135deg,#00d4ff,#0066ff);
+  --g3: linear-gradient(135deg,#00e676,#00b248);
+  --g4: linear-gradient(135deg,#ff4444,#cc0000);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
   font-family:'Exo 2',sans-serif;}
 
+/* ═══════════════════════════════════════════
+   SCANLINE OVERLAY
+═══════════════════════════════════════════ */
 body::before{
   content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background:repeating-linear-gradient(0deg,rgba(0,0,0,.08) 0px,rgba(0,0,0,.08) 1px,transparent 1px,transparent 3px);
 }
 
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════════════════
    HEADER
-═══════════════════════════════════════ */
+═══════════════════════════════════════════ */
 .hdr{
   position:fixed;top:0;left:0;right:0;z-index:100;
   background:linear-gradient(180deg,#0a1020 0%,rgba(8,12,20,.95) 100%);
   border-bottom:2px solid var(--gold);
-  padding:10px 18px;display:flex;align-items:center;gap:12px;
+  padding:10px 18px;
+  display:flex;align-items:center;gap:12px;
 }
-.hdr-logo{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;
+.hdr-logo{
+  font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;
   color:var(--gold);letter-spacing:3px;text-transform:uppercase;
-  text-shadow:0 0 20px rgba(240,165,0,.5);}
+  text-shadow:0 0 20px rgba(240,165,0,.5);
+}
 .hdr-sub{font-size:11px;color:var(--txt2);letter-spacing:1px;}
 .hdr-right{margin-left:auto;text-align:right;}
 .hdr-clock{font-family:'Share Tech Mono',monospace;font-size:20px;
   color:var(--cyan);letter-spacing:2px;text-shadow:0 0 15px rgba(0,212,255,.4);}
 .hdr-date{font-size:10px;color:var(--txt3);letter-spacing:.5px;}
 
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════════════════
    SCREENS
-═══════════════════════════════════════ */
+═══════════════════════════════════════════ */
 .screen{
   position:fixed;inset:0;padding-top:62px;
-  display:none;flex-direction:column;overflow-y:auto;z-index:10;
+  display:none;flex-direction:column;
+  overflow-y:auto;z-index:10;
 }
 .screen.on{display:flex;}
 
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════════════════
    LANDING — SELECCIÓN DE GRUERO
-═══════════════════════════════════════ */
+═══════════════════════════════════════════ */
 #s-landing{
   align-items:center;justify-content:center;
   background:radial-gradient(ellipse at 50% 0%,rgba(240,165,0,.08) 0%,transparent 60%);
 }
 .landing-wrap{width:100%;max-width:480px;padding:20px;}
-.landing-title{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;
+.landing-title{
+  font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;
   color:var(--gold);letter-spacing:3px;text-transform:uppercase;
   text-align:center;margin-bottom:4px;
-  text-shadow:0 0 30px rgba(240,165,0,.4);}
+  text-shadow:0 0 30px rgba(240,165,0,.4);
+}
 .landing-sub{font-size:12px;color:var(--txt2);text-align:center;
   letter-spacing:1px;margin-bottom:24px;}
+
 .gruero-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .gruero-btn{
-  background:var(--card);border:2px solid var(--border);
-  border-radius:16px;padding:20px 12px;cursor:pointer;text-align:center;
-  transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:8px;
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:16px;padding:20px 12px;
+  cursor:pointer;text-align:center;
+  transition:all .2s;display:flex;flex-direction:column;
+  align-items:center;gap:8px;
   position:relative;overflow:hidden;
 }
-.gruero-btn::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;}
+.gruero-btn::before{
+  content:'';position:absolute;inset:0;opacity:0;
+  transition:opacity .2s;
+}
 .gruero-btn.c1::before{background:linear-gradient(135deg,rgba(240,165,0,.12),transparent);}
 .gruero-btn.c2::before{background:linear-gradient(135deg,rgba(0,212,255,.12),transparent);}
 .gruero-btn.c3::before{background:linear-gradient(135deg,rgba(0,230,118,.12),transparent);}
 .gruero-btn.c4::before{background:linear-gradient(135deg,rgba(255,68,68,.12),transparent);}
 .gruero-btn:active{transform:scale(.96);}
 .gruero-btn:active::before{opacity:1;}
-.gruero-num{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;
-  letter-spacing:2px;text-transform:uppercase;}
+.gruero-num{
+  font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+}
 .gruero-btn.c1 .gruero-num{color:var(--gold);}
 .gruero-btn.c2 .gruero-num{color:var(--cyan);}
 .gruero-btn.c3 .gruero-num{color:var(--green);}
@@ -103,90 +126,27 @@ body::before{
 .gruero-btn.c2{border-color:rgba(0,212,255,.25);}
 .gruero-btn.c3{border-color:rgba(0,230,118,.25);}
 .gruero-btn.c4{border-color:rgba(255,68,68,.25);}
-.sync-bar{margin-top:16px;background:var(--card);border:1px solid var(--border);
-  border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;
-  font-size:11px;color:var(--txt2);}
+
+.sync-bar{
+  margin-top:16px;background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:10px 14px;
+  display:flex;align-items:center;gap:8px;font-size:11px;color:var(--txt2);
+}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--green);
   box-shadow:0 0 8px var(--green);animation:blink 2s infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
 
-/* ═══════════════════════════════════════
-   IMPORT NUMBER SCREEN
-═══════════════════════════════════════ */
-#s-import{
-  align-items:center;justify-content:center;
-  background:radial-gradient(ellipse at 50% 30%,rgba(0,212,255,.07) 0%,transparent 60%);
-}
-.import-wrap{width:100%;max-width:380px;padding:24px 20px;}
-.import-title{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;
-  color:var(--cyan);letter-spacing:2px;text-transform:uppercase;
-  text-align:center;margin-bottom:4px;
-  text-shadow:0 0 24px rgba(0,212,255,.4);}
-.import-sub{font-size:12px;color:var(--txt2);text-align:center;
-  letter-spacing:1px;margin-bottom:28px;}
-.import-user-bar{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:12px;padding:10px 14px;
-  display:flex;align-items:center;gap:10px;margin-bottom:20px;
-}
-.import-user-bar .iub-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.import-user-bar .iub-name{font-family:'Rajdhani',sans-serif;font-size:16px;
-  font-weight:700;color:var(--txt);letter-spacing:.5px;}
-.import-user-bar .iub-role{font-size:10px;color:var(--txt2);letter-spacing:.5px;}
-
-.import-field-label{font-size:10px;color:var(--txt2);letter-spacing:1px;
-  text-transform:uppercase;margin-bottom:8px;font-weight:600;}
-.import-field-wrap{position:relative;margin-bottom:20px;}
-.import-input{
-  width:100%;background:var(--card2);
-  border:2px solid var(--border);border-radius:12px;
-  padding:18px 20px;
-  font-family:'Share Tech Mono',monospace;font-size:32px;font-weight:700;
-  color:var(--cyan);letter-spacing:8px;text-align:center;
-  outline:none;transition:border-color .2s;
-  -webkit-appearance:none;appearance:none;
-  caret-color:var(--cyan);
-}
-.import-input:focus{border-color:var(--cyan);
-  box-shadow:0 0 0 3px rgba(0,212,255,.12);
-  background:rgba(0,212,255,.04);}
-.import-input::placeholder{color:var(--txt3);letter-spacing:4px;font-size:24px;}
-.import-hint{font-size:10px;color:var(--txt3);text-align:center;
-  margin-top:8px;letter-spacing:.5px;}
-
-.btn-load{
-  width:100%;padding:18px;border-radius:14px;border:none;
-  font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:800;
-  text-transform:uppercase;letter-spacing:2px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  transition:all .2s;position:relative;overflow:hidden;
-}
-.btn-load.ready{
-  background:linear-gradient(135deg,#00d4ff,#0055cc);color:#fff;
-  box-shadow:0 4px 24px rgba(0,212,255,.3);
-}
-.btn-load.ready:active{transform:scale(.98);}
-.btn-load.not-ready{background:var(--card2);color:var(--txt3);cursor:not-allowed;}
-
-.origen-info{
-  background:var(--card);border:1px solid rgba(240,165,0,.2);
-  border-radius:10px;padding:10px 14px;margin-top:14px;
-  display:flex;align-items:center;gap:10px;
-}
-.origen-info .oi-icon{font-size:16px;}
-.origen-info .oi-k{font-size:9px;color:var(--txt3);text-transform:uppercase;
-  letter-spacing:.5px;margin-bottom:2px;}
-.origen-info .oi-v{font-family:'Share Tech Mono',monospace;font-size:11px;
-  color:var(--gold);letter-spacing:.5px;}
-
-/* ═══════════════════════════════════════
-   MAIN — OPERACIÓN
-═══════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   PANTALLA PRINCIPAL GRUERO
+═══════════════════════════════════════════ */
 #s-main{padding:10px 12px 80px;}
 
-.user-bar{background:var(--card);border:1px solid var(--border);
+.user-bar{
+  background:var(--card);border:1px solid var(--border);
   border-radius:12px;padding:10px 14px;
-  display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:12px;
+}
 .user-bar .name{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;
   color:var(--txt);letter-spacing:.5px;}
 .user-bar .role{font-size:10px;color:var(--txt2);letter-spacing:.5px;}
@@ -195,20 +155,7 @@ body::before{
   border-radius:8px;color:var(--txt2);font-size:11px;font-weight:600;
   padding:5px 10px;cursor:pointer;letter-spacing:.5px;font-family:'Exo 2',sans-serif;}
 
-/* Import badge */
-.import-badge{
-  background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);
-  border-radius:8px;padding:6px 12px;margin-bottom:10px;
-  display:flex;align-items:center;gap:8px;
-}
-.import-badge .ib-k{font-size:10px;color:var(--txt2);letter-spacing:.5px;
-  text-transform:uppercase;}
-.import-badge .ib-v{font-family:'Share Tech Mono',monospace;font-size:14px;
-  color:var(--cyan);letter-spacing:2px;font-weight:700;}
-.import-badge .ib-change{margin-left:auto;font-size:10px;color:var(--txt3);
-  cursor:pointer;padding:3px 8px;border-radius:5px;border:1px solid var(--txt3);}
-
-/* PROGRESO */
+/* PROGRESS */
 .prog-section{margin-bottom:12px;}
 .prog-info{display:flex;justify-content:space-between;font-size:11px;
   color:var(--txt2);margin-bottom:5px;letter-spacing:.5px;}
@@ -216,14 +163,16 @@ body::before{
 .prog-fill{height:100%;border-radius:3px;transition:width .5s ease;}
 
 /* SECCIÓN LABEL */
-.sec-label{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;
+.sec-label{
+  font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;
   color:var(--gold);letter-spacing:2px;text-transform:uppercase;
-  margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  margin-bottom:8px;display:flex;align-items:center;gap:6px;
+}
 .sec-label::before{content:'';width:3px;height:13px;background:var(--gold);border-radius:2px;}
 
-/* ═══════════════════════════════════════
-   DRUM PICKER
-═══════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   RUEDA DE PALLETS (DRUM PICKER)
+═══════════════════════════════════════════ */
 .drum-container{
   position:relative;height:280px;overflow:hidden;
   background:var(--card);border:1px solid var(--border);
@@ -231,65 +180,100 @@ body::before{
   cursor:grab;user-select:none;
 }
 .drum-container:active{cursor:grabbing;}
+
+/* línea de selección */
 .drum-container::before,
 .drum-container::after{
   content:'';position:absolute;left:0;right:0;z-index:10;pointer-events:none;
 }
-.drum-container::before{top:0;height:90px;
-  background:linear-gradient(180deg,var(--card) 0%,transparent 100%);}
-.drum-container::after{bottom:0;height:90px;
-  background:linear-gradient(0deg,var(--card) 0%,transparent 100%);}
+.drum-container::before{
+  top:0;height:90px;
+  background:linear-gradient(180deg,var(--card) 0%,transparent 100%);
+}
+.drum-container::after{
+  bottom:0;height:90px;
+  background:linear-gradient(0deg,var(--card) 0%,transparent 100%);
+}
+
 .drum-selector{
   position:absolute;top:50%;left:8px;right:8px;transform:translateY(-50%);
   height:64px;border:2px solid var(--gold);border-radius:10px;
   background:rgba(240,165,0,.06);z-index:5;pointer-events:none;
-  box-shadow:0 0 20px rgba(240,165,0,.15);}
-.drum-track{position:absolute;left:0;right:0;top:0;
-  transition:transform .3s cubic-bezier(.25,.46,.45,.94);will-change:transform;}
-.drum-item{height:64px;display:flex;align-items:center;padding:0 16px;gap:12px;}
+  box-shadow:0 0 20px rgba(240,165,0,.15);
+}
+
+.drum-track{
+  position:absolute;left:0;right:0;top:0;
+  transition:transform .3s cubic-bezier(.25,.46,.45,.94);
+  will-change:transform;
+}
+
+.drum-item{
+  height:64px;display:flex;align-items:center;
+  padding:0 16px;gap:12px;
+  transition:opacity .2s;
+}
 .drum-item.selected .di-content{opacity:1;}
 .drum-item:not(.selected) .di-content{opacity:.35;}
+.drum-item.taken .di-content{opacity:.15;}
+.drum-item.taken .di-sap{text-decoration:line-through;}
+
 .di-content{display:flex;align-items:center;gap:12px;width:100%;transition:opacity .2s;}
-.di-index{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--txt3);
-  width:28px;flex-shrink:0;text-align:right;}
+.di-index{
+  font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--txt3);
+  width:28px;flex-shrink:0;text-align:right;
+}
 .di-body{flex:1;min-width:0;}
-.di-sap{font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--cyan);
-  letter-spacing:1px;line-height:1;}
+.di-sap{
+  font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--cyan);
+  letter-spacing:1px;line-height:1;
+}
 .di-desc{font-size:11px;color:var(--txt2);white-space:nowrap;overflow:hidden;
   text-overflow:ellipsis;margin-top:2px;}
-.di-qty{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
-  color:var(--gold);flex-shrink:0;}
-.di-num{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--txt3);}
+.di-qty{
+  font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
+  color:var(--gold);flex-shrink:0;
+}
+.di-taken-tag{
+  font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:2px 6px;border-radius:4px;flex-shrink:0;
+  background:rgba(255,68,68,.15);color:var(--red);border:1px solid rgba(255,68,68,.3);
+}
+.di-taken-by{font-size:9px;color:var(--txt3);}
 
-/* ═══════════════════════════════════════
-   DETALLE PALLET
-═══════════════════════════════════════ */
-.pallet-detail{background:var(--card);border:1px solid var(--border);
-  border-radius:14px;padding:14px;margin-bottom:12px;}
+/* ═══════════════════════════════════════════
+   DETALLE PALLET SELECCIONADO
+═══════════════════════════════════════════ */
+.pallet-detail{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:14px;margin-bottom:12px;
+}
 .pd-row{display:flex;justify-content:space-between;align-items:center;
   padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
 .pd-row:last-child{border-bottom:none;}
-.pd-k{font-size:10px;color:var(--txt2);text-transform:uppercase;
-  letter-spacing:.5px;font-weight:600;flex-shrink:0;}
-.pd-v{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--txt);
-  text-align:right;word-break:break-all;}
+.pd-k{font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
+.pd-v{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--txt);}
 .pd-v.hl{color:var(--cyan);}
 .pd-v.gold{color:var(--gold);}
-.pd-v.green{color:var(--green);}
 
-/* Tarjeta destino */
-.destino-card{
-  background:rgba(0,230,118,.05);border:2px solid rgba(0,230,118,.25);
-  border-radius:12px;padding:12px 14px;margin-bottom:12px;
-  display:flex;align-items:center;gap:12px;
+/* UBICACIÓN DESTINO */
+.ubic-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.ubic-btn{
+  background:var(--card);border:2px solid var(--border);
+  border-radius:10px;padding:10px 8px;
+  cursor:pointer;text-align:center;transition:all .18s;
 }
-.destino-card .dc-icon{font-size:24px;flex-shrink:0;}
-.destino-card .dc-k{font-size:9px;color:var(--txt2);text-transform:uppercase;
-  letter-spacing:.5px;margin-bottom:4px;}
-.destino-card .dc-v{font-family:'Share Tech Mono',monospace;font-size:15px;
-  color:var(--green);letter-spacing:.5px;font-weight:700;}
-.destino-card.empty{border-color:rgba(255,140,0,.25);background:rgba(255,140,0,.05);}
-.destino-card.empty .dc-v{color:var(--orange);font-size:12px;}
+.ubic-btn:active{transform:scale(.97);}
+.ubic-btn.sel{border-color:var(--cyan);background:rgba(0,212,255,.08);
+  box-shadow:0 0 12px rgba(0,212,255,.15);}
+.ubic-btn.ocupada{border-color:rgba(255,68,68,.3);background:rgba(255,68,68,.05);cursor:not-allowed;}
+.ubic-code{font-family:'Share Tech Mono',monospace;font-size:12px;
+  color:var(--cyan);letter-spacing:.5px;line-height:1.2;}
+.ubic-btn.ocupada .ubic-code{color:var(--txt3);}
+.ubic-type{font-size:9px;color:var(--txt3);text-transform:uppercase;
+  letter-spacing:.5px;margin-top:3px;}
+.ubic-badge{font-size:9px;font-weight:700;color:var(--red);
+  text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
 
 /* BOTÓN ALMACENAR */
 .btn-store{
@@ -307,17 +291,24 @@ body::before{
 .btn-store:not(:disabled):hover::before{transform:translateX(100%);}
 .btn-store:not(:disabled):active{transform:scale(.98);}
 .btn-store:disabled{opacity:.3;cursor:not-allowed;}
-.btn-store.ready{background:linear-gradient(135deg,#00e676,#00b248);color:#001a0a;
-  box-shadow:0 4px 24px rgba(0,230,118,.3);}
+.btn-store.ready{
+  background:linear-gradient(135deg,#00e676,#00b248);color:#001a0a;
+  box-shadow:0 4px 24px rgba(0,230,118,.3);
+}
 .btn-store.not-ready{background:var(--card2);color:var(--txt3);}
-.btn-back{width:100%;padding:13px;border-radius:10px;background:transparent;
-  border:1px solid var(--border);font-family:'Rajdhani',sans-serif;font-size:15px;
-  font-weight:700;color:var(--txt2);letter-spacing:1px;text-transform:uppercase;
-  cursor:pointer;margin-top:8px;}
 
-/* ═══════════════════════════════════════
+/* BOTÓN VOLVER */
+.btn-back{
+  width:100%;padding:13px;border-radius:10px;
+  background:transparent;border:1px solid var(--border);
+  font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;
+  color:var(--txt2);letter-spacing:1px;text-transform:uppercase;
+  cursor:pointer;margin-top:8px;
+}
+
+/* ═══════════════════════════════════════════
    SUCCESS
-═══════════════════════════════════════ */
+═══════════════════════════════════════════ */
 #s-success{
   align-items:center;justify-content:center;
   background:radial-gradient(ellipse at 50% 40%,rgba(0,230,118,.08) 0%,transparent 60%);
@@ -329,15 +320,15 @@ body::before{
   color:var(--green);letter-spacing:2px;text-transform:uppercase;
   text-shadow:0 0 30px rgba(0,230,118,.5);margin-bottom:6px;}
 .succ-sub{font-size:13px;color:var(--txt2);margin-bottom:20px;}
-.succ-card{background:var(--card);border:1px solid rgba(0,230,118,.2);
-  border-radius:14px;padding:14px;text-align:left;margin-bottom:20px;}
+.succ-card{
+  background:var(--card);border:1px solid rgba(0,230,118,.2);
+  border-radius:14px;padding:14px;text-align:left;margin-bottom:20px;
+}
 .succ-row{display:flex;justify-content:space-between;padding:8px 0;
   border-bottom:1px solid var(--border);font-size:13px;}
 .succ-row:last-child{border-bottom:none;}
-.succ-k{font-size:10px;color:var(--txt2);text-transform:uppercase;
-  letter-spacing:.5px;flex-shrink:0;}
-.succ-v{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--txt);
-  text-align:right;}
+.succ-k{font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;}
+.succ-v{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--txt);}
 .succ-v.green{color:var(--green);}
 
 /* SPINNER */
@@ -362,6 +353,10 @@ body::before{
 /* EMPTY */
 .empty-state{text-align:center;padding:40px 20px;color:var(--txt3);}
 .empty-state .ei{font-size:40px;margin-bottom:10px;}
+
+/* LOADING PULSE */
+.pulse{animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 </style>
 </head>
 <body>
@@ -386,87 +381,62 @@ body::before{
     <div class="gruero-grid" id="gruero-grid"></div>
     <div class="sync-bar">
       <div class="sync-dot"></div>
-      <span id="sync-info">Sistema listo</span>
+      <span id="sync-info">Conectando con Google Sheets...</span>
     </div>
   </div>
 </div>
 
-<!-- ══ IMPORT NUMBER: INGRESAR Nº IMPORTACIÓN ══ -->
-<div class="screen" id="s-import">
-  <div class="import-wrap">
-    <div class="import-title">📋 Importación</div>
-    <div class="import-sub">INGRESA EL NÚMERO DE IMPORTACIÓN</div>
-
-    <div class="import-user-bar" id="iub">
-      <div class="iub-dot" id="iub-dot"></div>
+<!-- ══ BUSCAR PALLET ══ -->
+<div class="screen" id="s-buscar">
+  <div style="padding:0 0 12px;">
+    <div class="user-bar" id="user-bar2">
+      <div class="user-color-dot" id="user-dot2"></div>
       <div>
-        <div class="iub-name" id="iub-name">--</div>
-        <div class="iub-role">OPERADOR DE GRÚA</div>
+        <div class="name" id="user-name2">--</div>
+        <div class="role">OPERADOR DE GRÚA · <span id="fecha-hoy" style="color:var(--cyan)"></span></div>
       </div>
+      <button class="btn-logout" onclick="logout()">← Cambiar</button>
     </div>
 
-    <div class="import-field-label">Número de Importación (4 dígitos)</div>
-    <div class="import-field-wrap">
-      <input class="import-input" id="import-input"
-        type="tel" inputmode="numeric" maxlength="4"
-        placeholder="0000"
-        oninput="onImportInput()"
-        onkeydown="if(event.key==='Enter') btnCargar()">
-      <div class="import-hint">Ej: 1234 — corresponde a pallets 1234.01, 1234.02…</div>
+    <!-- INPUT Nº PALLET -->
+    <div class="sec-label" style="margin-top:4px;">Ingresa el Nº de Pallet</div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;
+      padding:14px;margin-bottom:12px;">
+      <div style="font-size:11px;color:var(--txt2);margin-bottom:8px;letter-spacing:.5px;">
+        FORMATO: <span style="color:var(--cyan);font-family:'Share Tech Mono',monospace;">xxxx.xx</span>
+        — Columna L de la hoja DRIVE
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" id="input-pallet"
+          placeholder="Ej: 1234.56"
+          maxlength="10"
+          style="flex:1;background:var(--card2);border:2px solid var(--border);
+          border-radius:10px;color:var(--txt);font-family:'Share Tech Mono',monospace;
+          font-size:22px;padding:12px 16px;outline:none;letter-spacing:2px;
+          transition:border-color .2s;"
+          oninput="onPalletInput(this)"
+          onkeydown="if(event.key==='Enter') buscarPallet()"
+        >
+        <button onclick="buscarPallet()" id="btn-buscar"
+          style="background:var(--gold);color:#040900;border:none;border-radius:10px;
+          padding:13px 18px;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:800;
+          letter-spacing:1px;text-transform:uppercase;cursor:pointer;
+          display:flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap;">
+          <span id="buscar-spin" style="display:none;width:18px;height:18px;border:2px solid rgba(0,0,0,.2);
+            border-top-color:#040900;border-radius:50%;animation:sp .6s linear infinite;"></span>
+          <span id="buscar-txt">Buscar 🔍</span>
+        </button>
+      </div>
+      <div id="buscar-error" style="display:none;margin-top:8px;font-size:12px;
+        color:var(--red);padding:6px 10px;background:rgba(255,68,68,.08);
+        border-radius:6px;border:1px solid rgba(255,68,68,.2);"></div>
     </div>
 
-    <button class="btn-load not-ready" id="btn-load" onclick="btnCargar()" disabled>
-      🔍 Cargar Pallets
-    </button>
-
-    <div class="origen-info">
-      <div class="oi-icon">📍</div>
-      <div>
-        <div class="oi-k">Ubicación Origen (fija)</div>
-        <div class="oi-v" id="origen-lbl">ALM9037-04-93-A1</div>
-      </div>
+    <!-- RUEDA con pallets de hoy -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div class="sec-label" style="margin-bottom:0;">Pallets de hoy</div>
+      <span id="pallets-count" style="font-size:11px;color:var(--txt3);"></span>
     </div>
-
-    <button class="btn-back" onclick="showScreen('s-landing')">← Cambiar operador</button>
-  </div>
-</div>
-
-<!-- ══ MAIN: OPERACIÓN ══ -->
-<div class="screen" id="s-main">
-  <div style="padding:0 12px;">
-
-    <!-- barra usuario -->
-    <div class="user-bar" style="margin-top:10px;" id="user-bar">
-      <div class="user-color-dot" id="user-dot"></div>
-      <div>
-        <div class="name" id="user-name">--</div>
-        <div class="role">OPERADOR DE GRÚA</div>
-      </div>
-      <button class="btn-logout" onclick="showScreen('s-import')">← Importación</button>
-    </div>
-
-    <!-- badge importación -->
-    <div class="import-badge">
-      <div>
-        <div class="ib-k">Importación</div>
-        <div class="ib-v" id="badge-import">----</div>
-      </div>
-      <span class="ib-change" onclick="showScreen('s-import')">Cambiar</span>
-    </div>
-
-    <!-- progreso -->
-    <div class="prog-section">
-      <div class="prog-info">
-        <span id="prog-txt">Cargando...</span>
-        <span id="prog-pct">0%</span>
-      </div>
-      <div class="prog-track">
-        <div class="prog-fill" id="prog-fill" style="width:0%;background:var(--gold);"></div>
-      </div>
-    </div>
-
-    <!-- rueda de pallets -->
-    <div class="sec-label">Selecciona un pallet</div>
     <div class="drum-container" id="drum"
       ontouchstart="drumTouchStart(event)"
       ontouchmove="drumTouchMove(event)"
@@ -475,33 +445,23 @@ body::before{
       <div class="drum-selector"></div>
       <div class="drum-track" id="drum-track"></div>
     </div>
-
-    <!-- detalle pallet -->
-    <div class="sec-label">Detalle del pallet</div>
-    <div class="pallet-detail" id="pallet-detail">
-      <div class="empty-state" style="padding:16px;">
-        <div class="ei">☝️</div>
-        <p style="font-size:12px;">Desliza para seleccionar un pallet</p>
-      </div>
+    <div style="font-size:10px;color:var(--txt3);text-align:center;margin-top:4px;margin-bottom:12px;">
+      ↕️ Desliza para navegar · También puedes escribir el número arriba
     </div>
 
-    <!-- ubicación destino (desde col J) -->
-    <div class="sec-label" id="destino-label">Ubicación Destino</div>
-    <div class="destino-card empty" id="destino-card">
-      <div class="dc-icon">📦</div>
-      <div>
-        <div class="dc-k">Destino asignado</div>
-        <div class="dc-v">Selecciona un pallet</div>
-      </div>
-    </div>
+    <!-- DETALLE PALLET BUSCADO/SELECCIONADO -->
+    <div class="sec-label" id="detail-label" style="display:none;">Pallet seleccionado</div>
+    <div class="pallet-detail" id="pallet-detail" style="display:none;"></div>
 
-    <!-- botón almacenar -->
+    <!-- UBICACIÓN DESTINO -->
+    <div class="sec-label" id="ubic-label" style="display:none;margin-top:4px;">Ubicación destino</div>
+    <div class="ubic-grid" id="ubic-grid"></div>
+
+    <!-- BOTÓN ALMACENAR -->
     <button class="btn-store not-ready" id="btn-store" onclick="almacenar()" disabled>
-      📦 Selecciona un pallet
+      📦 Ingresa o selecciona un pallet
     </button>
-    <button class="btn-back" onclick="showScreen('s-import')" style="margin-top:8px;margin-bottom:20px;">
-      ← Cambiar importación
-    </button>
+    <button class="btn-back" onclick="logout()">← Volver al menú</button>
   </div>
 </div>
 
@@ -515,18 +475,17 @@ body::before{
     <button class="btn-store ready" style="margin-bottom:8px;" onclick="siguientePallet()">
       ➡️ Siguiente pallet
     </button>
-    <button class="btn-back" onclick="showScreen('s-landing')">🏠 Cambiar operador</button>
+    <button class="btn-back" onclick="logout()">🏠 Cambiar operador</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 //  ⚙️  CONFIGURACIÓN
-// ══════════════════════════════════════════════════
-// 🔴 Reemplaza TU_SCRIPT_ID con el ID de tu Apps Script desplegado
-const SCRIPT_URL  = 'https://script.google.com/macros/s/AKfycbw0QsRE6vmsFPXtQSdsmJsrZxB4fmCPhYAjEp2oFgxv9BZ5rTSD0nTSZXo3IAWbecY/exec';
+// ══════════════════════════════════════════════════════
+const SCRIPT_URL  = 'https://script.google.com/macros/s/TU_SCRIPT_ID/exec';
 const UBIC_ORIGEN = 'ALM9037-04-93-A1';
 
 const OPERADORES = [
@@ -536,344 +495,409 @@ const OPERADORES = [
   { id:'G4', nombre:'Jorge González',     color:'#ff4444', clase:'c4', emoji:'🔋' },
 ];
 
-// ══════════════════════════════════════════════════
+const UBICACIONES_FIJAS = [
+  { code:'ALM9037-01-01-A1', tipo:'D' },
+  { code:'ALM9037-01-01-A2', tipo:'D' },
+  { code:'ALM9037-01-02-A1', tipo:'D' },
+  { code:'ALM9037-02-01-A1', tipo:'S' },
+  { code:'ALM9037-02-01-A2', tipo:'S' },
+  { code:'ALM9037-03-01-B1', tipo:'D' },
+  { code:'ALM9037-03-01-B2', tipo:'D' },
+  { code:'ALM9037-04-01-A1', tipo:'S' },
+  { code:'ALM9037-05-01-C1', tipo:'D' },
+  { code:'ALM9037-06-01-A1', tipo:'S' },
+  { code:'ALM9037-07-01-A1', tipo:'S' },
+];
+
+// ══════════════════════════════════════════════════════
 //  ESTADO GLOBAL
-// ══════════════════════════════════════════════════
-let opActual     = null;
-let importNum    = '';
-let pallets      = [];
-let selPalletIdx = -1;
-let isLoading    = false;
+// ══════════════════════════════════════════════════════
+let opActual       = null;
+let pallets        = [];        // todos los pallets de hoy
+let palletActual   = null;      // pallet seleccionado/encontrado
+let selUbic        = null;
+let ubicOcupadas   = new Set();
+let selPalletIdx   = 0;
 
-// Drum picker
+// Drum state
 const ITEM_H = 64;
-const VISIBLE = 3;
-let drumY          = 0;
-let drumTarget     = 0;
-let dragStartY     = 0;
-let dragStartDrumY = 0;
-let isDragging     = false;
-let animId         = null;
+const PAD    = 3;
+let drumY    = 0, drumTarget = 0;
+let dragStartY = 0, dragStartDrumY = 0;
+let isDragging = false, animId = null;
 
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 //  RELOJ
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 function tick() {
   const n = new Date();
-  document.getElementById('clk').textContent  = n.toLocaleTimeString('es-CL');
+  document.getElementById('clk').textContent   = n.toLocaleTimeString('es-CL');
   document.getElementById('clk-d').textContent = n.toLocaleDateString('es-CL',
-    {weekday:'short', day:'2-digit', month:'short'});
+    {weekday:'short',day:'2-digit',month:'short'});
 }
 tick(); setInterval(tick, 1000);
 
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  CARGAR PALLETS DE HOY
+// ══════════════════════════════════════════════════════
+async function cargarPallets() {
+  document.getElementById('sync-info').textContent = 'Cargando pallets de hoy...';
+  try {
+    const res  = await fetch(SCRIPT_URL + '?action=getPalletsByFecha');
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    pallets      = data.pallets || [];
+    ubicOcupadas = new Set(data.ubicOcupadas || []);
+    actualizarGrueroGrid();
+    if (opActual) renderDrum();
+    const disp = pallets.filter(p => !p.almacenado).length;
+    document.getElementById('sync-info').textContent =
+      `${pallets.length} pallets hoy · ${disp} disponibles · ${new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})}`;
+  } catch(e) {
+    document.getElementById('sync-info').textContent = 'Sin conexión — verifica el Script URL';
+    // Demo: cargar pallets de prueba
+    pallets = [
+      { id:'1', rowIndex:2, nPallet:'1234.01', sap:'101215', descripcion:'BRIT CARE DOG SALMON 12KG', lote:'RCB250407R22', venc:'07/10/2026', ubicDestino:'ALM9037-07-01-A1', cantidad:'27', almacenado:false, tomado:false },
+      { id:'2', rowIndex:3, nPallet:'1234.02', sap:'101216', descripcion:'BRIT CARE CAT CHICKEN 10KG', lote:'RCA250301K11', venc:'15/08/2026', ubicDestino:'ALM9037-03-01-B1', cantidad:'18', almacenado:false, tomado:false },
+      { id:'3', rowIndex:4, nPallet:'1234.03', sap:'203441', descripcion:'BEWITAL PREVENT C 10KG', lote:'25183', venc:'02/07/2026', ubicDestino:'ALM9037-01-01-A1', cantidad:'26', almacenado:true, tomado:true, usuario:'Francisco Vigueras (G1)' },
+      { id:'4', rowIndex:5, nPallet:'1234.04', sap:'309876', descripcion:'ROYAL CANIN MEDIUM 15KG', lote:'RC2025K', venc:'20/12/2026', ubicDestino:'ALM9037-02-01-A1', cantidad:'12', almacenado:false, tomado:false },
+      { id:'5', rowIndex:6, nPallet:'1234.05', sap:'415023', descripcion:'HILLS SCIENCE DIET 4KG', lote:'HS2501', venc:'01/06/2027', ubicDestino:'ALM9037-05-01-C1', cantidad:'30', almacenado:false, tomado:false },
+    ];
+    actualizarGrueroGrid();
+    if (opActual) renderDrum();
+  }
+}
+
+// ══════════════════════════════════════════════════════
 //  GRID GRUEROS
-// ══════════════════════════════════════════════════
-function renderGrueroGrid() {
-  document.getElementById('gruero-grid').innerHTML = OPERADORES.map(op => `
+// ══════════════════════════════════════════════════════
+function actualizarGrueroGrid() {
+  document.getElementById('gruero-grid').innerHTML = OPERADORES.map(op => {
+    const misAlm = pallets.filter(p => p.almacenado && p.usuario?.includes(op.id)).length;
+    return `
     <div class="gruero-btn ${op.clase}" onclick="selGruero('${op.id}')">
       <div class="gruero-num">Grúa ${op.id}</div>
       <div class="gruero-icon">${op.emoji}</div>
       <div class="gruero-name">${op.nombre.split(' ').slice(0,2).join('<br>')}</div>
-      <div class="gruero-tasks">Toca para continuar</div>
-    </div>`).join('');
+      <div class="gruero-tasks">${misAlm} almacenados</div>
+    </div>`;
+  }).join('');
 }
 
-// ══════════════════════════════════════════════════
-//  SELECCIONAR GRUERO → IR A IMPORT
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  SELECCIONAR GRUERO
+// ══════════════════════════════════════════════════════
 function selGruero(id) {
-  opActual = OPERADORES.find(o => o.id === id);
-  // Actualizar pantalla import
-  document.getElementById('iub-name').textContent = opActual.nombre;
-  document.getElementById('iub-dot').style.background  = opActual.color;
-  document.getElementById('iub-dot').style.boxShadow   = `0 0 10px ${opActual.color}`;
-  // Actualizar pantalla main
-  document.getElementById('user-name').textContent = opActual.nombre;
-  document.getElementById('user-dot').style.background = opActual.color;
-  document.getElementById('user-dot').style.boxShadow  = `0 0 10px ${opActual.color}`;
-  document.getElementById('prog-fill').style.background = opActual.color;
-  // Limpiar input importación
-  document.getElementById('import-input').value = '';
-  onImportInput();
-  showScreen('s-import');
-  setTimeout(() => document.getElementById('import-input').focus(), 300);
-}
+  opActual     = OPERADORES.find(o => o.id === id);
+  palletActual = null;
+  selUbic      = null;
 
-// ══════════════════════════════════════════════════
-//  INPUT NÚMERO DE IMPORTACIÓN
-// ══════════════════════════════════════════════════
-function onImportInput() {
-  const val = document.getElementById('import-input').value.replace(/\D/g,'').slice(0,4);
-  document.getElementById('import-input').value = val;
-  const btn = document.getElementById('btn-load');
-  if (val.length === 4) {
-    btn.disabled   = false;
-    btn.className  = 'btn-load ready';
-    btn.textContent = '🔍 Cargar Pallets';
-  } else {
-    btn.disabled   = true;
-    btn.className  = 'btn-load not-ready';
-    btn.textContent = val.length ? `Faltan ${4-val.length} dígito(s)` : '🔍 Cargar Pallets';
-  }
-}
+  const hoy = new Date().toLocaleDateString('es-CL');
+  document.getElementById('user-name2').textContent = opActual.nombre;
+  document.getElementById('user-dot2').style.cssText =
+    `background:${opActual.color};box-shadow:0 0 10px ${opActual.color}`;
+  document.getElementById('fecha-hoy').textContent = hoy;
+  document.getElementById('input-pallet').value = '';
+  document.getElementById('buscar-error').style.display = 'none';
+  document.getElementById('pallet-detail').style.display = 'none';
+  document.getElementById('detail-label').style.display  = 'none';
+  document.getElementById('ubic-label').style.display    = 'none';
+  document.getElementById('ubic-grid').innerHTML         = '';
+  setBtnStore(false, '📦 Ingresa o selecciona un pallet');
 
-async function btnCargar() {
-  const val = document.getElementById('import-input').value.replace(/\D/g,'');
-  if (val.length !== 4) return;
-  importNum = val;
+  const disp = pallets.filter(p=>!p.almacenado).length;
+  document.getElementById('pallets-count').textContent =
+    `${disp} disponibles · ${pallets.filter(p=>p.almacenado).length} almacenados`;
 
-  const btn = document.getElementById('btn-load');
-  btn.disabled   = true;
-  btn.className  = 'btn-load not-ready';
-  btn.innerHTML  = '<span class="spin-blue"></span> Cargando...';
-
-  await cargarPallets();
-
-  document.getElementById('badge-import').textContent = importNum;
-  selPalletIdx = -1;
-  showScreen('s-main');
+  showScreen('s-buscar');
   renderDrum();
-  actualizarProgreso();
-  checkReady();
+
+  // Focus en el input
+  setTimeout(() => document.getElementById('input-pallet').focus(), 300);
 }
 
-// ══════════════════════════════════════════════════
-//  CARGAR PALLETS DESDE APPS SCRIPT
-// ══════════════════════════════════════════════════
-async function cargarPallets() {
-  document.getElementById('sync-info').textContent = 'Sincronizando...';
-  try {
-    const res  = await fetch(`${SCRIPT_URL}?action=getPallets&importNum=${importNum}`);
-    const data = await res.json();
-    if (data.pallets) {
-      pallets = data.pallets;
-      document.getElementById('sync-info').textContent =
-        `${pallets.length} pallets · ${pallets.filter(p=>!p.almacenado).length} pendientes · ` +
-        new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
-    } else {
-      document.getElementById('sync-info').textContent = 'Error al obtener pallets';
-    }
-  } catch(e) {
-    document.getElementById('sync-info').textContent = 'Sin conexión — reintentando...';
-    toast('Error de conexión con Google Sheets', 'err');
-  }
+function logout() {
+  opActual = null; palletActual = null; selUbic = null;
+  showScreen('s-landing');
 }
 
-// Auto-resync every 30s while on main screen
-setInterval(async () => {
-  if (importNum && document.getElementById('s-main').classList.contains('on')) {
-    await cargarPallets();
-    renderDrum();
-    actualizarProgreso();
-  }
-}, 30000);
-
-// ══════════════════════════════════════════════════
-//  DRUM PICKER
-// ══════════════════════════════════════════════════
-function palletsDisp() {
-  return pallets.filter(p => !p.almacenado);
+// ══════════════════════════════════════════════════════
+//  INPUT PALLET — validación en tiempo real
+// ══════════════════════════════════════════════════════
+function onPalletInput(el) {
+  // Solo permitir números y punto
+  el.value = el.value.replace(/[^0-9.]/g, '');
+  document.getElementById('buscar-error').style.display = 'none';
+  el.style.borderColor = el.value ? 'var(--cyan)' : 'var(--border)';
 }
 
-function renderDrum() {
-  const track = document.getElementById('drum-track');
-  const items  = palletsDisp();
+// ══════════════════════════════════════════════════════
+//  BUSCAR PALLET POR NÚMERO
+// ══════════════════════════════════════════════════════
+async function buscarPallet() {
+  const num = document.getElementById('input-pallet').value.trim();
+  if (!num) { showError('Ingresa el Nº de pallet (formato xxxx.xx)'); return; }
 
-  if (!items.length) {
-    track.innerHTML = '';
-    document.getElementById('pallet-detail').innerHTML = `
-      <div class="empty-state">
-        <div class="ei">🎉</div>
-        <p style="font-size:12px;">¡Todos los pallets de esta importación están almacenados!</p>
-      </div>`;
-    document.getElementById('destino-card').innerHTML = `
-      <div class="dc-icon">✅</div>
-      <div><div class="dc-k">Estado</div><div class="dc-v" style="color:var(--green);">Completado</div></div>`;
-    document.getElementById('destino-card').className = 'destino-card';
-    setBtnStore(false, '🎉 ¡Importación completa!');
+  // Buscar primero en los pallets ya cargados (sin llamada extra)
+  const local = pallets.find(p =>
+    p.nPallet.toLowerCase() === num.toLowerCase()
+  );
+
+  if (local) {
+    seleccionarPallet(local);
     return;
   }
 
-  const pad = VISIBLE;
-  const paddedItems = [...Array(pad).fill(null), ...items, ...Array(pad).fill(null)];
+  // Si no está en memoria, buscar en el servidor
+  const btn  = document.getElementById('btn-buscar');
+  const spin = document.getElementById('buscar-spin');
+  const txt  = document.getElementById('buscar-txt');
+  btn.disabled = true;
+  spin.style.display = 'inline-block';
+  txt.textContent = 'Buscando...';
 
-  track.innerHTML = paddedItems.map((p, i) => {
-    if (!p) return `<div class="drum-item" style="height:${ITEM_H}px;"></div>`;
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?action=getPalletByNum&num=${encodeURIComponent(num)}`);
+    const data = await res.json();
+
+    if (data.error)       { showError(data.error); }
+    else if (!data.encontrado) { showError(`Nº ${num} no encontrado para hoy`); }
+    else {
+      pallets.push(data.pallet); // agregar a memoria
+      seleccionarPallet(data.pallet);
+      renderDrum();
+    }
+  } catch(e) {
+    showError('Error de conexión — verifica la URL del script');
+  }
+
+  btn.disabled = false;
+  spin.style.display = 'none';
+  txt.textContent = 'Buscar 🔍';
+}
+
+function showError(msg) {
+  const el = document.getElementById('buscar-error');
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = 'block';
+  document.getElementById('input-pallet').style.borderColor = 'var(--red)';
+}
+
+// ══════════════════════════════════════════════════════
+//  SELECCIONAR PALLET (desde búsqueda o rueda)
+// ══════════════════════════════════════════════════════
+function seleccionarPallet(p) {
+  palletActual = p;
+  selUbic = null;
+  document.getElementById('buscar-error').style.display = 'none';
+  document.getElementById('input-pallet').style.borderColor = 'var(--cyan)';
+
+  // Mostrar detalle
+  const yaAlm = p.almacenado;
+  document.getElementById('detail-label').style.display = 'block';
+  document.getElementById('pallet-detail').style.display = 'block';
+  document.getElementById('pallet-detail').innerHTML = `
+    <div class="pd-row"><span class="pd-k">Nº Pallet</span><span class="pd-v hl">${p.nPallet}</span></div>
+    <div class="pd-row"><span class="pd-k">SAP</span><span class="pd-v hl">${p.sap}</span></div>
+    <div class="pd-row"><span class="pd-k">Descripción</span><span class="pd-v">${p.descripcion||'—'}</span></div>
+    <div class="pd-row"><span class="pd-k">Cantidad</span><span class="pd-v gold">${p.cantidad||'—'}</span></div>
+    <div class="pd-row"><span class="pd-k">Lote</span><span class="pd-v">${p.lote||'—'}</span></div>
+    <div class="pd-row"><span class="pd-k">Vencimiento</span><span class="pd-v">${p.venc||'—'}</span></div>
+    <div class="pd-row"><span class="pd-k">Ubic. Origen</span><span class="pd-v" style="color:var(--orange)">${UBIC_ORIGEN}</span></div>
+    <div class="pd-row"><span class="pd-k">Ubic. Destino</span><span class="pd-v" style="color:var(--green)">${p.ubicDestino||'—'}</span></div>
+    ${yaAlm ? `<div class="pd-row"><span class="pd-k">Estado</span><span class="pd-v" style="color:var(--red)">✅ Ya almacenado por ${p.usuario||'otro operador'}</span></div>` : ''}
+  `;
+
+  if (yaAlm) {
+    document.getElementById('ubic-label').style.display = 'none';
+    document.getElementById('ubic-grid').innerHTML = '';
+    setBtnStore(false, '⛔ Este pallet ya fue almacenado');
+    return;
+  }
+
+  // Si el pallet ya tiene ubicación destino definida en col J, preseleccionarla
+  if (p.ubicDestino) {
+    selUbic = p.ubicDestino;
+  }
+
+  document.getElementById('ubic-label').style.display = 'block';
+  renderUbicaciones();
+  checkReady();
+
+  // Sync rueda al pallet encontrado
+  const idx = pallets.findIndex(pp => pp.nPallet === p.nPallet);
+  if (idx >= 0) {
+    selPalletIdx = idx;
+    setDrumIndex(idx, true);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  DRUM PICKER
+// ══════════════════════════════════════════════════════
+function renderDrum() {
+  const track = document.getElementById('drum-track');
+  if (!pallets.length) {
+    track.innerHTML = `<div style="text-align:center;padding:40px;color:var(--txt3);">
+      <div style="font-size:32px;margin-bottom:8px;">📋</div>
+      <div style="font-size:12px;">Sin pallets para hoy</div></div>`;
+    return;
+  }
+
+  const padded = [...Array(PAD).fill(null), ...pallets, ...Array(PAD).fill(null)];
+  track.innerHTML = padded.map((p, i) => {
+    if (!p) return `<div style="height:${ITEM_H}px;"></div>`;
+    const realIdx = i - PAD;
+    const isSel   = realIdx === selPalletIdx;
+    const isAlm   = p.almacenado;
     return `
-    <div class="drum-item" data-idx="${i - pad}">
+    <div class="drum-item ${isAlm?'taken':''} ${isSel?'selected':''}"
+      data-idx="${realIdx}" onclick="drumClick(${realIdx})">
       <div class="di-content">
-        <span class="di-index">${String(i-pad+1).padStart(2,'0')}</span>
+        <span class="di-index">${(realIdx+1).toString().padStart(2,'0')}</span>
         <div class="di-body">
-          <div class="di-sap">${p.sap || '—'}</div>
-          <div class="di-desc">${p.descripcion || '—'}</div>
+          <div class="di-sap">${p.nPallet} <span style="font-size:11px;color:var(--txt3);">${p.sap}</span></div>
+          <div class="di-desc">${p.descripcion||'—'}</div>
         </div>
-        <div style="text-align:right;flex-shrink:0;">
-          <div class="di-qty">${p.cantidad || ''}</div>
-          <div class="di-num">${p.id}</div>
-        </div>
+        <span class="di-qty">${p.cantidad||''}</span>
+        ${isAlm ? `<div class="di-taken-tag">✅</div>` : ''}
       </div>
     </div>`;
   }).join('');
 
-  const idx = Math.max(0, Math.min(selPalletIdx >= 0 ? selPalletIdx : 0, items.length - 1));
-  setDrumIndex(idx, false);
+  setDrumIndex(selPalletIdx, false);
 }
 
-function setDrumIndex(idx, animate = true) {
-  const items = palletsDisp();
-  if (!items.length) return;
-  idx = Math.max(0, Math.min(idx, items.length - 1));
+function drumClick(idx) {
+  if (idx < 0 || idx >= pallets.length) return;
+  selPalletIdx = idx;
+  setDrumIndex(idx, true);
+  const p = pallets[idx];
+  document.getElementById('input-pallet').value = p.nPallet;
+  document.getElementById('input-pallet').style.borderColor = 'var(--cyan)';
+  seleccionarPallet(p);
+}
+
+function setDrumIndex(idx, animate) {
+  idx = Math.max(0, Math.min(idx, pallets.length - 1));
   selPalletIdx = idx;
   drumTarget   = -idx * ITEM_H;
-  if (animate) { animateDrum(); } else { drumY = drumTarget; applyDrumY(); }
-  updateSelected();
+  if (animate) animateDrum(); else { drumY = drumTarget; applyDrumY(); }
+  updateSelectedClass();
 }
 
 function applyDrumY() {
-  const container = document.getElementById('drum');
-  const centerY   = (container.offsetHeight / 2) - (ITEM_H / 2);
+  const cont   = document.getElementById('drum');
+  const centerY = (cont.offsetHeight / 2) - (ITEM_H / 2);
   document.getElementById('drum-track').style.transform =
-    `translateY(${drumY + VISIBLE * ITEM_H + centerY}px)`;
-  updateSelected();
+    `translateY(${drumY + centerY}px)`;
+  updateSelectedClass();
 }
 
 function animateDrum() {
   if (animId) cancelAnimationFrame(animId);
   function step() {
-    const diff = drumTarget - drumY;
-    if (Math.abs(diff) < 0.5) { drumY = drumTarget; applyDrumY(); return; }
-    drumY += diff * 0.18;
+    const d = drumTarget - drumY;
+    if (Math.abs(d) < 0.5) { drumY = drumTarget; applyDrumY(); return; }
+    drumY += d * 0.2;
     applyDrumY();
     animId = requestAnimationFrame(step);
   }
   animId = requestAnimationFrame(step);
 }
 
-function updateSelected() {
+function updateSelectedClass() {
   document.querySelectorAll('.drum-item').forEach((el, i) => {
-    el.classList.toggle('selected', i - VISIBLE === selPalletIdx);
+    el.classList.toggle('selected', i - PAD === selPalletIdx);
   });
-  renderPalletDetail();
-  renderDestino();
-  checkReady();
 }
 
-// Touch / Mouse
+// Touch/mouse
 function drumTouchStart(e) { dragStart(e.touches[0].clientY); }
 function drumTouchMove(e)  { e.preventDefault(); dragMove(e.touches[0].clientY); }
-function drumTouchEnd(e)   { dragEnd(); }
+function drumTouchEnd()    { dragEnd(); }
 function drumMouseStart(e) {
   dragStart(e.clientY);
-  const move = (e) => dragMove(e.clientY);
-  const up   = ()  => { dragEnd(); document.removeEventListener('mousemove',move); document.removeEventListener('mouseup',up); };
-  document.addEventListener('mousemove', move);
+  const mv = e2 => dragMove(e2.clientY);
+  const up = ()  => { dragEnd(); document.removeEventListener('mousemove',mv); document.removeEventListener('mouseup',up); };
+  document.addEventListener('mousemove', mv);
   document.addEventListener('mouseup', up);
 }
-function dragStart(y) {
-  isDragging = true; dragStartY = y; dragStartDrumY = drumY;
-  if (animId) cancelAnimationFrame(animId);
-}
+function dragStart(y) { isDragging=true; dragStartY=y; dragStartDrumY=drumY; if(animId) cancelAnimationFrame(animId); }
 function dragMove(y) {
   if (!isDragging) return;
-  const items = palletsDisp();
-  const minY  = -(items.length - 1) * ITEM_H;
+  const minY = -(pallets.length - 1) * ITEM_H;
   drumY = Math.max(minY, Math.min(0, dragStartDrumY + (y - dragStartY)));
   applyDrumY();
-  selPalletIdx = Math.max(0, Math.min(Math.round(-drumY / ITEM_H), items.length - 1));
+  selPalletIdx = Math.round(-drumY / ITEM_H);
+  selPalletIdx = Math.max(0, Math.min(selPalletIdx, pallets.length-1));
 }
 function dragEnd() {
   if (!isDragging) return;
   isDragging = false;
-  const items = palletsDisp();
-  selPalletIdx = Math.max(0, Math.min(Math.round(-drumY / ITEM_H), items.length - 1));
+  selPalletIdx = Math.max(0, Math.min(Math.round(-drumY/ITEM_H), pallets.length-1));
   setDrumIndex(selPalletIdx, true);
 }
 
-// ══════════════════════════════════════════════════
-//  DETALLE PALLET
-// ══════════════════════════════════════════════════
-function renderPalletDetail() {
-  const items = palletsDisp();
-  const box   = document.getElementById('pallet-detail');
-  if (!items.length || selPalletIdx < 0) return;
-  const p = items[selPalletIdx];
-  if (!p) return;
+// ══════════════════════════════════════════════════════
+//  UBICACIONES
+// ══════════════════════════════════════════════════════
+function renderUbicaciones() {
+  const grid = document.getElementById('ubic-grid');
 
-  box.innerHTML = `
-    <div class="pd-row"><span class="pd-k">Nº Pallet</span><span class="pd-v hl">${p.id}</span></div>
-    <div class="pd-row"><span class="pd-k">Código SAP</span><span class="pd-v hl">${p.sap || '—'}</span></div>
-    <div class="pd-row"><span class="pd-k">Descripción</span><span class="pd-v">${p.descripcion || '—'}</span></div>
-    <div class="pd-row"><span class="pd-k">Cantidad</span><span class="pd-v gold">${p.cantidad || '—'}</span></div>
-    <div class="pd-row"><span class="pd-k">Lote</span><span class="pd-v">${p.lote || '—'}</span></div>
-    <div class="pd-row"><span class="pd-k">Vencimiento</span><span class="pd-v">${p.venc || '—'}</span></div>
-    <div class="pd-row"><span class="pd-k">Origen</span><span class="pd-v" style="color:var(--txt2);font-size:11px;">${UBIC_ORIGEN}</span></div>
-  `;
-}
-
-// ══════════════════════════════════════════════════
-//  DESTINO (COLUMNA J)
-// ══════════════════════════════════════════════════
-function renderDestino() {
-  const items = palletsDisp();
-  const card  = document.getElementById('destino-card');
-  if (!items.length || selPalletIdx < 0) return;
-  const p = items[selPalletIdx];
-  if (!p) return;
-
-  if (p.ubicDestino) {
-    card.className = 'destino-card';
-    card.innerHTML = `
-      <div class="dc-icon">🏷️</div>
-      <div>
-        <div class="dc-k">Ubicación destino asignada</div>
-        <div class="dc-v">${p.ubicDestino}</div>
-      </div>`;
-  } else {
-    card.className = 'destino-card empty';
-    card.innerHTML = `
-      <div class="dc-icon">⚠️</div>
-      <div>
-        <div class="dc-k">Sin destino asignado en hoja</div>
-        <div class="dc-v">Consulta al supervisor</div>
-      </div>`;
+  // Combinar ubicación del pallet (col J) + fijas
+  let ubicaciones = [...UBICACIONES_FIJAS];
+  if (palletActual?.ubicDestino) {
+    const yaEsta = ubicaciones.find(u => u.code === palletActual.ubicDestino);
+    if (!yaEsta) ubicaciones.unshift({ code: palletActual.ubicDestino, tipo:'D', sugerida:true });
+    else yaEsta.sugerida = true;
   }
+
+  grid.innerHTML = ubicaciones.map(u => {
+    const ocup = ubicOcupadas.has(u.code) && u.code !== selUbic;
+    const isSel = selUbic === u.code;
+    return `
+    <div class="ubic-btn ${isSel?'sel':''} ${ocup?'ocupada':''}"
+      onclick="${ocup?'':` selUbicacion('${u.code}')`}">
+      <div class="ubic-code">${u.code}</div>
+      <div class="ubic-type">${u.tipo==='D'?'⬛⬛ Doble':'⬜ Simple'}${u.sugerida?' ⭐':''}</div>
+      ${ocup ? `<div class="ubic-badge">Ocupada</div>` : ''}
+      ${u.sugerida && !ocup ? `<div style="font-size:9px;color:var(--cyan);letter-spacing:.5px;">SUGERIDA</div>` : ''}
+    </div>`;
+  }).join('');
 }
 
-// ══════════════════════════════════════════════════
+function selUbicacion(code) {
+  selUbic = code;
+  renderUbicaciones();
+  checkReady();
+}
+
+// ══════════════════════════════════════════════════════
 //  CHECK LISTO
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 function checkReady() {
-  const items  = palletsDisp();
-  const pallet = items[selPalletIdx];
-
-  if (!pallet) {
-    setBtnStore(false, '📦 Sin pallets pendientes');
-  } else if (!pallet.ubicDestino) {
-    setBtnStore(false, '⚠️ Sin ubicación destino');
-  } else {
-    setBtnStore(true, `✅ ALMACENAR EN ${pallet.ubicDestino}`);
-  }
+  if (!palletActual)         { setBtnStore(false, '📦 Ingresa o selecciona un pallet'); return; }
+  if (palletActual.almacenado) { setBtnStore(false, '⛔ Pallet ya almacenado'); return; }
+  if (!selUbic)              { setBtnStore(false, '📍 Selecciona ubicación destino'); return; }
+  setBtnStore(true, `✅ ALMACENAR EN ${selUbic}`);
 }
 
 function setBtnStore(ready, txt) {
   const btn = document.getElementById('btn-store');
   btn.disabled  = !ready;
-  btn.className = `btn-store ${ready ? 'ready' : 'not-ready'}`;
-  btn.innerHTML  = ready
-    ? `<span class="spin" id="store-spin" style="display:none;"></span><span id="store-txt">${txt}</span>`
+  btn.className = `btn-store ${ready?'ready':'not-ready'}`;
+  btn.innerHTML = ready
+    ? `<span id="store-spin" style="display:none;width:20px;height:20px;border:2px solid rgba(0,0,0,.2);border-top-color:#001a0a;border-radius:50%;animation:sp .6s linear infinite;"></span><span id="store-txt">${txt}</span>`
     : txt;
 }
 
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 //  ALMACENAR
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 async function almacenar() {
-  const items  = palletsDisp();
-  const pallet = items[selPalletIdx];
-  if (!pallet || !pallet.ubicDestino) return;
-
-  const btn   = document.getElementById('btn-store');
+  if (!palletActual || !selUbic) return;
+  const btn = document.getElementById('btn-store');
   btn.disabled = true;
   const spinEl = document.getElementById('store-spin');
   const txtEl  = document.getElementById('store-txt');
@@ -886,41 +910,40 @@ async function almacenar() {
 
   const payload = {
     action:       'almacenar',
-    rowIndex:     pallet.rowIndex,
-    palletId:     pallet.id,
-    sap:          pallet.sap,
-    descripcion:  pallet.descripcion,
-    cantidad:     pallet.cantidad,
-    lote:         pallet.lote,
-    venc:         pallet.venc,
+    rowIndex:     palletActual.rowIndex,
+    nPallet:      palletActual.nPallet,
+    sap:          palletActual.sap,
+    descripcion:  palletActual.descripcion,
+    cantidad:     palletActual.cantidad,
+    lote:         palletActual.lote,
+    venc:         palletActual.venc,
+    ubicOrigen:   UBIC_ORIGEN,
+    ubicDestino:  selUbic,
     grueroId:     opActual.id,
     grueroNombre: opActual.nombre,
-    ubicOrigen:   UBIC_ORIGEN,
-    ubicDestino:  pallet.ubicDestino,
-    importNum,
     fecha,
-    hora,
+    hora
   };
 
   try {
     await fetch(SCRIPT_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(payload),
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
     });
   } catch(_) {}
 
-  // Actualizar localmente
-  const orig = pallets.find(p => p.rowIndex === pallet.rowIndex);
-  if (orig) {
-    orig.almacenado   = true;
-    orig.tomado       = true;
-    orig.grueroNombre = opActual.nombre;
-    orig.fechaAlm     = fecha;
-    orig.horaAlm      = hora;
-  }
+  // Actualizar local
+  palletActual.almacenado = true;
+  palletActual.tomado     = true;
+  palletActual.usuario    = opActual.nombre + ' (' + opActual.id + ')';
+  ubicOcupadas.add(selUbic);
+  renderDrum();
 
-  showSuccess({ pallet, fecha, hora });
+  btn.disabled = false;
+  if (spinEl) spinEl.style.display = 'none';
+
+  showSuccess({ pallet: palletActual, fecha, hora });
 }
 
 function showSuccess(d) {
@@ -928,57 +951,55 @@ function showSuccess(d) {
   document.getElementById('succ-sub').textContent = `${fecha} — ${hora}`;
   document.getElementById('succ-card').innerHTML = `
     <div class="succ-row"><span class="succ-k">Operador</span><span class="succ-v">${opActual.nombre}</span></div>
-    <div class="succ-row"><span class="succ-k">Nº Pallet</span><span class="succ-v">${pallet.id}</span></div>
-    <div class="succ-row"><span class="succ-k">SAP</span><span class="succ-v">${pallet.sap || '—'}</span></div>
-    <div class="succ-row"><span class="succ-k">Descripción</span><span class="succ-v">${pallet.descripcion || '—'}</span></div>
-    <div class="succ-row"><span class="succ-k">Cantidad</span><span class="succ-v">${pallet.cantidad || '—'}</span></div>
-    <div class="succ-row"><span class="succ-k">Origen</span><span class="succ-v">${UBIC_ORIGEN}</span></div>
-    <div class="succ-row"><span class="succ-k">Destino</span><span class="succ-v green">${pallet.ubicDestino}</span></div>
+    <div class="succ-row"><span class="succ-k">Nº Pallet</span><span class="succ-v">${pallet.nPallet}</span></div>
+    <div class="succ-row"><span class="succ-k">SAP</span><span class="succ-v">${pallet.sap}</span></div>
+    <div class="succ-row"><span class="succ-k">Descripción</span><span class="succ-v">${pallet.descripcion}</span></div>
+    <div class="succ-row"><span class="succ-k">Cantidad</span><span class="succ-v">${pallet.cantidad}</span></div>
+    <div class="succ-row"><span class="succ-k">Ubic. Origen</span><span class="succ-v" style="color:var(--orange)">${UBIC_ORIGEN}</span></div>
+    <div class="succ-row"><span class="succ-k">Ubic. Destino</span><span class="succ-v green">${selUbic}</span></div>
     <div class="succ-row"><span class="succ-k">Hora</span><span class="succ-v green">${hora}</span></div>
   `;
-  selPalletIdx = -1;
+  palletActual = null; selUbic = null;
   showScreen('s-success');
 }
 
 function siguientePallet() {
-  showScreen('s-main');
+  palletActual = null; selUbic = null;
+  document.getElementById('input-pallet').value = '';
+  document.getElementById('input-pallet').style.borderColor = 'var(--border)';
+  document.getElementById('pallet-detail').style.display = 'none';
+  document.getElementById('detail-label').style.display  = 'none';
+  document.getElementById('ubic-label').style.display    = 'none';
+  document.getElementById('ubic-grid').innerHTML         = '';
+  document.getElementById('buscar-error').style.display  = 'none';
+  setBtnStore(false, '📦 Ingresa o selecciona un pallet');
+  showScreen('s-buscar');
   renderDrum();
-  actualizarProgreso();
-  checkReady();
+  setTimeout(() => document.getElementById('input-pallet').focus(), 300);
 }
 
-// ══════════════════════════════════════════════════
-//  PROGRESO
-// ══════════════════════════════════════════════════
-function actualizarProgreso() {
-  const total = pallets.length;
-  const alm   = pallets.filter(p => p.almacenado).length;
-  const pct   = total ? Math.round((alm / total) * 100) : 0;
-  document.getElementById('prog-txt').textContent  = `${alm} / ${total} almacenados`;
-  document.getElementById('prog-pct').textContent  = pct + '%';
-  document.getElementById('prog-fill').style.width = pct + '%';
-}
-
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 //  HELPERS
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
   document.getElementById(id).classList.add('on');
-  window.scrollTo(0, 0);
+  window.scrollTo(0,0);
 }
 
-function toast(msg, type = '') {
+function toast(msg, type='') {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.className   = 'toast show' + (type ? ' ' + type : '');
+  t.className = 'toast show' + (type?' '+type:'');
   setTimeout(() => t.className = 'toast', 2800);
 }
 
-// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 //  INIT
-// ══════════════════════════════════════════════════
-renderGrueroGrid();
+// ══════════════════════════════════════════════════════
+actualizarGrueroGrid();
+cargarPallets();
+setInterval(cargarPallets, 30000);
 </script>
 </body>
 </html>
