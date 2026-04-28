@@ -3,814 +3,173 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Almacenamiento ALM9037</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>Almacenamiento ALM9037 - V2</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Share+Tech+Mono&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════
-   VARIABLES & RESET
-═══════════════════════════════════════════ */
 :root {
-  --bg:       #080c14;
-  --surface:  #0e1520;
-  --card:     #121c2e;
-  --card2:    #182236;
-  --border:   #1e3050;
-  --gold:     #f0a500;
-  --gold2:    #ffd060;
-  --cyan:     #00d4ff;
-  --green:    #00e676;
-  --red:      #ff4444;
-  --orange:   #ff8c00;
-  --txt:      #d0e4ff;
-  --txt2:     #6b8aac;
-  --txt3:     #2a4060;
+  --bg: #080c14; --surface: #0e1520; --card: #121c2e; --border: #1e3050;
+  --gold: #f0a500; --cyan: #00d4ff; --green: #00e676; --red: #ff4444;
+  --orange: #ff8c00; --txt: #d0e4ff; --txt2: #6b8aac;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--txt); font-family: 'Exo 2', sans-serif; height: 100vh; overflow: hidden; }
 
-  --g1: linear-gradient(135deg,#f0a500,#ff6b00);
-  --g2: linear-gradient(135deg,#00d4ff,#0066ff);
-  --g3: linear-gradient(135deg,#00e676,#00b248);
-  --g4: linear-gradient(135deg,#ff4444,#cc0000);
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
-  font-family:'Exo 2',sans-serif;}
+.hdr { background: #0a1020; border-bottom: 2px solid var(--gold); padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; }
+.hdr-logo { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 2px; }
+.hdr-clock { font-family: 'Share Tech Mono', monospace; font-size: 18px; color: var(--cyan); }
 
-/* ═══════════════════════════════════════════
-   SCANLINE OVERLAY
-═══════════════════════════════════════════ */
-body::before{
-  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:repeating-linear-gradient(0deg,rgba(0,0,0,.08) 0px,rgba(0,0,0,.08) 1px,transparent 1px,transparent 3px);
-}
+.screen { position: fixed; inset: 0; padding-top: 60px; display: none; flex-direction: column; overflow-y: auto; }
+.screen.on { display: flex; }
 
-/* ═══════════════════════════════════════════
-   HEADER
-═══════════════════════════════════════════ */
-.hdr{
-  position:fixed;top:0;left:0;right:0;z-index:100;
-  background:linear-gradient(180deg,#0a1020 0%,rgba(8,12,20,.95) 100%);
-  border-bottom:2px solid var(--gold);
-  padding:10px 18px;
-  display:flex;align-items:center;gap:12px;
-}
-.hdr-logo{
-  font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;
-  color:var(--gold);letter-spacing:3px;text-transform:uppercase;
-  text-shadow:0 0 20px rgba(240,165,0,.5);
-}
-.hdr-sub{font-size:11px;color:var(--txt2);letter-spacing:1px;}
-.hdr-right{margin-left:auto;text-align:right;}
-.hdr-clock{font-family:'Share Tech Mono',monospace;font-size:20px;
-  color:var(--cyan);letter-spacing:2px;text-shadow:0 0 15px rgba(0,212,255,.4);}
-.hdr-date{font-size:10px;color:var(--txt3);letter-spacing:.5px;}
+/* LANDING */
+#s-landing { align-items: center; justify-content: center; padding: 20px; }
+.gruero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 400px; }
+.gruero-btn { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; }
+.gruero-btn:active { transform: scale(0.95); }
+.gruero-name { font-family: 'Rajdhani', sans-serif; font-weight: 700; margin-top: 8px; }
 
-/* ═══════════════════════════════════════════
-   SCREENS
-═══════════════════════════════════════════ */
-.screen{
-  position:fixed;inset:0;padding-top:62px;
-  display:none;flex-direction:column;
-  overflow-y:auto;z-index:10;
-}
-.screen.on{display:flex;}
+/* MAIN */
+#s-main { padding: 15px; max-width: 500px; margin: 0 auto; width: 100%; }
+.user-bar { background: var(--card); padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px solid var(--border); }
+.search-box { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; }
+.search-input { width: 100%; background: var(--bg); border: 2px solid var(--border); border-radius: 8px; padding: 12px; color: #fff; font-family: 'Share Tech Mono', monospace; font-size: 20px; margin-bottom: 10px; outline: none; }
+.search-input:focus { border-color: var(--gold); }
+.btn-search { width: 100%; background: var(--cyan); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 700; font-family: 'Rajdhani', sans-serif; cursor: pointer; }
 
-/* ═══════════════════════════════════════════
-   LANDING — SELECCIÓN DE GRUERO
-═══════════════════════════════════════════ */
-#s-landing{
-  align-items:center;justify-content:center;
-  background:radial-gradient(ellipse at 50% 0%,rgba(240,165,0,.08) 0%,transparent 60%);
-}
-.landing-wrap{width:100%;max-width:480px;padding:20px;}
-.landing-title{
-  font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;
-  color:var(--gold);letter-spacing:3px;text-transform:uppercase;
-  text-align:center;margin-bottom:4px;
-  text-shadow:0 0 30px rgba(240,165,0,.4);
-}
-.landing-sub{font-size:12px;color:var(--txt2);text-align:center;
-  letter-spacing:1px;margin-bottom:24px;}
+.pallet-info { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; display: none; }
+.info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1e3050; }
+.info-row:last-child { border-bottom: none; }
+.info-k { font-size: 11px; color: var(--txt2); text-transform: uppercase; }
+.info-v { font-family: 'Share Tech Mono', monospace; font-size: 15px; }
 
-.gruero-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.gruero-btn{
-  background:var(--card);
-  border:2px solid var(--border);
-  border-radius:16px;padding:20px 12px;
-  cursor:pointer;text-align:center;
-  transition:all .2s;display:flex;flex-direction:column;
-  align-items:center;gap:8px;
-  position:relative;overflow:hidden;
-}
-.gruero-btn::before{
-  content:'';position:absolute;inset:0;opacity:0;
-  transition:opacity .2s;
-}
-.gruero-btn.c1::before{background:linear-gradient(135deg,rgba(240,165,0,.12),transparent);}
-.gruero-btn.c2::before{background:linear-gradient(135deg,rgba(0,212,255,.12),transparent);}
-.gruero-btn.c3::before{background:linear-gradient(135deg,rgba(0,230,118,.12),transparent);}
-.gruero-btn.c4::before{background:linear-gradient(135deg,rgba(255,68,68,.12),transparent);}
-.gruero-btn:active{transform:scale(.96);}
-.gruero-btn:active::before{opacity:1;}
-.gruero-num{
-  font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;
-  letter-spacing:2px;text-transform:uppercase;
-}
-.gruero-btn.c1 .gruero-num{color:var(--gold);}
-.gruero-btn.c2 .gruero-num{color:var(--cyan);}
-.gruero-btn.c3 .gruero-num{color:var(--green);}
-.gruero-btn.c4 .gruero-num{color:var(--red);}
-.gruero-icon{font-size:36px;line-height:1;}
-.gruero-name{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
-  color:var(--txt);letter-spacing:.5px;line-height:1.2;}
-.gruero-tasks{font-size:10px;color:var(--txt3);margin-top:2px;}
-.gruero-btn.c1{border-color:rgba(240,165,0,.25);}
-.gruero-btn.c2{border-color:rgba(0,212,255,.25);}
-.gruero-btn.c3{border-color:rgba(0,230,118,.25);}
-.gruero-btn.c4{border-color:rgba(255,68,68,.25);}
+.action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; display: none; }
+.btn-act { padding: 18px; border-radius: 12px; border: none; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 16px; cursor: pointer; color: #000; }
+.btn-realizado { background: var(--green); }
+.btn-pendiente { background: var(--orange); }
+.btn-act:active { transform: scale(0.95); }
 
-.sync-bar{
-  margin-top:16px;background:var(--card);border:1px solid var(--border);
-  border-radius:10px;padding:10px 14px;
-  display:flex;align-items:center;gap:8px;font-size:11px;color:var(--txt2);
-}
-.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--green);
-  box-shadow:0 0 8px var(--green);animation:blink 2s infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.btn-logout { background: transparent; border: 1px solid var(--red); color: var(--red); padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; }
 
-/* ═══════════════════════════════════════════
-   PANTALLA PRINCIPAL GRUERO
-═══════════════════════════════════════════ */
-#s-main{padding:10px 12px 80px;}
-
-.user-bar{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:12px;padding:10px 14px;
-  display:flex;align-items:center;gap:10px;
-  margin-bottom:12px;
-}
-.user-bar .name{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;
-  color:var(--txt);letter-spacing:.5px;}
-.user-bar .role{font-size:10px;color:var(--txt2);letter-spacing:.5px;}
-.user-color-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
-.btn-logout{margin-left:auto;background:transparent;border:1px solid var(--border);
-  border-radius:8px;color:var(--txt2);font-size:11px;font-weight:600;
-  padding:5px 10px;cursor:pointer;letter-spacing:.5px;font-family:'Exo 2',sans-serif;}
-
-/* PROGRESS */
-.prog-section{margin-bottom:12px;}
-.prog-info{display:flex;justify-content:space-between;font-size:11px;
-  color:var(--txt2);margin-bottom:5px;letter-spacing:.5px;}
-.prog-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
-.prog-fill{height:100%;border-radius:3px;transition:width .5s ease;}
-
-/* SECCIÓN LABEL */
-.sec-label{
-  font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;
-  color:var(--gold);letter-spacing:2px;text-transform:uppercase;
-  margin-bottom:8px;display:flex;align-items:center;gap:6px;
-}
-.sec-label::before{content:'';width:3px;height:13px;background:var(--gold);border-radius:2px;}
-
-/* ═══════════════════════════════════════════
-   RUEDA DE PALLETS (DRUM PICKER)
-═══════════════════════════════════════════ */
-.drum-container{
-  position:relative;height:280px;overflow:hidden;
-  background:var(--card);border:1px solid var(--border);
-  border-radius:16px;margin-bottom:12px;
-  cursor:grab;user-select:none;
-}
-.drum-container:active{cursor:grabbing;}
-
-/* línea de selección */
-.drum-container::before,
-.drum-container::after{
-  content:'';position:absolute;left:0;right:0;z-index:10;pointer-events:none;
-}
-.drum-container::before{
-  top:0;height:90px;
-  background:linear-gradient(180deg,var(--card) 0%,transparent 100%);
-}
-.drum-container::after{
-  bottom:0;height:90px;
-  background:linear-gradient(0deg,var(--card) 0%,transparent 100%);
-}
-
-.drum-selector{
-  position:absolute;top:50%;left:8px;right:8px;transform:translateY(-50%);
-  height:64px;border:2px solid var(--gold);border-radius:10px;
-  background:rgba(240,165,0,.06);z-index:5;pointer-events:none;
-  box-shadow:0 0 20px rgba(240,165,0,.15);
-}
-
-.drum-track{
-  position:absolute;left:0;right:0;top:0;
-  transition:transform .3s cubic-bezier(.25,.46,.45,.94);
-  will-change:transform;
-}
-
-.drum-item{
-  height:64px;display:flex;align-items:center;
-  padding:0 16px;gap:12px;
-  transition:opacity .2s;
-}
-.drum-item.selected .di-content{opacity:1;}
-.drum-item:not(.selected) .di-content{opacity:.35;}
-.drum-item.taken .di-content{opacity:.15;}
-.drum-item.taken .di-sap{text-decoration:line-through;}
-
-.di-content{display:flex;align-items:center;gap:12px;width:100%;transition:opacity .2s;}
-.di-index{
-  font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--txt3);
-  width:28px;flex-shrink:0;text-align:right;
-}
-.di-body{flex:1;min-width:0;}
-.di-sap{
-  font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--cyan);
-  letter-spacing:1px;line-height:1;
-}
-.di-desc{font-size:11px;color:var(--txt2);white-space:nowrap;overflow:hidden;
-  text-overflow:ellipsis;margin-top:2px;}
-.di-qty{
-  font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
-  color:var(--gold);flex-shrink:0;
-}
-.di-taken-tag{
-  font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
-  padding:2px 6px;border-radius:4px;flex-shrink:0;
-  background:rgba(255,68,68,.15);color:var(--red);border:1px solid rgba(255,68,68,.3);
-}
-.di-taken-by{font-size:9px;color:var(--txt3);}
-
-/* ═══════════════════════════════════════════
-   DETALLE PALLET SELECCIONADO
-═══════════════════════════════════════════ */
-.pallet-detail{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:14px;padding:14px;margin-bottom:12px;
-}
-.pd-row{display:flex;justify-content:space-between;align-items:center;
-  padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
-.pd-row:last-child{border-bottom:none;}
-.pd-k{font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
-.pd-v{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--txt);}
-.pd-v.hl{color:var(--cyan);}
-.pd-v.gold{color:var(--gold);}
-
-/* UBICACIÓN DESTINO */
-.ubic-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
-.ubic-btn{
-  background:var(--card);border:2px solid var(--border);
-  border-radius:10px;padding:10px 8px;
-  cursor:pointer;text-align:center;transition:all .18s;
-}
-.ubic-btn:active{transform:scale(.97);}
-.ubic-btn.sel{border-color:var(--cyan);background:rgba(0,212,255,.08);
-  box-shadow:0 0 12px rgba(0,212,255,.15);}
-.ubic-btn.ocupada{border-color:rgba(255,68,68,.3);opacity:.4;cursor:not-allowed;}
-.ub-code{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--txt);display:block;}
-.ub-tipo{font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;}
-
-/* BOTONES */
-.btn-store{
-  width:100%;padding:16px;border-radius:12px;border:none;
-  font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
-  text-transform:uppercase;letter-spacing:2px;cursor:pointer;
-  transition:all .2s;margin-bottom:10px;
-}
-.btn-store.not-ready{background:var(--border);color:var(--txt3);cursor:not-allowed;}
-.btn-store.ready{background:var(--g3);color:#fff;box-shadow:0 4px 15px rgba(0,230,118,.3);}
-.btn-store:active:not(:disabled){transform:scale(.98);}
-
-.btn-back{
-  width:100%;background:transparent;border:1px solid var(--border);
-  color:var(--txt2);padding:12px;border-radius:10px;font-size:12px;
-  cursor:pointer;font-family:'Exo 2',sans-serif;
-}
-
-/* ═══════════════════════════════════════════
-   BUSCAR PALLET
-═══════════════════════════════════════════ */
-.search-box{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:14px;padding:14px;margin-bottom:12px;
-}
-.search-input-wrap{position:relative;margin-bottom:10px;}
-.search-input{
-  width:100%;background:var(--bg);border:2px solid var(--border);
-  border-radius:10px;padding:12px 14px;color:var(--txt);
-  font-family:'Share Tech Mono',monospace;font-size:18px;
-  outline:none;transition:border-color .2s;
-}
-.search-input:focus{border-color:var(--gold);}
-.btn-search{
-  width:100%;background:var(--g2);color:#fff;border:none;
-  padding:12px;border-radius:10px;font-weight:700;cursor:pointer;
-  font-family:'Rajdhani',sans-serif;letter-spacing:1px;
-}
-.search-error{color:var(--red);font-size:11px;margin-top:6px;display:none;}
-
-/* ═══════════════════════════════════════════
-   SUCCESS SCREEN
-═══════════════════════════════════════════ */
-#s-success{align-items:center;justify-content:center;background:var(--bg);}
-.succ-wrap{width:100%;max-width:400px;padding:30px;text-align:center;}
-.succ-ico{font-size:60px;margin-bottom:10px;animation:pop .5s cubic-bezier(.17,.67,.83,.67);}
-@keyframes pop{0%{transform:scale(0);}80%{transform:scale(1.2);}100%{transform:scale(1);}}
-.succ-title{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--green);margin-bottom:4px;}
-.succ-sub{font-size:13px;color:var(--txt2);margin-bottom:20px;}
-.succ-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:24px;text-align:left;}
-
-/* TOAST */
-.toast{
-  position:fixed;bottom:20px;left:20px;right:20px;z-index:1000;
-  background:rgba(0,0,0,.9);border:1px solid var(--border);
-  padding:12px 16px;border-radius:10px;font-size:12px;
-  transform:translateY(100px);transition:transform .3s;
-}
-.toast.on{transform:translateY(0);}
-
-/* SPINNER */
-.spinner{
-  display:none;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
-  border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;
-  margin-right:8px;vertical-align:middle;
-}
-@keyframes spin{to{transform:rotate(360deg);}}
-
+.toast { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #000; border: 1px solid var(--border); padding: 15px; border-radius: 10px; text-align: center; transform: translateY(100px); transition: 0.3s; z-index: 100; }
+.toast.on { transform: translateY(0); }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="hdr">
-  <div>
-    <div class="hdr-logo">ALM9037</div>
-    <div class="hdr-sub">SISTEMA DE ALMACENAMIENTO</div>
-  </div>
-  <div class="hdr-right">
-    <div class="hdr-clock" id="clk">00:00:00</div>
-    <div class="hdr-date" id="clk-d">---, 00 ---</div>
-  </div>
+  <div class="hdr-logo">ALM9037</div>
+  <div class="hdr-clock" id="clk">00:00:00</div>
 </div>
 
-<!-- ══ LANDING ══ -->
+<!-- SELECCIÓN OPERADOR -->
 <div class="screen on" id="s-landing">
-  <div class="landing-wrap">
-    <div class="landing-title">Bienvenido</div>
-    <div class="landing-sub">SELECCIONA TU UNIDAD DE GRÚA</div>
-    
-    <div class="gruero-grid" id="gruero-grid">
-      <!-- JS render -->
-    </div>
-
-    <div class="sync-bar">
-      <div class="sync-dot"></div>
-      <div id="sync-info">Sincronizando con Google Drive...</div>
-    </div>
-  </div>
+  <h2 style="margin-bottom:20px; font-family:'Rajdhani'">Seleccionar Operador</h2>
+  <div class="gruero-grid" id="gruero-grid"></div>
 </div>
 
-<!-- ══ BUSCAR / OPERAR ══ -->
-<div class="screen" id="s-buscar">
+<!-- OPERACIÓN -->
+<div class="screen" id="s-main-screen">
   <div id="s-main">
     <div class="user-bar">
-      <div class="user-color-dot" id="user-dot2"></div>
       <div>
-        <div class="name" id="user-name2">---</div>
-        <div class="role">Operador de Grúa · <span id="fecha-hoy">--/--/----</span></div>
+        <div id="user-name" style="font-weight:700">---</div>
+        <div style="font-size:10px; color:var(--txt2)" id="fecha-hoy">--/--/----</div>
       </div>
-      <button class="btn-logout" onclick="logout()">SALIR</button>
+      <button class="btn-logout" onclick="location.reload()">SALIR</button>
     </div>
 
-    <!-- BUSCADOR -->
-    <div class="sec-label">Buscar Pallet</div>
     <div class="search-box">
-      <div class="search-input-wrap">
-        <input type="text" class="search-input" id="input-pallet" 
-               placeholder="Nº PALLET (xxxx.xx)" inputmode="decimal"
-               oninput="onPalletInput(this)">
-      </div>
-      <button class="btn-search" id="btn-buscar" onclick="buscarPallet()">
-        <span class="spinner" id="buscar-spin"></span>
-        <span id="buscar-txt">BUSCAR 🔍</span>
-      </button>
-      <div class="search-error" id="buscar-error"></div>
+      <input type="text" class="search-input" id="input-pallet" placeholder="Nº PALLET (xxxx.xx)" inputmode="decimal">
+      <button class="btn-search" id="btn-buscar" onclick="buscarPallet()">BUSCAR 🔍</button>
     </div>
 
-    <!-- RUEDA DE PALLETS -->
-    <div class="sec-label">Pallets del día</div>
-    <div class="prog-section">
-      <div class="prog-info">
-        <span id="pallets-count">Cargando...</span>
-      </div>
+    <div class="pallet-info" id="pallet-info">
+      <div class="info-row"><span class="info-k">Nº Pallet</span><span class="info-v" style="color:var(--cyan)" id="v-pallet">--</span></div>
+      <div class="info-row"><span class="info-k">Ubicación</span><span class="info-v" style="color:var(--green)" id="v-ubic">--</span></div>
+      <div class="info-row"><span class="info-k">SAP</span><span class="info-v" id="v-sap">--</span></div>
+      <div class="info-row"><span class="info-k">Descripción</span><span class="info-v" id="v-desc" style="font-size:12px">--</span></div>
+      <div class="info-row"><span class="info-k">Cantidad</span><span class="info-v" style="color:var(--gold)" id="v-qty">--</span></div>
     </div>
 
-    <div class="drum-container" id="drum-container">
-      <div class="drum-selector"></div>
-      <div class="drum-track" id="drum-track">
-        <!-- JS render -->
-      </div>
+    <div class="action-btns" id="action-btns">
+      <button class="btn-act btn-realizado" onclick="registrar('REALIZADO')">REALIZADO ✅</button>
+      <button class="btn-act btn-pendiente" onclick="registrar('PENDIENTE')">PENDIENTE ⏳</button>
     </div>
-
-    <!-- DETALLE PALLET BUSCADO/SELECCIONADO -->
-    <div class="sec-label" id="detail-label" style="display:none;">Pallet seleccionado</div>
-    <div class="pallet-detail" id="pallet-detail" style="display:none;"></div>
-
-    <!-- UBICACIÓN DESTINO -->
-    <div class="sec-label" id="ubic-label" style="display:none;margin-top:4px;">Ubicación destino</div>
-    <div class="ubic-grid" id="ubic-grid"></div>
-
-    <!-- BOTÓN ALMACENAR -->
-    <button class="btn-store not-ready" id="btn-store" onclick="almacenar()" disabled>
-      📦 Ingresa o selecciona un pallet
-    </button>
-    <button class="btn-back" onclick="logout()">← Volver al menú</button>
-  </div>
-</div>
-
-<!-- ══ SUCCESS ══ -->
-<div class="screen" id="s-success">
-  <div class="succ-wrap">
-    <div class="succ-ico">✅</div>
-    <div class="succ-title">¡Almacenado!</div>
-    <div class="succ-sub" id="succ-sub">Pallet registrado correctamente</div>
-    <div class="succ-card" id="succ-card"></div>
-    <button class="btn-store ready" style="margin-bottom:8px;" onclick="siguientePallet()">
-      ➡️ Siguiente pallet
-    </button>
-    <button class="btn-back" onclick="logout()">🏠 Cambiar operador</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════════════
-//  ⚙️  CONFIGURACIÓN
-// ══════════════════════════════════════════════════════
-const SCRIPT_URL  = 'https://script.google.com/macros/s/AKfycbw0QsRE6vmsFPXtQSdsmJsrZxB4fmCPhYAjEp2oFgxv9BZ5rTSD0nTSZXo3IAWbecY/exec';
-const UBIC_ORIGEN = 'ALM9037-04-93-A1';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0QsRE6vmsFPXtQSdsmJsrZxB4fmCPhYAjEp2oFgxv9BZ5rTSD0nTSZXo3IAWbecY/exec';
 
 const OPERADORES = [
-  { id:'G1', nombre:'Francisco Vigueras', color:'#f0a500', clase:'c1', emoji:'🔋' },
-  { id:'G2', nombre:'Diego Nahuelcheo',   color:'#00d4ff', clase:'c2', emoji:'🔋' },
-  { id:'G3', nombre:'Gonzalo Díaz',       color:'#00e676', clase:'c3', emoji:'🔋' },
-  { id:'G4', nombre:'Jorge González',     color:'#ff4444', clase:'c4', emoji:'🔋' },
+  { id:'G1', nombre:'Francisco Vigueras', emoji:'🔋' },
+  { id:'G2', nombre:'Diego Nahuelcheo',   emoji:'🔋' },
+  { id:'G3', nombre:'Gonzalo Díaz',       emoji:'🔋' },
+  { id:'G4', nombre:'Jorge González',     emoji:'🔋' },
 ];
 
-const UBICACIONES_FIJAS = [
-  { code:'ALM9037-01-01-A1', tipo:'D' },
-  { code:'ALM9037-01-01-A2', tipo:'D' },
-  { code:'ALM9037-01-02-A1', tipo:'D' },
-  { code:'ALM9037-02-01-A1', tipo:'S' },
-  { code:'ALM9037-02-01-A2', tipo:'S' },
-  { code:'ALM9037-03-01-B1', tipo:'D' },
-  { code:'ALM9037-03-01-B2', tipo:'D' },
-  { code:'ALM9037-04-01-A1', tipo:'S' },
-  { code:'ALM9037-05-01-C1', tipo:'D' },
-  { code:'ALM9037-06-01-A1', tipo:'S' },
-  { code:'ALM9037-07-01-A1', tipo:'S' },
-];
+let opActual = null;
+let palletActual = null;
 
-// ══════════════════════════════════════════════════════
-//  ESTADO GLOBAL
-// ══════════════════════════════════════════════════════
-let opActual       = null;
-let pallets        = [];        // todos los pallets de hoy
-let palletActual   = null;      // pallet seleccionado/encontrado
-let selUbic        = null;
-let ubicOcupadas   = new Set();
-let selPalletIdx   = 0;
+// Reloj
+setInterval(() => {
+  document.getElementById('clk').textContent = new Date().toLocaleTimeString('es-CL');
+}, 1000);
 
-// Drum state
-const ITEM_H = 64;
-const PAD    = 3;
-let drumY    = 0, drumTarget = 0;
-let dragStartY = 0, dragStartDrumY = 0;
-let isDragging = false, animId = null;
+// Render Operadores
+document.getElementById('gruero-grid').innerHTML = OPERADORES.map(op => `
+  <div class="gruero-btn" onclick="selOperador('${op.id}')">
+    <div style="font-size:30px">${op.emoji}</div>
+    <div class="gruero-name">${op.nombre}</div>
+  </div>
+`).join('');
 
-// ══════════════════════════════════════════════════════
-//  RELOJ
-// ══════════════════════════════════════════════════════
-function tick() {
-  const n = new Date();
-  document.getElementById('clk').textContent   = n.toLocaleTimeString('es-CL');
-  document.getElementById('clk-d').textContent = n.toLocaleDateString('es-CL',
-    {weekday:'short',day:'2-digit',month:'short'});
-}
-tick(); setInterval(tick, 1000);
-
-// ══════════════════════════════════════════════════════
-//  CARGAR PALLETS DE HOY
-// ══════════════════════════════════════════════════════
-async function cargarPallets() {
-  document.getElementById('sync-info').textContent = 'Cargando pallets de hoy...';
-  try {
-    const res  = await fetch(SCRIPT_URL + '?action=getPalletsByFecha');
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    pallets      = data.pallets || [];
-    ubicOcupadas = new Set(data.ubicOcupadas || []);
-    actualizarGrueroGrid();
-    if (opActual) renderDrum();
-    const disp = pallets.filter(p => !p.almacenado).length;
-    document.getElementById('sync-info').textContent =
-      `${pallets.length} pallets hoy · ${disp} disponibles · ${new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})}`;
-  } catch(e) {
-    document.getElementById('sync-info').textContent = 'Sin conexión — verifica el Script URL';
-    // Demo: cargar pallets de prueba
-    pallets = [
-      { id:'1', rowIndex:2, nPallet:'1234.01', sap:'101215', descripcion:'BRIT CARE DOG SALMON 12KG', lote:'RCB250407R22', venc:'07/10/2026', ubicDestino:'ALM9037-07-01-A1', cantidad:'27', almacenado:false, tomado:false },
-      { id:'2', rowIndex:3, nPallet:'1234.02', sap:'101216', descripcion:'BRIT CARE CAT CHICKEN 10KG', lote:'RCA250301K11', venc:'15/08/2026', ubicDestino:'ALM9037-03-01-B1', cantidad:'18', almacenado:false, tomado:false },
-      { id:'3', rowIndex:4, nPallet:'1234.03', sap:'203441', descripcion:'BEWITAL PREVENT C 10KG', lote:'25183', venc:'02/07/2026', ubicDestino:'ALM9037-01-01-A1', cantidad:'26', almacenado:true, tomado:true, usuario:'Francisco Vigueras (G1)' },
-      { id:'4', rowIndex:5, nPallet:'1234.04', sap:'309876', descripcion:'ROYAL CANIN MEDIUM 15KG', lote:'RC2025K', venc:'20/12/2026', ubicDestino:'ALM9037-02-01-A1', cantidad:'12', almacenado:false, tomado:false },
-      { id:'5', rowIndex:6, nPallet:'1234.05', sap:'415023', descripcion:'HILLS SCIENCE DIET 4KG', lote:'HS2501', venc:'01/06/2027', ubicDestino:'ALM9037-05-01-C1', cantidad:'30', almacenado:false, tomado:false },
-    ];
-    actualizarGrueroGrid();
-    if (opActual) renderDrum();
-  }
+function selOperador(id) {
+  opActual = OPERADORES.find(o => o.id === id);
+  document.getElementById('user-name').textContent = opActual.nombre;
+  document.getElementById('fecha-hoy').textContent = new Date().toLocaleDateString('es-CL');
+  showScreen('s-main-screen');
 }
 
-// ══════════════════════════════════════════════════════
-//  GRID GRUEROS
-// ══════════════════════════════════════════════════════
-function actualizarGrueroGrid() {
-  document.getElementById('gruero-grid').innerHTML = OPERADORES.map(op => {
-    const misAlm = pallets.filter(p => p.almacenado && p.usuario?.includes(op.id)).length;
-    return `
-    <div class="gruero-btn ${op.clase}" onclick="selGruero('${op.id}')">
-      <div class="gruero-num">Grúa ${op.id}</div>
-      <div class="gruero-icon">${op.emoji}</div>
-      <div class="gruero-name">${op.nombre.split(' ').slice(0,2).join('<br>')}</div>
-      <div class="gruero-tasks">${misAlm} almacenados</div>
-    </div>`;
-  }).join('');
-}
-
-// ══════════════════════════════════════════════════════
-//  SELECCIONAR GRUERO
-// ══════════════════════════════════════════════════════
-function selGruero(id) {
-  opActual     = OPERADORES.find(o => o.id === id);
-  palletActual = null;
-  selUbic      = null;
-
-  const hoy = new Date().toLocaleDateString('es-CL');
-  document.getElementById('user-name2').textContent = opActual.nombre;
-  document.getElementById('user-dot2').style.cssText =
-    `background:${opActual.color};box-shadow:0 0 10px ${opActual.color}`;
-  document.getElementById('fecha-hoy').textContent = hoy;
-  document.getElementById('input-pallet').value = '';
-  document.getElementById('buscar-error').style.display = 'none';
-  document.getElementById('pallet-detail').style.display = 'none';
-  document.getElementById('detail-label').style.display  = 'none';
-  document.getElementById('ubic-label').style.display    = 'none';
-  document.getElementById('ubic-grid').innerHTML         = '';
-  setBtnStore(false, '📦 Ingresa o selecciona un pallet');
-
-  const disp = pallets.filter(p=>!p.almacenado).length;
-  document.getElementById('pallets-count').textContent =
-    `${disp} disponibles · ${pallets.filter(p=>p.almacenado).length} almacenados`;
-
-  showScreen('s-buscar');
-  renderDrum();
-
-  // Focus en el input
-  setTimeout(() => document.getElementById('input-pallet').focus(), 300);
-}
-
-function logout() {
-  opActual = null; palletActual = null; selUbic = null;
-  showScreen('s-landing');
-}
-
-// ══════════════════════════════════════════════════════
-//  INPUT PALLET — validación en tiempo real
-// ══════════════════════════════════════════════════════
-function onPalletInput(el) {
-  // Solo permitir números y punto
-  el.value = el.value.replace(/[^0-9.]/g, '');
-  document.getElementById('buscar-error').style.display = 'none';
-  el.style.borderColor = el.value ? 'var(--cyan)' : 'var(--border)';
-}
-
-// ══════════════════════════════════════════════════════
-//  BUSCAR PALLET POR NÚMERO
-// ══════════════════════════════════════════════════════
 async function buscarPallet() {
   const num = document.getElementById('input-pallet').value.trim();
-  if (!num) { showError('Ingresa el Nº de pallet (formato xxxx.xx)'); return; }
-
-  // Buscar primero en los pallets ya cargados (sin llamada extra)
-  const local = pallets.find(p =>
-    p.nPallet.toLowerCase() === num.toLowerCase()
-  );
-
-  if (local) {
-    seleccionarPallet(local);
-    return;
-  }
-
-  // Si no está en memoria, buscar en el servidor
-  const btn  = document.getElementById('btn-buscar');
-  const spin = document.getElementById('buscar-spin');
-  const txt  = document.getElementById('buscar-txt');
-  btn.disabled = true;
-  spin.style.display = 'inline-block';
-  txt.textContent = 'Buscando...';
-
+  if (!num) return showToast('Ingresa un número');
+  
+  const btn = document.getElementById('btn-buscar');
+  btn.disabled = true; btn.textContent = 'BUSCANDO...';
+  
   try {
-    const res  = await fetch(`${SCRIPT_URL}?action=getPalletByNum&num=${encodeURIComponent(num)}`);
+    const res = await fetch(`${SCRIPT_URL}?action=getPalletByNum&num=${num}`);
     const data = await res.json();
-
-    if (data.error)       { showError(data.error); }
-    else if (!data.encontrado) { showError(`Nº ${num} no encontrado para hoy`); }
-    else {
-      pallets.push(data.pallet); // agregar a memoria
-      seleccionarPallet(data.pallet);
-      renderDrum();
+    
+    if (data.encontrado) {
+      palletActual = data.pallet;
+      document.getElementById('v-pallet').textContent = palletActual.nPallet;
+      document.getElementById('v-ubic').textContent = palletActual.ubicDestino || 'SIN UBICACIÓN';
+      document.getElementById('v-sap').textContent = palletActual.sap;
+      document.getElementById('v-desc').textContent = palletActual.descripcion;
+      document.getElementById('v-qty').textContent = palletActual.cantidad;
+      
+      document.getElementById('pallet-info').style.display = 'block';
+      document.getElementById('action-btns').style.display = 'grid';
+    } else {
+      showToast(data.msg || 'No encontrado');
     }
   } catch(e) {
-    showError('Error de conexión — verifica la URL del script');
+    showToast('Error de conexión');
   }
-
-  btn.disabled = false;
-  spin.style.display = 'none';
-  txt.textContent = 'Buscar 🔍';
+  btn.disabled = false; btn.textContent = 'BUSCAR 🔍';
 }
 
-function showError(msg) {
-  const el = document.getElementById('buscar-error');
-  el.textContent = '⚠️ ' + msg;
-  el.style.display = 'block';
-  document.getElementById('input-pallet').style.borderColor = 'var(--red)';
-}
-
-// ══════════════════════════════════════════════════════
-//  SELECCIONAR PALLET (desde búsqueda o rueda)
-// ══════════════════════════════════════════════════════
-function seleccionarPallet(p) {
-  palletActual = p;
-  selUbic = null;
-  document.getElementById('buscar-error').style.display = 'none';
-  document.getElementById('input-pallet').style.borderColor = 'var(--cyan)';
-
-  // Mostrar detalle
-  const yaAlm = p.almacenado;
-  document.getElementById('detail-label').style.display = 'block';
-  document.getElementById('pallet-detail').style.display = 'block';
-  document.getElementById('pallet-detail').innerHTML = `
-    <div class="pd-row"><span class="pd-k">Nº Pallet</span><span class="pd-v hl">${p.nPallet}</span></div>
-    <div class="pd-row"><span class="pd-k">SAP</span><span class="pd-v hl">${p.sap}</span></div>
-    <div class="pd-row"><span class="pd-k">Descripción</span><span class="pd-v">${p.descripcion||'—'}</span></div>
-    <div class="pd-row"><span class="pd-k">Cantidad</span><span class="pd-v gold">${p.cantidad||'—'}</span></div>
-    <div class="pd-row"><span class="pd-k">Lote</span><span class="pd-v">${p.lote||'—'}</span></div>
-    <div class="pd-row"><span class="pd-k">Vencimiento</span><span class="pd-v">${p.venc||'—'}</span></div>
-    <div class="pd-row"><span class="pd-k">Ubic. Origen</span><span class="pd-v" style="color:var(--orange)">${UBIC_ORIGEN}</span></div>
-    <div class="pd-row"><span class="pd-k">Ubic. Destino</span><span class="pd-v" style="color:var(--green)">${p.ubicDestino||'—'}</span></div>
-    ${yaAlm ? `<div class="pd-row"><span class="pd-k">Estado</span><span class="pd-v" style="color:var(--red)">✅ Ya almacenado por ${p.usuario||'otro operador'}</span></div>` : ''}
-  `;
-
-  if (yaAlm) {
-    document.getElementById('ubic-label').style.display = 'none';
-    document.getElementById('ubic-grid').innerHTML = '';
-    setBtnStore(false, '⛔ Este pallet ya fue almacenado');
-    return;
-  }
-
-  // Si el pallet ya tiene ubicación destino definida en col J, preseleccionarla
-  if (p.ubicDestino) {
-    selUbic = p.ubicDestino;
-  }
-
-  document.getElementById('ubic-label').style.display = 'block';
-  renderUbicaciones();
-  checkReady();
-
-  // Sync rueda al pallet encontrado
-  const idx = pallets.findIndex(pp => pp.nPallet === p.nPallet);
-  if (idx >= 0) {
-    selPalletIdx = idx;
-    setDrumIndex(idx, true);
-  }
-}
-
-// ══════════════════════════════════════════════════════
-//  DRUM PICKER
-// ══════════════════════════════════════════════════════
-function renderDrum() {
-  const track = document.getElementById('drum-track');
-  if (!pallets.length) {
-    track.innerHTML = `<div style="text-align:center;padding:40px;color:var(--txt3);">
-      <div style="font-size:32px;margin-bottom:8px;">📋</div>
-      <div style="font-size:12px;">Sin pallets para hoy</div></div>`;
-    return;
-  }
-
-  track.innerHTML = pallets.map((p, i) => `
-    <div class="drum-item ${p.almacenado?'taken':''}" id="di-${i}" onclick="setDrumIndex(${i},true)">
-      <div class="di-content">
-        <div class="di-index">#${i+1}</div>
-        <div class="di-body">
-          <div class="di-sap">${p.nPallet}</div>
-          <div class="di-desc">${p.descripcion}</div>
-        </div>
-        ${p.almacenado ? 
-          `<div class="di-taken-tag">OK</div>` : 
-          `<div class="di-qty">${p.cantidad}</div>`
-        }
-      </div>
-    </div>
-  `).join('');
-
-  setDrumIndex(selPalletIdx, false);
-}
-
-function setDrumIndex(idx, triggerSelect) {
-  if (idx < 0) idx = 0;
-  if (idx >= pallets.length) idx = pallets.length - 1;
-  selPalletIdx = idx;
-
-  const containerH = 280;
-  const offset = (containerH / 2) - (ITEM_H / 2);
-  drumTarget = -idx * ITEM_H + offset;
+async function registrar(estado) {
+  if (!palletActual || !opActual) return;
   
-  updateDrumPos();
-
-  // Clases
-  document.querySelectorAll('.drum-item').forEach((el, i) => {
-    el.classList.toggle('selected', i === idx);
-  });
-
-  if (triggerSelect) seleccionarPallet(pallets[idx]);
-}
-
-function updateDrumPos() {
-  const track = document.getElementById('drum-track');
-  track.style.transform = `translateY(${drumTarget}px)`;
-}
-
-// ══════════════════════════════════════════════════════
-//  UBICACIONES
-// ══════════════════════════════════════════════════════
-function renderUbicaciones() {
-  const grid = document.getElementById('ubic-grid');
-  
-  // Si el pallet tiene una ubicación destino específica que no está en las fijas, agregarla
-  let lista = [...UBICACIONES_FIJAS];
-  if (palletActual.ubicDestino && !lista.find(u => u.code === palletActual.ubicDestino)) {
-    lista.unshift({ code: palletActual.ubicDestino, tipo: 'S' });
-  }
-
-  grid.innerHTML = lista.map(u => {
-    const ocupada = ubicOcupadas.has(u.code);
-    const sel     = selUbic === u.code;
-    return `
-      <div class="ubic-btn ${ocupada?'ocupada':''} ${sel?'sel':''}" 
-           onclick="${ocupada?'':'selUbicacion(\''+u.code+'\')'}">
-        <span class="ub-code">${u.code}</span>
-        <span class="ub-tipo">${u.tipo==='D'?'Doble Prof.':'Simple'}</span>
-      </div>
-    `;
-  }).join('');
-}
-
-function selUbicacion(code) {
-  selUbic = code;
-  renderUbicaciones();
-  checkReady();
-}
-
-// ══════════════════════════════════════════════════════
-//  ACCIONES
-// ══════════════════════════════════════════════════════
-function checkReady() {
-  if (palletActual && selUbic && !palletActual.almacenado) {
-    setBtnStore(true, `📦 ALMACENAR EN ${selUbic}`);
-  } else {
-    setBtnStore(false, '📦 Ingresa o selecciona un pallet');
-  }
-}
-
-function setBtnStore(ready, txt) {
-  const btn = document.getElementById('btn-store');
-  btn.disabled = !ready;
-  btn.className = 'btn-store ' + (ready ? 'ready' : 'not-ready');
-  btn.textContent = txt;
-}
-
-async function almacenar() {
-  if (!palletActual || !selUbic || !opActual) return;
-
-  const btn = document.getElementById('btn-store');
-  btn.disabled = true;
-  btn.textContent = '⏳ REGISTRANDO...';
-
+  showToast(`Registrando ${estado}...`);
   const payload = {
-    action: 'almacenar',
     rowIndex: palletActual.rowIndex,
-    nPallet: palletActual.nPallet,
-    ubicDestino: selUbic,
+    estado: estado,
     grueroId: opActual.id,
     grueroNombre: opActual.nombre,
     fecha: new Date().toLocaleDateString('es-CL'),
@@ -818,46 +177,27 @@ async function almacenar() {
   };
 
   try {
-    const res = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
+    const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
     const data = await res.json();
-
-    if (data.error) {
-      showToast('❌ Error: ' + data.error);
-      checkReady();
+    if (data.ok) {
+      showToast('✅ REGISTRADO CON ÉXITO');
+      reset();
     } else {
-      mostrarExito(payload);
-      cargarPallets(); // recargar fondo
+      showToast('❌ ERROR AL GRABAR');
     }
   } catch(e) {
-    showToast('❌ Error de conexión');
-    checkReady();
+    showToast('❌ ERROR DE RED');
   }
 }
 
-function mostrarExito(p) {
-  document.getElementById('succ-card').innerHTML = `
-    <div class="pd-row"><span class="pd-k">Pallet</span><span class="pd-v hl">${p.nPallet}</span></div>
-    <div class="pd-row"><span class="pd-k">Ubicación</span><span class="pd-v" style="color:var(--green)">${p.ubicDestino}</span></div>
-    <div class="pd-row"><span class="pd-k">Operador</span><span class="pd-v">${p.grueroNombre}</span></div>
-    <div class="pd-row"><span class="pd-k">Hora</span><span class="pd-v">${p.hora}</span></div>
-  `;
-  showScreen('s-success');
-}
-
-function siguientePallet() {
+function reset() {
   palletActual = null;
-  selUbic = null;
   document.getElementById('input-pallet').value = '';
-  showScreen('s-buscar');
-  setTimeout(() => document.getElementById('input-pallet').focus(), 300);
+  document.getElementById('pallet-info').style.display = 'none';
+  document.getElementById('action-btns').style.display = 'none';
+  document.getElementById('input-pallet').focus();
 }
 
-// ══════════════════════════════════════════════════════
-//  UTILIDADES
-// ══════════════════════════════════════════════════════
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
   document.getElementById(id).classList.add('on');
@@ -865,15 +205,9 @@ function showScreen(id) {
 
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('on');
+  t.textContent = msg; t.classList.add('on');
   setTimeout(() => t.classList.remove('on'), 3000);
 }
-
-// Init
-cargarPallets();
-setInterval(cargarPallets, 60000); // auto-sync cada 1 min
-
 </script>
 </body>
 </html>
