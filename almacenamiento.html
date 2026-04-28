@@ -224,21 +224,24 @@ inputPallet.addEventListener('input', () => {
     return;
   }
 
-  // Si el formato ya coincide exactamente → buscar de inmediato (scanner)
-  // Formato esperado: dígitos con punto opcional, e.g. 1234.56 o 123456
-  const formatoCompleto = /^\d{3,6}(\.\d{1,2})?$/.test(val);
+  // Búsqueda INMEDIATA solo si tiene el formato completo con punto: XXXX.XX
+  // Ej: 1864.31 → dispara al instante (scanner de código de barras)
+  const formatoScanner = /^\d{3,6}\.\d{2}$/.test(val);
 
-  if (formatoCompleto) {
-    clearDebounce();
+  // Tipeo manual sin punto → esperar 1500ms para que termine de escribir
+  clearDebounce();
+  setHint('Escribiendo...', 'active');
+  setStatusIcon('⌨️');
+
+  if (formatoScanner) {
+    // Formato completo con punto → buscar de inmediato
     buscarPallet(val);
   } else {
-    // Tipeo manual → esperar 600 ms sin actividad
-    clearDebounce();
-    setHint('Escribiendo...', 'active');
-    setStatusIcon('⌨️');
+    // Sin punto o incompleto → debounce largo (1500ms)
     debounceTimer = setTimeout(() => {
-      if (inputPallet.value.trim()) buscarPallet(inputPallet.value.trim());
-    }, 600);
+      const v = inputPallet.value.trim();
+      if (v) buscarPallet(v);
+    }, 1500);
   }
 });
 
