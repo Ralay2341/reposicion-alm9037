@@ -266,97 +266,77 @@ body::before{
 .ubic-btn:active{transform:scale(.97);}
 .ubic-btn.sel{border-color:var(--cyan);background:rgba(0,212,255,.08);
   box-shadow:0 0 12px rgba(0,212,255,.15);}
-.ubic-btn.ocupada{border-color:rgba(255,68,68,.3);background:rgba(255,68,68,.05);cursor:not-allowed;}
-.ubic-code{font-family:'Share Tech Mono',monospace;font-size:12px;
-  color:var(--cyan);letter-spacing:.5px;line-height:1.2;}
-.ubic-btn.ocupada .ubic-code{color:var(--txt3);}
-.ubic-type{font-size:9px;color:var(--txt3);text-transform:uppercase;
-  letter-spacing:.5px;margin-top:3px;}
-.ubic-badge{font-size:9px;font-weight:700;color:var(--red);
-  text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+.ubic-btn.ocupada{border-color:rgba(255,68,68,.3);opacity:.4;cursor:not-allowed;}
+.ub-code{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--txt);display:block;}
+.ub-tipo{font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;}
 
-/* BOTÓN ALMACENAR */
+/* BOTONES */
 .btn-store{
-  width:100%;padding:18px;border-radius:14px;border:none;
-  font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:800;
+  width:100%;padding:16px;border-radius:12px;border:none;
+  font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
   text-transform:uppercase;letter-spacing:2px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  transition:all .2s;position:relative;overflow:hidden;
+  transition:all .2s;margin-bottom:10px;
 }
-.btn-store::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.1) 50%,transparent 100%);
-  transform:translateX(-100%);transition:transform .4s;
-}
-.btn-store:not(:disabled):hover::before{transform:translateX(100%);}
-.btn-store:not(:disabled):active{transform:scale(.98);}
-.btn-store:disabled{opacity:.3;cursor:not-allowed;}
-.btn-store.ready{
-  background:linear-gradient(135deg,#00e676,#00b248);color:#001a0a;
-  box-shadow:0 4px 24px rgba(0,230,118,.3);
-}
-.btn-store.not-ready{background:var(--card2);color:var(--txt3);}
+.btn-store.not-ready{background:var(--border);color:var(--txt3);cursor:not-allowed;}
+.btn-store.ready{background:var(--g3);color:#fff;box-shadow:0 4px 15px rgba(0,230,118,.3);}
+.btn-store:active:not(:disabled){transform:scale(.98);}
 
-/* BOTÓN VOLVER */
 .btn-back{
-  width:100%;padding:13px;border-radius:10px;
-  background:transparent;border:1px solid var(--border);
-  font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;
-  color:var(--txt2);letter-spacing:1px;text-transform:uppercase;
-  cursor:pointer;margin-top:8px;
+  width:100%;background:transparent;border:1px solid var(--border);
+  color:var(--txt2);padding:12px;border-radius:10px;font-size:12px;
+  cursor:pointer;font-family:'Exo 2',sans-serif;
 }
 
 /* ═══════════════════════════════════════════
-   SUCCESS
+   BUSCAR PALLET
 ═══════════════════════════════════════════ */
-#s-success{
-  align-items:center;justify-content:center;
-  background:radial-gradient(ellipse at 50% 40%,rgba(0,230,118,.08) 0%,transparent 60%);
+.search-box{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:14px;margin-bottom:12px;
 }
-.succ-wrap{text-align:center;padding:24px 20px;width:100%;max-width:400px;}
-.succ-ico{font-size:72px;animation:pop .4s cubic-bezier(.34,1.56,.64,1);margin-bottom:12px;}
-@keyframes pop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
-.succ-title{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:800;
-  color:var(--green);letter-spacing:2px;text-transform:uppercase;
-  text-shadow:0 0 30px rgba(0,230,118,.5);margin-bottom:6px;}
-.succ-sub{font-size:13px;color:var(--txt2);margin-bottom:20px;}
-.succ-card{
-  background:var(--card);border:1px solid rgba(0,230,118,.2);
-  border-radius:14px;padding:14px;text-align:left;margin-bottom:20px;
+.search-input-wrap{position:relative;margin-bottom:10px;}
+.search-input{
+  width:100%;background:var(--bg);border:2px solid var(--border);
+  border-radius:10px;padding:12px 14px;color:var(--txt);
+  font-family:'Share Tech Mono',monospace;font-size:18px;
+  outline:none;transition:border-color .2s;
 }
-.succ-row{display:flex;justify-content:space-between;padding:8px 0;
-  border-bottom:1px solid var(--border);font-size:13px;}
-.succ-row:last-child{border-bottom:none;}
-.succ-k{font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;}
-.succ-v{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--txt);}
-.succ-v.green{color:var(--green);}
+.search-input:focus{border-color:var(--gold);}
+.btn-search{
+  width:100%;background:var(--g2);color:#fff;border:none;
+  padding:12px;border-radius:10px;font-weight:700;cursor:pointer;
+  font-family:'Rajdhani',sans-serif;letter-spacing:1px;
+}
+.search-error{color:var(--red);font-size:11px;margin-top:6px;display:none;}
 
-/* SPINNER */
-.spin{display:inline-block;width:22px;height:22px;
-  border:3px solid rgba(0,26,10,.3);border-top-color:#001a0a;
-  border-radius:50%;animation:sp .6s linear infinite;}
-@keyframes sp{to{transform:rotate(360deg)}}
+/* ═══════════════════════════════════════════
+   SUCCESS SCREEN
+═══════════════════════════════════════════ */
+#s-success{align-items:center;justify-content:center;background:var(--bg);}
+.succ-wrap{width:100%;max-width:400px;padding:30px;text-align:center;}
+.succ-ico{font-size:60px;margin-bottom:10px;animation:pop .5s cubic-bezier(.17,.67,.83,.67);}
+@keyframes pop{0%{transform:scale(0);}80%{transform:scale(1.2);}100%{transform:scale(1);}}
+.succ-title{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--green);margin-bottom:4px;}
+.succ-sub{font-size:13px;color:var(--txt2);margin-bottom:20px;}
+.succ-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:24px;text-align:left;}
 
 /* TOAST */
 .toast{
-  position:fixed;bottom:20px;left:50%;
-  transform:translateX(-50%) translateY(80px);
-  background:var(--card2);border:1px solid var(--border);
-  color:var(--txt2);padding:10px 20px;border-radius:8px;
-  font-size:13px;font-weight:600;z-index:999;
-  transition:transform .3s;white-space:nowrap;
+  position:fixed;bottom:20px;left:20px;right:20px;z-index:1000;
+  background:rgba(0,0,0,.9);border:1px solid var(--border);
+  padding:12px 16px;border-radius:10px;font-size:12px;
+  transform:translateY(100px);transition:transform .3s;
 }
-.toast.show{transform:translateX(-50%) translateY(0);}
-.toast.err{border-color:var(--red);color:var(--red);}
-.toast.ok{border-color:var(--green);color:var(--green);}
+.toast.on{transform:translateY(0);}
 
-/* EMPTY */
-.empty-state{text-align:center;padding:40px 20px;color:var(--txt3);}
-.empty-state .ei{font-size:40px;margin-bottom:10px;}
+/* SPINNER */
+.spinner{
+  display:none;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;
+  margin-right:8px;vertical-align:middle;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-/* LOADING PULSE */
-.pulse{animation:pulse 1.5s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 </style>
 </head>
 <body>
@@ -364,89 +344,72 @@ body::before{
 <!-- HEADER -->
 <div class="hdr">
   <div>
-    <div class="hdr-logo">⚡ ALM9037</div>
+    <div class="hdr-logo">ALM9037</div>
     <div class="hdr-sub">SISTEMA DE ALMACENAMIENTO</div>
   </div>
   <div class="hdr-right">
-    <div class="hdr-clock" id="clk">--:--:--</div>
-    <div class="hdr-date" id="clk-d">--</div>
+    <div class="hdr-clock" id="clk">00:00:00</div>
+    <div class="hdr-date" id="clk-d">---, 00 ---</div>
   </div>
 </div>
 
-<!-- ══ LANDING: SELECCIONAR GRUERO ══ -->
+<!-- ══ LANDING ══ -->
 <div class="screen on" id="s-landing">
   <div class="landing-wrap">
-    <div class="landing-title">🏗️ Almacenamiento</div>
-    <div class="landing-sub">SELECCIONA TU GRÚA PARA COMENZAR</div>
-    <div class="gruero-grid" id="gruero-grid"></div>
+    <div class="landing-title">Bienvenido</div>
+    <div class="landing-sub">SELECCIONA TU UNIDAD DE GRÚA</div>
+    
+    <div class="gruero-grid" id="gruero-grid">
+      <!-- JS render -->
+    </div>
+
     <div class="sync-bar">
       <div class="sync-dot"></div>
-      <span id="sync-info">Conectando con Google Sheets...</span>
+      <div id="sync-info">Sincronizando con Google Drive...</div>
     </div>
   </div>
 </div>
 
-<!-- ══ BUSCAR PALLET ══ -->
+<!-- ══ BUSCAR / OPERAR ══ -->
 <div class="screen" id="s-buscar">
-  <div style="padding:0 0 12px;">
-    <div class="user-bar" id="user-bar2">
+  <div id="s-main">
+    <div class="user-bar">
       <div class="user-color-dot" id="user-dot2"></div>
       <div>
-        <div class="name" id="user-name2">--</div>
-        <div class="role">OPERADOR DE GRÚA · <span id="fecha-hoy" style="color:var(--cyan)"></span></div>
+        <div class="name" id="user-name2">---</div>
+        <div class="role">Operador de Grúa · <span id="fecha-hoy">--/--/----</span></div>
       </div>
-      <button class="btn-logout" onclick="logout()">← Cambiar</button>
+      <button class="btn-logout" onclick="logout()">SALIR</button>
     </div>
 
-    <!-- INPUT Nº PALLET -->
-    <div class="sec-label" style="margin-top:4px;">Ingresa el Nº de Pallet</div>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;
-      padding:14px;margin-bottom:12px;">
-      <div style="font-size:11px;color:var(--txt2);margin-bottom:8px;letter-spacing:.5px;">
-        FORMATO: <span style="color:var(--cyan);font-family:'Share Tech Mono',monospace;">xxxx.xx</span>
-        — Columna L de la hoja DRIVE
+    <!-- BUSCADOR -->
+    <div class="sec-label">Buscar Pallet</div>
+    <div class="search-box">
+      <div class="search-input-wrap">
+        <input type="text" class="search-input" id="input-pallet" 
+               placeholder="Nº PALLET (xxxx.xx)" inputmode="decimal"
+               oninput="onPalletInput(this)">
       </div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <input type="text" id="input-pallet"
-          placeholder="Ej: 1234.56"
-          maxlength="10"
-          style="flex:1;background:var(--card2);border:2px solid var(--border);
-          border-radius:10px;color:var(--txt);font-family:'Share Tech Mono',monospace;
-          font-size:22px;padding:12px 16px;outline:none;letter-spacing:2px;
-          transition:border-color .2s;"
-          oninput="onPalletInput(this)"
-          onkeydown="if(event.key==='Enter') buscarPallet()"
-        >
-        <button onclick="buscarPallet()" id="btn-buscar"
-          style="background:var(--gold);color:#040900;border:none;border-radius:10px;
-          padding:13px 18px;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:800;
-          letter-spacing:1px;text-transform:uppercase;cursor:pointer;
-          display:flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap;">
-          <span id="buscar-spin" style="display:none;width:18px;height:18px;border:2px solid rgba(0,0,0,.2);
-            border-top-color:#040900;border-radius:50%;animation:sp .6s linear infinite;"></span>
-          <span id="buscar-txt">Buscar 🔍</span>
-        </button>
-      </div>
-      <div id="buscar-error" style="display:none;margin-top:8px;font-size:12px;
-        color:var(--red);padding:6px 10px;background:rgba(255,68,68,.08);
-        border-radius:6px;border:1px solid rgba(255,68,68,.2);"></div>
+      <button class="btn-search" id="btn-buscar" onclick="buscarPallet()">
+        <span class="spinner" id="buscar-spin"></span>
+        <span id="buscar-txt">BUSCAR 🔍</span>
+      </button>
+      <div class="search-error" id="buscar-error"></div>
     </div>
 
-    <!-- RUEDA con pallets de hoy -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div class="sec-label" style="margin-bottom:0;">Pallets de hoy</div>
-      <span id="pallets-count" style="font-size:11px;color:var(--txt3);"></span>
+    <!-- RUEDA DE PALLETS -->
+    <div class="sec-label">Pallets del día</div>
+    <div class="prog-section">
+      <div class="prog-info">
+        <span id="pallets-count">Cargando...</span>
+      </div>
     </div>
-    <div class="drum-container" id="drum"
-      ontouchstart="drumTouchStart(event)"
-      ontouchmove="drumTouchMove(event)"
-      ontouchend="drumTouchEnd(event)"
-      onmousedown="drumMouseStart(event)">
+
+    <div class="drum-container" id="drum-container">
       <div class="drum-selector"></div>
-      <div class="drum-track" id="drum-track"></div>
-    </div>
-    <div style="font-size:10px;color:var(--txt3);text-align:center;margin-top:4px;margin-bottom:12px;">
-      ↕️ Desliza para navegar · También puedes escribir el número arriba
+      <div class="drum-track" id="drum-track">
+        <!-- JS render -->
+      </div>
     </div>
 
     <!-- DETALLE PALLET BUSCADO/SELECCIONADO -->
@@ -485,7 +448,7 @@ body::before{
 // ══════════════════════════════════════════════════════
 //  ⚙️  CONFIGURACIÓN
 // ══════════════════════════════════════════════════════
-const SCRIPT_URL  = 'https://script.google.com/macros/s/TU_SCRIPT_ID/exec';
+const SCRIPT_URL  = 'https://script.google.com/macros/s/AKfycbw0QsRE6vmsFPXtQSdsmJsrZxB4fmCPhYAjEp2oFgxv9BZ5rTSD0nTSZXo3IAWbecY/exec';
 const UBIC_ORIGEN = 'ALM9037-04-93-A1';
 
 const OPERADORES = [
@@ -744,99 +707,47 @@ function renderDrum() {
     return;
   }
 
-  const padded = [...Array(PAD).fill(null), ...pallets, ...Array(PAD).fill(null)];
-  track.innerHTML = padded.map((p, i) => {
-    if (!p) return `<div style="height:${ITEM_H}px;"></div>`;
-    const realIdx = i - PAD;
-    const isSel   = realIdx === selPalletIdx;
-    const isAlm   = p.almacenado;
-    return `
-    <div class="drum-item ${isAlm?'taken':''} ${isSel?'selected':''}"
-      data-idx="${realIdx}" onclick="drumClick(${realIdx})">
+  track.innerHTML = pallets.map((p, i) => `
+    <div class="drum-item ${p.almacenado?'taken':''}" id="di-${i}" onclick="setDrumIndex(${i},true)">
       <div class="di-content">
-        <span class="di-index">${(realIdx+1).toString().padStart(2,'0')}</span>
+        <div class="di-index">#${i+1}</div>
         <div class="di-body">
-          <div class="di-sap">${p.nPallet} <span style="font-size:11px;color:var(--txt3);">${p.sap}</span></div>
-          <div class="di-desc">${p.descripcion||'—'}</div>
+          <div class="di-sap">${p.nPallet}</div>
+          <div class="di-desc">${p.descripcion}</div>
         </div>
-        <span class="di-qty">${p.cantidad||''}</span>
-        ${isAlm ? `<div class="di-taken-tag">✅</div>` : ''}
+        ${p.almacenado ? 
+          `<div class="di-taken-tag">OK</div>` : 
+          `<div class="di-qty">${p.cantidad}</div>`
+        }
       </div>
-    </div>`;
-  }).join('');
+    </div>
+  `).join('');
 
   setDrumIndex(selPalletIdx, false);
 }
 
-function drumClick(idx) {
-  if (idx < 0 || idx >= pallets.length) return;
+function setDrumIndex(idx, triggerSelect) {
+  if (idx < 0) idx = 0;
+  if (idx >= pallets.length) idx = pallets.length - 1;
   selPalletIdx = idx;
-  setDrumIndex(idx, true);
-  const p = pallets[idx];
-  document.getElementById('input-pallet').value = p.nPallet;
-  document.getElementById('input-pallet').style.borderColor = 'var(--cyan)';
-  seleccionarPallet(p);
-}
 
-function setDrumIndex(idx, animate) {
-  idx = Math.max(0, Math.min(idx, pallets.length - 1));
-  selPalletIdx = idx;
-  drumTarget   = -idx * ITEM_H;
-  if (animate) animateDrum(); else { drumY = drumTarget; applyDrumY(); }
-  updateSelectedClass();
-}
+  const containerH = 280;
+  const offset = (containerH / 2) - (ITEM_H / 2);
+  drumTarget = -idx * ITEM_H + offset;
+  
+  updateDrumPos();
 
-function applyDrumY() {
-  const cont   = document.getElementById('drum');
-  const centerY = (cont.offsetHeight / 2) - (ITEM_H / 2);
-  document.getElementById('drum-track').style.transform =
-    `translateY(${drumY + centerY}px)`;
-  updateSelectedClass();
-}
-
-function animateDrum() {
-  if (animId) cancelAnimationFrame(animId);
-  function step() {
-    const d = drumTarget - drumY;
-    if (Math.abs(d) < 0.5) { drumY = drumTarget; applyDrumY(); return; }
-    drumY += d * 0.2;
-    applyDrumY();
-    animId = requestAnimationFrame(step);
-  }
-  animId = requestAnimationFrame(step);
-}
-
-function updateSelectedClass() {
+  // Clases
   document.querySelectorAll('.drum-item').forEach((el, i) => {
-    el.classList.toggle('selected', i - PAD === selPalletIdx);
+    el.classList.toggle('selected', i === idx);
   });
+
+  if (triggerSelect) seleccionarPallet(pallets[idx]);
 }
 
-// Touch/mouse
-function drumTouchStart(e) { dragStart(e.touches[0].clientY); }
-function drumTouchMove(e)  { e.preventDefault(); dragMove(e.touches[0].clientY); }
-function drumTouchEnd()    { dragEnd(); }
-function drumMouseStart(e) {
-  dragStart(e.clientY);
-  const mv = e2 => dragMove(e2.clientY);
-  const up = ()  => { dragEnd(); document.removeEventListener('mousemove',mv); document.removeEventListener('mouseup',up); };
-  document.addEventListener('mousemove', mv);
-  document.addEventListener('mouseup', up);
-}
-function dragStart(y) { isDragging=true; dragStartY=y; dragStartDrumY=drumY; if(animId) cancelAnimationFrame(animId); }
-function dragMove(y) {
-  if (!isDragging) return;
-  const minY = -(pallets.length - 1) * ITEM_H;
-  drumY = Math.max(minY, Math.min(0, dragStartDrumY + (y - dragStartY)));
-  applyDrumY();
-  selPalletIdx = Math.round(-drumY / ITEM_H);
-  selPalletIdx = Math.max(0, Math.min(selPalletIdx, pallets.length-1));
-}
-function dragEnd() {
-  if (!isDragging) return;
-  isDragging = false;
-  selPalletIdx = Math.max(0, Math.min(Math.round(-drumY/ITEM_H), pallets.length-1));
-  setDrumIndex(selPalletIdx, true);
+function updateDrumPos() {
+  const track = document.getElementById('drum-track');
+  track.style.transform = `translateY(${drumTarget}px)`;
 }
 
 // ══════════════════════════════════════════════════════
@@ -844,26 +755,23 @@ function dragEnd() {
 // ══════════════════════════════════════════════════════
 function renderUbicaciones() {
   const grid = document.getElementById('ubic-grid');
-
-  // Combinar ubicación del pallet (col J) + fijas
-  let ubicaciones = [...UBICACIONES_FIJAS];
-  if (palletActual?.ubicDestino) {
-    const yaEsta = ubicaciones.find(u => u.code === palletActual.ubicDestino);
-    if (!yaEsta) ubicaciones.unshift({ code: palletActual.ubicDestino, tipo:'D', sugerida:true });
-    else yaEsta.sugerida = true;
+  
+  // Si el pallet tiene una ubicación destino específica que no está en las fijas, agregarla
+  let lista = [...UBICACIONES_FIJAS];
+  if (palletActual.ubicDestino && !lista.find(u => u.code === palletActual.ubicDestino)) {
+    lista.unshift({ code: palletActual.ubicDestino, tipo: 'S' });
   }
 
-  grid.innerHTML = ubicaciones.map(u => {
-    const ocup = ubicOcupadas.has(u.code) && u.code !== selUbic;
-    const isSel = selUbic === u.code;
+  grid.innerHTML = lista.map(u => {
+    const ocupada = ubicOcupadas.has(u.code);
+    const sel     = selUbic === u.code;
     return `
-    <div class="ubic-btn ${isSel?'sel':''} ${ocup?'ocupada':''}"
-      onclick="${ocup?'':` selUbicacion('${u.code}')`}">
-      <div class="ubic-code">${u.code}</div>
-      <div class="ubic-type">${u.tipo==='D'?'⬛⬛ Doble':'⬜ Simple'}${u.sugerida?' ⭐':''}</div>
-      ${ocup ? `<div class="ubic-badge">Ocupada</div>` : ''}
-      ${u.sugerida && !ocup ? `<div style="font-size:9px;color:var(--cyan);letter-spacing:.5px;">SUGERIDA</div>` : ''}
-    </div>`;
+      <div class="ubic-btn ${ocupada?'ocupada':''} ${sel?'sel':''}" 
+           onclick="${ocupada?'':'selUbicacion(\''+u.code+'\')'}">
+        <span class="ub-code">${u.code}</span>
+        <span class="ub-tipo">${u.tipo==='D'?'Doble Prof.':'Simple'}</span>
+      </div>
+    `;
   }).join('');
 }
 
@@ -874,132 +782,98 @@ function selUbicacion(code) {
 }
 
 // ══════════════════════════════════════════════════════
-//  CHECK LISTO
+//  ACCIONES
 // ══════════════════════════════════════════════════════
 function checkReady() {
-  if (!palletActual)         { setBtnStore(false, '📦 Ingresa o selecciona un pallet'); return; }
-  if (palletActual.almacenado) { setBtnStore(false, '⛔ Pallet ya almacenado'); return; }
-  if (!selUbic)              { setBtnStore(false, '📍 Selecciona ubicación destino'); return; }
-  setBtnStore(true, `✅ ALMACENAR EN ${selUbic}`);
+  if (palletActual && selUbic && !palletActual.almacenado) {
+    setBtnStore(true, `📦 ALMACENAR EN ${selUbic}`);
+  } else {
+    setBtnStore(false, '📦 Ingresa o selecciona un pallet');
+  }
 }
 
 function setBtnStore(ready, txt) {
   const btn = document.getElementById('btn-store');
-  btn.disabled  = !ready;
-  btn.className = `btn-store ${ready?'ready':'not-ready'}`;
-  btn.innerHTML = ready
-    ? `<span id="store-spin" style="display:none;width:20px;height:20px;border:2px solid rgba(0,0,0,.2);border-top-color:#001a0a;border-radius:50%;animation:sp .6s linear infinite;"></span><span id="store-txt">${txt}</span>`
-    : txt;
+  btn.disabled = !ready;
+  btn.className = 'btn-store ' + (ready ? 'ready' : 'not-ready');
+  btn.textContent = txt;
 }
 
-// ══════════════════════════════════════════════════════
-//  ALMACENAR
-// ══════════════════════════════════════════════════════
 async function almacenar() {
-  if (!palletActual || !selUbic) return;
+  if (!palletActual || !selUbic || !opActual) return;
+
   const btn = document.getElementById('btn-store');
   btn.disabled = true;
-  const spinEl = document.getElementById('store-spin');
-  const txtEl  = document.getElementById('store-txt');
-  if (spinEl) spinEl.style.display = 'inline-block';
-  if (txtEl)  txtEl.textContent    = 'Registrando...';
-
-  const now   = new Date();
-  const fecha = now.toLocaleDateString('es-CL');
-  const hora  = now.toLocaleTimeString('es-CL');
+  btn.textContent = '⏳ REGISTRANDO...';
 
   const payload = {
-    action:       'almacenar',
-    rowIndex:     palletActual.rowIndex,
-    nPallet:      palletActual.nPallet,
-    sap:          palletActual.sap,
-    descripcion:  palletActual.descripcion,
-    cantidad:     palletActual.cantidad,
-    lote:         palletActual.lote,
-    venc:         palletActual.venc,
-    ubicOrigen:   UBIC_ORIGEN,
-    ubicDestino:  selUbic,
-    grueroId:     opActual.id,
+    action: 'almacenar',
+    rowIndex: palletActual.rowIndex,
+    nPallet: palletActual.nPallet,
+    ubicDestino: selUbic,
+    grueroId: opActual.id,
     grueroNombre: opActual.nombre,
-    fecha,
-    hora
+    fecha: new Date().toLocaleDateString('es-CL'),
+    hora: new Date().toLocaleTimeString('es-CL')
   };
 
   try {
-    await fetch(SCRIPT_URL, {
-      method:'POST', mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
       body: JSON.stringify(payload)
     });
-  } catch(_) {}
+    const data = await res.json();
 
-  // Actualizar local
-  palletActual.almacenado = true;
-  palletActual.tomado     = true;
-  palletActual.usuario    = opActual.nombre + ' (' + opActual.id + ')';
-  ubicOcupadas.add(selUbic);
-  renderDrum();
-
-  btn.disabled = false;
-  if (spinEl) spinEl.style.display = 'none';
-
-  showSuccess({ pallet: palletActual, fecha, hora });
+    if (data.error) {
+      showToast('❌ Error: ' + data.error);
+      checkReady();
+    } else {
+      mostrarExito(payload);
+      cargarPallets(); // recargar fondo
+    }
+  } catch(e) {
+    showToast('❌ Error de conexión');
+    checkReady();
+  }
 }
 
-function showSuccess(d) {
-  const { pallet, fecha, hora } = d;
-  document.getElementById('succ-sub').textContent = `${fecha} — ${hora}`;
+function mostrarExito(p) {
   document.getElementById('succ-card').innerHTML = `
-    <div class="succ-row"><span class="succ-k">Operador</span><span class="succ-v">${opActual.nombre}</span></div>
-    <div class="succ-row"><span class="succ-k">Nº Pallet</span><span class="succ-v">${pallet.nPallet}</span></div>
-    <div class="succ-row"><span class="succ-k">SAP</span><span class="succ-v">${pallet.sap}</span></div>
-    <div class="succ-row"><span class="succ-k">Descripción</span><span class="succ-v">${pallet.descripcion}</span></div>
-    <div class="succ-row"><span class="succ-k">Cantidad</span><span class="succ-v">${pallet.cantidad}</span></div>
-    <div class="succ-row"><span class="succ-k">Ubic. Origen</span><span class="succ-v" style="color:var(--orange)">${UBIC_ORIGEN}</span></div>
-    <div class="succ-row"><span class="succ-k">Ubic. Destino</span><span class="succ-v green">${selUbic}</span></div>
-    <div class="succ-row"><span class="succ-k">Hora</span><span class="succ-v green">${hora}</span></div>
+    <div class="pd-row"><span class="pd-k">Pallet</span><span class="pd-v hl">${p.nPallet}</span></div>
+    <div class="pd-row"><span class="pd-k">Ubicación</span><span class="pd-v" style="color:var(--green)">${p.ubicDestino}</span></div>
+    <div class="pd-row"><span class="pd-k">Operador</span><span class="pd-v">${p.grueroNombre}</span></div>
+    <div class="pd-row"><span class="pd-k">Hora</span><span class="pd-v">${p.hora}</span></div>
   `;
-  palletActual = null; selUbic = null;
   showScreen('s-success');
 }
 
 function siguientePallet() {
-  palletActual = null; selUbic = null;
+  palletActual = null;
+  selUbic = null;
   document.getElementById('input-pallet').value = '';
-  document.getElementById('input-pallet').style.borderColor = 'var(--border)';
-  document.getElementById('pallet-detail').style.display = 'none';
-  document.getElementById('detail-label').style.display  = 'none';
-  document.getElementById('ubic-label').style.display    = 'none';
-  document.getElementById('ubic-grid').innerHTML         = '';
-  document.getElementById('buscar-error').style.display  = 'none';
-  setBtnStore(false, '📦 Ingresa o selecciona un pallet');
   showScreen('s-buscar');
-  renderDrum();
   setTimeout(() => document.getElementById('input-pallet').focus(), 300);
 }
 
 // ══════════════════════════════════════════════════════
-//  HELPERS
+//  UTILIDADES
 // ══════════════════════════════════════════════════════
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
   document.getElementById(id).classList.add('on');
-  window.scrollTo(0,0);
 }
 
-function toast(msg, type='') {
+function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.className = 'toast show' + (type?' '+type:'');
-  setTimeout(() => t.className = 'toast', 2800);
+  t.classList.add('on');
+  setTimeout(() => t.classList.remove('on'), 3000);
 }
 
-// ══════════════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════════════
-actualizarGrueroGrid();
+// Init
 cargarPallets();
-setInterval(cargarPallets, 30000);
+setInterval(cargarPallets, 60000); // auto-sync cada 1 min
+
 </script>
 </body>
 </html>
