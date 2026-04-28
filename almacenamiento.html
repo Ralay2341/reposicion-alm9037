@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Almacenamiento ALM9037 - V2</title>
+<title>Almacenamiento ALM9037 - V3</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Share+Tech+Mono&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -24,34 +24,94 @@ body { background: var(--bg); color: var(--txt); font-family: 'Exo 2', sans-seri
 /* LANDING */
 #s-landing { align-items: center; justify-content: center; padding: 20px; }
 .gruero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 400px; }
-.gruero-btn { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; }
-.gruero-btn:active { transform: scale(0.95); }
+.gruero-btn { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: border-color 0.2s, transform 0.1s; }
+.gruero-btn:active { transform: scale(0.95); border-color: var(--gold); }
 .gruero-name { font-family: 'Rajdhani', sans-serif; font-weight: 700; margin-top: 8px; }
 
 /* MAIN */
 #s-main { padding: 15px; max-width: 500px; margin: 0 auto; width: 100%; }
 .user-bar { background: var(--card); padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px solid var(--border); }
 .search-box { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; }
-.search-input { width: 100%; background: var(--bg); border: 2px solid var(--border); border-radius: 8px; padding: 12px; color: #fff; font-family: 'Share Tech Mono', monospace; font-size: 20px; margin-bottom: 10px; outline: none; }
-.search-input:focus { border-color: var(--gold); }
-.btn-search { width: 100%; background: var(--cyan); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 700; font-family: 'Rajdhani', sans-serif; cursor: pointer; }
 
-.pallet-info { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; display: none; }
-.info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1e3050; }
+/* Input con indicador de estado */
+.input-wrapper { position: relative; margin-bottom: 8px; }
+.search-input {
+  width: 100%;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 48px 14px 14px;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 22px;
+  outline: none;
+  letter-spacing: 2px;
+  transition: border-color 0.2s;
+}
+.search-input:focus { border-color: var(--gold); }
+.search-input.buscando { border-color: var(--cyan); animation: pulse-border 0.8s infinite; }
+.search-input.encontrado { border-color: var(--green); }
+.search-input.error { border-color: var(--red); }
+
+@keyframes pulse-border {
+  0%, 100% { border-color: var(--cyan); box-shadow: 0 0 0 0 rgba(0,212,255,0.3); }
+  50%       { border-color: var(--cyan); box-shadow: 0 0 0 6px rgba(0,212,255,0); }
+}
+
+/* Indicador de estado dentro del input */
+.status-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  transition: opacity 0.2s;
+}
+
+.search-hint {
+  font-size: 11px;
+  color: var(--txt2);
+  text-align: center;
+  font-family: 'Share Tech Mono', monospace;
+  min-height: 16px;
+  transition: color 0.2s;
+}
+.search-hint.active { color: var(--cyan); }
+.search-hint.ok { color: var(--green); }
+.search-hint.err { color: var(--red); }
+
+.pallet-info { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; display: none; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.info-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #1e3050; align-items: center; }
 .info-row:last-child { border-bottom: none; }
 .info-k { font-size: 11px; color: var(--txt2); text-transform: uppercase; }
-.info-v { font-family: 'Share Tech Mono', monospace; font-size: 15px; }
+.info-v { font-family: 'Share Tech Mono', monospace; font-size: 15px; text-align: right; max-width: 65%; word-break: break-word; }
 
-.action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; display: none; }
-.btn-act { padding: 18px; border-radius: 12px; border: none; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 16px; cursor: pointer; color: #000; }
+.action-btns { display: none; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-act { padding: 20px; border-radius: 12px; border: none; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 17px; cursor: pointer; color: #000; transition: transform 0.1s, filter 0.1s; }
 .btn-realizado { background: var(--green); }
 .btn-pendiente { background: var(--orange); }
-.btn-act:active { transform: scale(0.95); }
+.btn-act:active { transform: scale(0.95); filter: brightness(0.9); }
 
 .btn-logout { background: transparent; border: 1px solid var(--red); color: var(--red); padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; }
 
-.toast { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #000; border: 1px solid var(--border); padding: 15px; border-radius: 10px; text-align: center; transform: translateY(100px); transition: 0.3s; z-index: 100; }
+/* Spinner */
+.spinner {
+  display: inline-block;
+  width: 18px; height: 18px;
+  border: 3px solid rgba(0,212,255,0.3);
+  border-top-color: var(--cyan);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #000; border: 1px solid var(--border); padding: 15px; border-radius: 10px; text-align: center; transform: translateY(100px); transition: 0.3s; z-index: 100; font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; }
 .toast.on { transform: translateY(0); }
+.toast.ok { border-color: var(--green); color: var(--green); }
+.toast.err { border-color: var(--red); color: var(--red); }
 </style>
 </head>
 <body>
@@ -63,7 +123,7 @@ body { background: var(--bg); color: var(--txt); font-family: 'Exo 2', sans-seri
 
 <!-- SELECCIÓN OPERADOR -->
 <div class="screen on" id="s-landing">
-  <h2 style="margin-bottom:20px; font-family:'Rajdhani'">Seleccionar Operador</h2>
+  <h2 style="margin-bottom:20px; font-family:'Rajdhani'; color:var(--gold)">Seleccionar Operador</h2>
   <div class="gruero-grid" id="gruero-grid"></div>
 </div>
 
@@ -72,15 +132,27 @@ body { background: var(--bg); color: var(--txt); font-family: 'Exo 2', sans-seri
   <div id="s-main">
     <div class="user-bar">
       <div>
-        <div id="user-name" style="font-weight:700">---</div>
+        <div id="user-name" style="font-weight:700; font-family:'Rajdhani'; font-size:17px">---</div>
         <div style="font-size:10px; color:var(--txt2)" id="fecha-hoy">--/--/----</div>
       </div>
       <button class="btn-logout" onclick="location.reload()">SALIR</button>
     </div>
 
     <div class="search-box">
-      <input type="text" class="search-input" id="input-pallet" placeholder="Nº PALLET (xxxx.xx)" inputmode="decimal">
-      <button class="btn-search" id="btn-buscar" onclick="buscarPallet()">BUSCAR 🔍</button>
+      <div class="input-wrapper">
+        <input
+          type="text"
+          class="search-input"
+          id="input-pallet"
+          placeholder="Nº PALLET"
+          inputmode="decimal"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+        >
+        <span class="status-icon" id="status-icon">🔍</span>
+      </div>
+      <div class="search-hint" id="search-hint">Ingresa o escanea el número de pallet</div>
     </div>
 
     <div class="pallet-info" id="pallet-info">
@@ -110,8 +182,10 @@ const OPERADORES = [
   { id:'G4', nombre:'Jorge González',     emoji:'🔋' },
 ];
 
-let opActual = null;
+let opActual     = null;
 let palletActual = null;
+let debounceTimer = null;
+let buscando = false;
 
 // Reloj
 setInterval(() => {
@@ -131,71 +205,165 @@ function selOperador(id) {
   document.getElementById('user-name').textContent = opActual.nombre;
   document.getElementById('fecha-hoy').textContent = new Date().toLocaleDateString('es-CL');
   showScreen('s-main-screen');
+  setTimeout(() => document.getElementById('input-pallet').focus(), 100);
 }
 
-async function buscarPallet() {
-  const num = document.getElementById('input-pallet').value.trim();
-  if (!num) return showToast('Ingresa un número');
-  
-  const btn = document.getElementById('btn-buscar');
-  btn.disabled = true; btn.textContent = 'BUSCANDO...';
-  
+// ── AUTO BÚSQUEDA ──────────────────────────────────────────────
+const inputPallet = document.getElementById('input-pallet');
+
+inputPallet.addEventListener('input', () => {
+  const val = inputPallet.value.trim();
+
+  // Limpiar resultados previos si se borra el campo
+  if (!val) {
+    clearDebounce();
+    resetUI();
+    setHint('Ingresa o escanea el número de pallet', '');
+    setStatusIcon('🔍');
+    inputPallet.className = 'search-input';
+    return;
+  }
+
+  // Si el formato ya coincide exactamente → buscar de inmediato (scanner)
+  // Formato esperado: dígitos con punto opcional, e.g. 1234.56 o 123456
+  const formatoCompleto = /^\d{3,6}(\.\d{1,2})?$/.test(val);
+
+  if (formatoCompleto) {
+    clearDebounce();
+    buscarPallet(val);
+  } else {
+    // Tipeo manual → esperar 600 ms sin actividad
+    clearDebounce();
+    setHint('Escribiendo...', 'active');
+    setStatusIcon('⌨️');
+    debounceTimer = setTimeout(() => {
+      if (inputPallet.value.trim()) buscarPallet(inputPallet.value.trim());
+    }, 600);
+  }
+});
+
+// También disparar con Enter
+inputPallet.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    clearDebounce();
+    const val = inputPallet.value.trim();
+    if (val) buscarPallet(val);
+  }
+});
+
+function clearDebounce() {
+  if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
+}
+
+// ── BÚSQUEDA ───────────────────────────────────────────────────
+async function buscarPallet(num) {
+  if (buscando) return;
+  buscando = true;
+
+  // Estado: buscando
+  inputPallet.className = 'search-input buscando';
+  setStatusIcon('<span class="spinner"></span>');
+  setHint('Buscando pallet...', 'active');
+  ocultarResultados();
+
   try {
-    const res = await fetch(`${SCRIPT_URL}?action=getPalletByNum&num=${num}`);
+    const res  = await fetch(`${SCRIPT_URL}?action=getPalletByNum&num=${encodeURIComponent(num)}`);
     const data = await res.json();
-    
+
     if (data.encontrado) {
       palletActual = data.pallet;
+
       document.getElementById('v-pallet').textContent = palletActual.nPallet;
-      document.getElementById('v-ubic').textContent = palletActual.ubicDestino || 'SIN UBICACIÓN';
-      document.getElementById('v-sap').textContent = palletActual.sap;
-      document.getElementById('v-desc').textContent = palletActual.descripcion;
-      document.getElementById('v-qty').textContent = palletActual.cantidad;
-      
+      document.getElementById('v-ubic').textContent   = palletActual.ubicDestino || 'SIN UBICACIÓN';
+      document.getElementById('v-sap').textContent    = palletActual.sap;
+      document.getElementById('v-desc').textContent   = palletActual.descripcion;
+      document.getElementById('v-qty').textContent    = palletActual.cantidad;
+
       document.getElementById('pallet-info').style.display = 'block';
-      document.getElementById('action-btns').style.display = 'grid';
+      document.getElementById('action-btns').style.display  = 'grid';
+
+      inputPallet.className = 'search-input encontrado';
+      setStatusIcon('✅');
+      setHint('Pallet encontrado — selecciona acción', 'ok');
     } else {
-      showToast(data.msg || 'No encontrado');
+      inputPallet.className = 'search-input error';
+      setStatusIcon('❌');
+      setHint(data.msg || 'Pallet no encontrado', 'err');
+      showToast(data.msg || '❌ No encontrado', 'err');
     }
-  } catch(e) {
-    showToast('Error de conexión');
+  } catch (e) {
+    inputPallet.className = 'search-input error';
+    setStatusIcon('⚠️');
+    setHint('Error de conexión — reintenta', 'err');
+    showToast('⚠️ Error de conexión', 'err');
   }
-  btn.disabled = false; btn.textContent = 'BUSCAR 🔍';
+
+  buscando = false;
 }
 
+// ── REGISTRO ───────────────────────────────────────────────────
 async function registrar(estado) {
   if (!palletActual || !opActual) return;
-  
-  showToast(`Registrando ${estado}...`);
+
+  const btns = document.querySelectorAll('.btn-act');
+  btns.forEach(b => b.disabled = true);
+
+  showToast(`Registrando ${estado}...`, '');
+
   const payload = {
-    rowIndex: palletActual.rowIndex,
-    estado: estado,
-    grueroId: opActual.id,
+    rowIndex:     palletActual.rowIndex,
+    estado:       estado,
+    grueroId:     opActual.id,
     grueroNombre: opActual.nombre,
-    fecha: new Date().toLocaleDateString('es-CL'),
-    hora: new Date().toLocaleTimeString('es-CL')
+    fecha:        new Date().toLocaleDateString('es-CL'),
+    hora:         new Date().toLocaleTimeString('es-CL')
   };
 
   try {
-    const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const res  = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
     const data = await res.json();
     if (data.ok) {
-      showToast('✅ REGISTRADO CON ÉXITO');
+      showToast('✅ REGISTRADO CON ÉXITO', 'ok');
       reset();
     } else {
-      showToast('❌ ERROR AL GRABAR');
+      showToast('❌ ERROR AL GRABAR', 'err');
+      btns.forEach(b => b.disabled = false);
     }
-  } catch(e) {
-    showToast('❌ ERROR DE RED');
+  } catch (e) {
+    showToast('❌ ERROR DE RED', 'err');
+    btns.forEach(b => b.disabled = false);
   }
 }
 
+// ── HELPERS ────────────────────────────────────────────────────
 function reset() {
   palletActual = null;
-  document.getElementById('input-pallet').value = '';
+  inputPallet.value = '';
+  inputPallet.className = 'search-input';
+  setStatusIcon('🔍');
+  setHint('Ingresa o escanea el número de pallet', '');
+  ocultarResultados();
+  inputPallet.focus();
+}
+
+function ocultarResultados() {
   document.getElementById('pallet-info').style.display = 'none';
-  document.getElementById('action-btns').style.display = 'none';
-  document.getElementById('input-pallet').focus();
+  document.getElementById('action-btns').style.display  = 'none';
+}
+
+function resetUI() {
+  palletActual = null;
+  ocultarResultados();
+}
+
+function setHint(msg, cls) {
+  const el = document.getElementById('search-hint');
+  el.textContent  = msg;
+  el.className    = 'search-hint' + (cls ? ' ' + cls : '');
+}
+
+function setStatusIcon(html) {
+  document.getElementById('status-icon').innerHTML = html;
 }
 
 function showScreen(id) {
@@ -203,10 +371,13 @@ function showScreen(id) {
   document.getElementById(id).classList.add('on');
 }
 
-function showToast(msg) {
+let toastTimer = null;
+function showToast(msg, type) {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('on');
-  setTimeout(() => t.classList.remove('on'), 3000);
+  t.textContent = msg;
+  t.className   = 'toast on' + (type ? ' ' + type : '');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = 'toast'; }, 3000);
 }
 </script>
 </body>
