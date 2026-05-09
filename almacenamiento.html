@@ -9,7 +9,7 @@
 :root {
   --bg: #080c14; --surface: #0e1520; --card: #121c2e; --border: #1e3050;
   --gold: #f0a500; --cyan: #00d4ff; --green: #00e676; --red: #ff4444;
-  --orange: #ff8c00; --txt: #d0e4ff; --txt2: #6b8aac;
+  --orange: #ff8c00; --txt: #d0e4ff; --txt2: #6b8aac; --purple: #a855f7;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--txt); font-family: 'Exo 2', sans-serif; height: 100vh; overflow: hidden; }
@@ -23,66 +23,158 @@ body { background: var(--bg); color: var(--txt); font-family: 'Exo 2', sans-seri
 
 /* LANDING */
 #s-landing { align-items: center; justify-content: center; padding: 20px; }
-.gruero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 400px; }
+.landing-inner { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 14px; }
+.landing-title { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color: var(--gold); text-align: center; letter-spacing: 1px; }
+.gruero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
 .gruero-btn { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: border-color 0.2s, transform 0.1s; }
 .gruero-btn:active { transform: scale(0.95); border-color: var(--gold); }
 .gruero-name { font-family: 'Rajdhani', sans-serif; font-weight: 700; margin-top: 8px; }
+/* Badge importación en landing */
+.landing-import-badge {
+  display: none; width: 100%;
+  background: rgba(168,85,247,.1); border: 1px solid rgba(168,85,247,.35);
+  border-radius: 10px; padding: 10px 14px;
+  align-items: center; justify-content: space-between;
+  animation: fadeIn .3s ease;
+}
+.landing-import-badge.on { display: flex; }
+/* Botón supervisor en landing */
+.btn-supervisor-landing {
+  width: 100%; padding: 14px; border-radius: 10px;
+  background: transparent; border: 2px solid rgba(168,85,247,.4);
+  color: var(--purple); font-family: 'Rajdhani', sans-serif;
+  font-size: 16px; font-weight: 700; letter-spacing: 1px;
+  cursor: pointer; transition: background .2s, border-color .2s; text-transform: uppercase;
+}
+.btn-supervisor-landing:active { background: rgba(168,85,247,.12); border-color: var(--purple); }
 
 /* MAIN */
 #s-main { padding: 15px; max-width: 500px; margin: 0 auto; width: 100%; }
-.user-bar { background: var(--card); padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px solid var(--border); }
+
+/* USER BAR */
+.user-bar {
+  background: var(--card); padding: 12px; border-radius: 12px;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 15px; border: 1px solid var(--border);
+}
+.user-bar-btns { display: flex; gap: 8px; align-items: center; }
+.btn-logout {
+  background: transparent; border: 1px solid var(--red);
+  color: var(--red); padding: 5px 10px; border-radius: 6px;
+  font-size: 11px; cursor: pointer; font-family: 'Exo 2', sans-serif;
+  font-weight: 600; letter-spacing: .5px;
+}
+.btn-supervisor {
+  background: transparent; border: 1px solid var(--purple);
+  color: var(--purple); padding: 5px 10px; border-radius: 6px;
+  font-size: 11px; cursor: pointer; font-family: 'Exo 2', sans-serif;
+  font-weight: 700; letter-spacing: .5px;
+  transition: background .2s;
+}
+.btn-supervisor:active { background: rgba(168,85,247,.15); }
+
+/* BADGE IMPORTACIÓN ACTIVA */
+.import-badge {
+  display: none;
+  background: rgba(168,85,247,.1);
+  border: 1px solid rgba(168,85,247,.35);
+  border-radius: 10px;
+  padding: 9px 14px;
+  margin-bottom: 12px;
+  align-items: center;
+  justify-content: space-between;
+  animation: fadeIn .3s ease;
+}
+.import-badge.on { display: flex; }
+.import-badge-left { display: flex; align-items: center; gap: 10px; }
+.import-badge-icon { font-size: 18px; }
+.import-badge-k { font-size: 10px; color: var(--txt2); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
+.import-badge-v { font-family: 'Share Tech Mono', monospace; font-size: 16px; color: var(--purple); letter-spacing: 2px; font-weight: 700; }
+.import-badge-clear {
+  font-size: 10px; color: var(--txt2); cursor: pointer;
+  border: 1px solid var(--border); border-radius: 5px;
+  padding: 4px 8px; font-weight: 600; font-family: 'Exo 2', sans-serif;
+}
+
+/* SEARCH BOX */
 .search-box { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; }
 
-/* Input con indicador de estado */
+/* INPUT NORMAL (sin importación bloqueada) */
 .input-wrapper { position: relative; margin-bottom: 8px; }
 .search-input {
-  width: 100%;
-  background: var(--bg);
-  border: 2px solid var(--border);
-  border-radius: 8px;
-  padding: 14px 48px 14px 14px;
-  color: #fff;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 22px;
-  outline: none;
-  letter-spacing: 2px;
-  transition: border-color 0.2s;
+  width: 100%; background: var(--bg); border: 2px solid var(--border);
+  border-radius: 8px; padding: 14px 48px 14px 14px;
+  color: #fff; font-family: 'Share Tech Mono', monospace;
+  font-size: 22px; outline: none; letter-spacing: 2px; transition: border-color 0.2s;
 }
 .search-input:focus { border-color: var(--gold); }
 .search-input.buscando { border-color: var(--cyan); animation: pulse-border 0.8s infinite; }
 .search-input.encontrado { border-color: var(--green); }
 .search-input.error { border-color: var(--red); }
 
+/* INPUT DIVIDIDO (con prefijo de importación bloqueado) */
+.split-input-wrapper {
+  display: none;
+  align-items: center;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.split-input-wrapper.on { display: flex; }
+.split-input-wrapper.buscando { border-color: var(--cyan); animation: pulse-border 0.8s infinite; }
+.split-input-wrapper.encontrado { border-color: var(--green); }
+.split-input-wrapper.error { border-color: var(--red); }
+
+.split-prefix {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 22px; letter-spacing: 2px;
+  color: var(--purple); padding: 14px 0 14px 14px;
+  flex-shrink: 0; user-select: none; white-space: nowrap;
+}
+.split-suffix {
+  flex: 1; background: transparent; border: none; outline: none;
+  font-family: 'Share Tech Mono', monospace; font-size: 22px;
+  letter-spacing: 4px; color: #fff;
+  padding: 14px 48px 14px 2px;
+  width: 80px; min-width: 0;
+}
+.split-suffix::placeholder { color: #2a4060; letter-spacing: 2px; }
+
+.status-icon {
+  position: absolute; right: 14px; top: 50%;
+  transform: translateY(-50%); font-size: 20px;
+}
+/* Para split-input el status va relativo al wrapper */
+.split-status {
+  position: relative; flex-shrink: 0;
+  font-size: 20px; padding-right: 14px; line-height: 1;
+  display: flex; align-items: center;
+}
+
 @keyframes pulse-border {
-  0%, 100% { border-color: var(--cyan); box-shadow: 0 0 0 0 rgba(0,212,255,0.3); }
+  0%, 100% { border-color: var(--cyan); box-shadow: 0 0 0 0 rgba(0,212,255,.3); }
   50%       { border-color: var(--cyan); box-shadow: 0 0 0 6px rgba(0,212,255,0); }
 }
 
-/* Indicador de estado dentro del input */
-.status-icon {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 20px;
-  transition: opacity 0.2s;
-}
-
 .search-hint {
-  font-size: 11px;
-  color: var(--txt2);
-  text-align: center;
-  font-family: 'Share Tech Mono', monospace;
-  min-height: 16px;
-  transition: color 0.2s;
+  font-size: 11px; color: var(--txt2); text-align: center;
+  font-family: 'Share Tech Mono', monospace; min-height: 16px; transition: color .2s;
 }
 .search-hint.active { color: var(--cyan); }
 .search-hint.ok { color: var(--green); }
 .search-hint.err { color: var(--red); }
+.search-hint.sup { color: var(--purple); }
 
-.pallet-info { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; display: none; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
+/* RESULTADOS */
+.pallet-info {
+  background: var(--card); padding: 15px; border-radius: 12px;
+  border: 1px solid var(--border); margin-bottom: 15px;
+  display: none; animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 .info-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #1e3050; align-items: center; }
 .info-row:last-child { border-bottom: none; }
 .info-k { font-size: 11px; color: var(--txt2); text-transform: uppercase; }
@@ -94,24 +186,104 @@ body { background: var(--bg); color: var(--txt); font-family: 'Exo 2', sans-seri
 .btn-pendiente { background: var(--orange); }
 .btn-act:active { transform: scale(0.95); filter: brightness(0.9); }
 
-.btn-logout { background: transparent; border: 1px solid var(--red); color: var(--red); padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; }
-
-/* Spinner */
-.spinner {
-  display: inline-block;
-  width: 18px; height: 18px;
-  border: 3px solid rgba(0,212,255,0.3);
-  border-top-color: var(--cyan);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  vertical-align: middle;
-}
+/* SPINNER */
+.spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(0,212,255,.3); border-top-color: var(--cyan); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.toast { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #000; border: 1px solid var(--border); padding: 15px; border-radius: 10px; text-align: center; transform: translateY(100px); transition: 0.3s; z-index: 100; font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; }
+/* TOAST */
+.toast { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #000; border: 1px solid var(--border); padding: 15px; border-radius: 10px; text-align: center; transform: translateY(100px); transition: .3s; z-index: 100; font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; }
 .toast.on { transform: translateY(0); }
 .toast.ok { border-color: var(--green); color: var(--green); }
 .toast.err { border-color: var(--red); color: var(--red); }
+
+/* ════════════════════════════════════════
+   MODAL BASE
+════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.75); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.on { display: flex; }
+
+.modal-box {
+  background: #0e1520; border: 2px solid var(--purple);
+  border-radius: 18px; padding: 28px 24px;
+  width: 100%; max-width: 360px;
+  box-shadow: 0 0 40px rgba(168,85,247,.2);
+  animation: modalIn .25s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes modalIn { from { transform: scale(.85); opacity:0; } to { transform: scale(1); opacity:1; } }
+
+.modal-title {
+  font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700;
+  color: var(--purple); letter-spacing: 2px; text-transform: uppercase;
+  text-align: center; margin-bottom: 6px;
+}
+.modal-sub {
+  font-size: 11px; color: var(--txt2); text-align: center;
+  letter-spacing: .5px; margin-bottom: 20px;
+}
+
+.modal-label {
+  font-size: 10px; color: var(--txt2); text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 8px; font-weight: 600;
+}
+
+/* Input de modal (clave / importación) */
+.modal-input {
+  width: 100%; background: #080c14;
+  border: 2px solid #1e3050; border-radius: 10px;
+  padding: 16px 20px; text-align: center;
+  font-family: 'Share Tech Mono', monospace; font-size: 28px;
+  font-weight: 700; color: var(--purple); letter-spacing: 10px;
+  outline: none; transition: border-color .2s;
+  -webkit-appearance: none;
+}
+.modal-input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(168,85,247,.12); }
+.modal-input.shake { animation: shake .35s; }
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%,60% { transform: translateX(-8px); }
+  40%,80% { transform: translateX(8px); }
+}
+
+.modal-error {
+  font-size: 11px; color: var(--red); text-align: center;
+  min-height: 16px; margin-top: 6px; font-weight: 600;
+  letter-spacing: .5px;
+}
+
+.modal-btn {
+  width: 100%; margin-top: 18px; padding: 16px;
+  border-radius: 10px; border: none; cursor: pointer;
+  font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 2px;
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  color: #fff; transition: opacity .2s, transform .1s;
+}
+.modal-btn:disabled { opacity: .3; cursor: not-allowed; }
+.modal-btn:not(:disabled):active { transform: scale(.97); }
+
+.modal-btn-cancel {
+  width: 100%; margin-top: 8px; padding: 12px;
+  border-radius: 10px; background: transparent;
+  border: 1px solid var(--border); cursor: pointer;
+  font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700;
+  color: var(--txt2); text-transform: uppercase; letter-spacing: 1px;
+}
+
+/* Puntos de contraseña */
+.pwd-dots {
+  display: flex; justify-content: center; gap: 10px;
+  margin-bottom: 6px; margin-top: 4px;
+}
+.pwd-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #1e3050; transition: background .15s;
+}
+.pwd-dot.on { background: var(--purple); box-shadow: 0 0 8px var(--purple); }
 </style>
 </head>
 <body>
@@ -121,40 +293,85 @@ body { background: var(--bg); color: var(--txt); font-family: 'Exo 2', sans-seri
   <div class="hdr-clock" id="clk">00:00:00</div>
 </div>
 
-<!-- SELECCIÓN OPERADOR -->
+<!-- ══ LANDING ══ -->
 <div class="screen on" id="s-landing">
-  <h2 style="margin-bottom:20px; font-family:'Rajdhani'; color:var(--gold)">Seleccionar Operador</h2>
-  <div class="gruero-grid" id="gruero-grid"></div>
-</div>
+  <div class="landing-inner">
+    <div class="landing-title">🏗️ ALM9037 — SELECCIONAR OPERADOR</div>
 
-<!-- OPERACIÓN -->
-<div class="screen" id="s-main-screen">
-  <div id="s-main">
-    <div class="user-bar">
-      <div>
-        <div id="user-name" style="font-weight:700; font-family:'Rajdhani'; font-size:17px">---</div>
-        <div style="font-size:10px; color:var(--txt2)" id="fecha-hoy">--/--/----</div>
+    <!-- Badge importación activa (visible antes de seleccionar operador) -->
+    <div class="landing-import-badge" id="landing-import-badge">
+      <div class="import-badge-left">
+        <span class="import-badge-icon">📋</span>
+        <div>
+          <div class="import-badge-k">Importación activa</div>
+          <div class="import-badge-v" id="landing-import-num">----</div>
+        </div>
       </div>
-      <button class="btn-logout" onclick="location.reload()">SALIR</button>
+      <span class="import-badge-clear" onclick="limpiarImportacion()">✕ Limpiar</span>
     </div>
 
-    <div class="search-box">
-      <div class="input-wrapper">
-        <input
-          type="text"
-          class="search-input"
-          id="input-pallet"
-          placeholder="Nº PALLET"
-          inputmode="decimal"
-          autocomplete="off"
-          autocorrect="off"
-          spellcheck="false"
-        >
-        <span class="status-icon" id="status-icon">🔍</span>
+    <!-- Grid operadores -->
+    <div class="gruero-grid" id="gruero-grid"></div>
+
+    <!-- Botón supervisor (abajo del grid) -->
+    <button class="btn-supervisor-landing" onclick="abrirModalClave()">🔐 SUPERVISOR — Asignar Importación</button>
+  </div>
+</div>
+
+<!-- ══ OPERACIÓN ══ -->
+<div class="screen" id="s-main-screen">
+  <div id="s-main">
+
+    <!-- Barra usuario -->
+    <div class="user-bar">
+      <div>
+        <div id="user-name" style="font-weight:700;font-family:'Rajdhani';font-size:17px">---</div>
+        <div style="font-size:10px;color:var(--txt2)" id="fecha-hoy">--/--/----</div>
       </div>
+      <div class="user-bar-btns">
+        <button class="btn-logout" onclick="volverLanding()">← SALIR</button>
+      </div>
+    </div>
+
+    <!-- Badge importación activa (solo lectura en pantalla del operador) -->
+    <div class="import-badge" id="import-badge">
+      <div class="import-badge-left">
+        <span class="import-badge-icon">📋</span>
+        <div>
+          <div class="import-badge-k">Importación activa</div>
+          <div class="import-badge-v" id="import-badge-num">----</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search box -->
+    <div class="search-box">
+
+      <!-- Input NORMAL (sin importación bloqueada) -->
+      <div class="input-wrapper" id="wrapper-normal">
+        <input
+          type="text" class="search-input" id="input-pallet"
+          placeholder="Nº PALLET" inputmode="decimal"
+          autocomplete="off" autocorrect="off" spellcheck="false"
+        >
+        <span class="status-icon" id="status-icon-normal">🔍</span>
+      </div>
+
+      <!-- Input DIVIDIDO (con prefijo de importación bloqueado) -->
+      <div class="split-input-wrapper" id="wrapper-split">
+        <span class="split-prefix" id="split-prefix">1234.</span>
+        <input
+          type="tel" class="split-suffix" id="input-suffix"
+          placeholder="XX" maxlength="2" inputmode="numeric"
+          autocomplete="off" autocorrect="off" spellcheck="false"
+        >
+        <span class="split-status" id="status-icon-split">🔍</span>
+      </div>
+
       <div class="search-hint" id="search-hint">Ingresa o escanea el número de pallet</div>
     </div>
 
+    <!-- Resultado -->
     <div class="pallet-info" id="pallet-info">
       <div class="info-row"><span class="info-k">Nº Pallet</span><span class="info-v" style="color:var(--cyan)" id="v-pallet">--</span></div>
       <div class="info-row"><span class="info-k">Ubicación</span><span class="info-v" style="color:var(--green)" id="v-ubic">--</span></div>
@@ -163,10 +380,66 @@ body { background: var(--bg); color: var(--txt); font-family: 'Exo 2', sans-seri
       <div class="info-row"><span class="info-k">Cantidad</span><span class="info-v" style="color:var(--gold)" id="v-qty">--</span></div>
     </div>
 
+    <!-- Botones acción -->
     <div class="action-btns" id="action-btns">
       <button class="btn-act btn-realizado" onclick="registrar('REALIZADO')">REALIZADO ✅</button>
       <button class="btn-act btn-pendiente" onclick="registrar('PENDIENTE')">PENDIENTE ⏳</button>
     </div>
+
+  </div>
+</div>
+
+<!-- ══ MODAL CONTRASEÑA ══ -->
+<div class="modal-overlay" id="modal-clave">
+  <div class="modal-box">
+    <div class="modal-title">🔐 Acceso Supervisor</div>
+    <div class="modal-sub">INGRESA LA CONTRASEÑA DE SUPERVISOR</div>
+    <div class="modal-label">Contraseña</div>
+
+    <!-- Puntos visuales -->
+    <div class="pwd-dots" id="pwd-dots">
+      <div class="pwd-dot" id="dot-0"></div>
+      <div class="pwd-dot" id="dot-1"></div>
+      <div class="pwd-dot" id="dot-2"></div>
+      <div class="pwd-dot" id="dot-3"></div>
+      <div class="pwd-dot" id="dot-4"></div>
+    </div>
+
+    <!-- Input oculto real -->
+    <input
+      type="password" class="modal-input" id="input-clave"
+      maxlength="5" inputmode="numeric"
+      autocomplete="new-password"
+      style="opacity:0;position:absolute;pointer-events:none;"
+    >
+
+    <!-- Teclado numérico visual -->
+    <div id="teclado-clave" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;">
+    </div>
+
+    <div class="modal-error" id="error-clave"></div>
+    <button class="modal-btn" id="btn-confirmar-clave" onclick="confirmarClave()" disabled>CONFIRMAR</button>
+    <button class="modal-btn-cancel" onclick="cerrarModalClave()">CANCELAR</button>
+  </div>
+</div>
+
+<!-- ══ MODAL NÚMERO IMPORTACIÓN ══ -->
+<div class="modal-overlay" id="modal-import">
+  <div class="modal-box">
+    <div class="modal-title">📋 Número de Importación</div>
+    <div class="modal-sub">INGRESA LOS 4 DÍGITOS DE LA IMPORTACIÓN</div>
+    <div class="modal-label">Nº Importación</div>
+
+    <input
+      type="tel" class="modal-input" id="input-import"
+      maxlength="4" inputmode="numeric"
+      placeholder="0000" autocomplete="off"
+      oninput="onImportInput()"
+      onkeydown="if(event.key==='Enter') confirmarImport()"
+    >
+    <div class="modal-error" id="error-import"></div>
+    <button class="modal-btn" id="btn-confirmar-import" onclick="confirmarImport()" disabled>ACTIVAR IMPORTACIÓN</button>
+    <button class="modal-btn-cancel" onclick="cerrarModalImport()">CANCELAR</button>
   </div>
 </div>
 
@@ -174,6 +447,7 @@ body { background: var(--bg); color: var(--txt); font-family: 'Exo 2', sans-seri
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0QsRE6vmsFPXtQSdsmJsrZxB4fmCPhYAjEp2oFgxv9BZ5rTSD0nTSZXo3IAWbecY/exec';
+const CLAVE_SUPERVISOR = '00435';
 
 const OPERADORES = [
   { id:'G1', nombre:'Francisco Vigueras', emoji:'🔋' },
@@ -182,17 +456,18 @@ const OPERADORES = [
   { id:'G4', nombre:'Jorge González',     emoji:'🔋' },
 ];
 
-let opActual     = null;
-let palletActual = null;
-let debounceTimer = null;
-let buscando = false;
+let opActual       = null;
+let palletActual   = null;
+let debounceTimer  = null;
+let buscando       = false;
+let importActivo   = '';   // '' = sin importación bloqueada, '1864' = bloqueada
 
-// Reloj
+// ── RELOJ ─────────────────────────────────────────
 setInterval(() => {
   document.getElementById('clk').textContent = new Date().toLocaleTimeString('es-CL');
 }, 1000);
 
-// Render Operadores
+// ── OPERADORES ────────────────────────────────────
 document.getElementById('gruero-grid').innerHTML = OPERADORES.map(op => `
   <div class="gruero-btn" onclick="selOperador('${op.id}')">
     <div style="font-size:30px">${op.emoji}</div>
@@ -202,42 +477,228 @@ document.getElementById('gruero-grid').innerHTML = OPERADORES.map(op => `
 
 function selOperador(id) {
   opActual = OPERADORES.find(o => o.id === id);
-  document.getElementById('user-name').textContent = opActual.nombre;
-  document.getElementById('fecha-hoy').textContent = new Date().toLocaleDateString('es-CL');
+  document.getElementById('user-name').textContent  = opActual.nombre;
+  document.getElementById('fecha-hoy').textContent  = new Date().toLocaleDateString('es-CL');
   showScreen('s-main-screen');
-  setTimeout(() => document.getElementById('input-pallet').focus(), 100);
+
+  // Si el supervisor ya asignó importación, activar modo dividido
+  if (importActivo) {
+    activarModoImportacion(importActivo);
+  } else {
+    setTimeout(() => document.getElementById('input-pallet').focus(), 150);
+  }
 }
 
-// ── AUTO BÚSQUEDA ──────────────────────────────────────────────
+// ════════════════════════════════════════════════
+//  MODAL CONTRASEÑA
+// ════════════════════════════════════════════════
+let claveIngresada = '';
+
+function buildTeclado() {
+  const nums = ['1','2','3','4','5','6','7','8','9','←','0','✓'];
+  document.getElementById('teclado-clave').innerHTML = nums.map(n => `
+    <button onclick="teclaPresionada('${n}')"
+      style="background:#182236;border:1px solid #1e3050;border-radius:8px;
+             padding:16px;font-size:20px;font-family:'Share Tech Mono',monospace;
+             color:${n==='✓'?'var(--green)':n==='←'?'var(--red)':'var(--txt)'};
+             cursor:pointer;transition:background .1s;"
+      onmousedown="this.style.background='#243452'"
+      onmouseup="this.style.background='#182236'"
+      ontouchstart="this.style.background='#243452'"
+      ontouchend="this.style.background='#182236'"
+    >${n}</button>
+  `).join('');
+}
+buildTeclado();
+
+function teclaPresionada(k) {
+  if (k === '←') {
+    claveIngresada = claveIngresada.slice(0, -1);
+  } else if (k === '✓') {
+    confirmarClave();
+    return;
+  } else {
+    if (claveIngresada.length < 5) claveIngresada += k;
+  }
+  actualizarDots();
+  document.getElementById('error-clave').textContent = '';
+  document.getElementById('btn-confirmar-clave').disabled = (claveIngresada.length < 5);
+}
+
+function actualizarDots() {
+  for (let i = 0; i < 5; i++) {
+    document.getElementById('dot-' + i).classList.toggle('on', i < claveIngresada.length);
+  }
+}
+
+function abrirModalClave() {
+  claveIngresada = '';
+  actualizarDots();
+  document.getElementById('error-clave').textContent  = '';
+  document.getElementById('btn-confirmar-clave').disabled = true;
+  document.getElementById('modal-clave').classList.add('on');
+}
+
+function cerrarModalClave() {
+  claveIngresada = '';
+  actualizarDots();
+  document.getElementById('modal-clave').classList.remove('on');
+}
+
+function confirmarClave() {
+  if (claveIngresada === CLAVE_SUPERVISOR) {
+    cerrarModalClave();
+    // Abrir modal de importación
+    setTimeout(() => abrirModalImport(), 150);
+  } else {
+    document.getElementById('error-clave').textContent = '⛔ Contraseña incorrecta';
+    // Animar input como error
+    const inp = document.getElementById('input-clave');
+    inp.classList.add('shake');
+    // Shake en los dots
+    document.getElementById('teclado-clave').style.animation = '';
+    setTimeout(() => { inp.classList.remove('shake'); }, 400);
+    // Limpiar
+    claveIngresada = '';
+    actualizarDots();
+    document.getElementById('btn-confirmar-clave').disabled = true;
+  }
+}
+
+// ════════════════════════════════════════════════
+//  MODAL NÚMERO IMPORTACIÓN
+// ════════════════════════════════════════════════
+function abrirModalImport() {
+  document.getElementById('input-import').value      = '';
+  document.getElementById('error-import').textContent = '';
+  document.getElementById('btn-confirmar-import').disabled = true;
+  document.getElementById('modal-import').classList.add('on');
+  setTimeout(() => document.getElementById('input-import').focus(), 200);
+}
+
+function cerrarModalImport() {
+  document.getElementById('modal-import').classList.remove('on');
+}
+
+function onImportInput() {
+  const val = document.getElementById('input-import').value.replace(/\D/g, '').slice(0, 4);
+  document.getElementById('input-import').value = val;
+  document.getElementById('error-import').textContent = '';
+  document.getElementById('btn-confirmar-import').disabled = (val.length !== 4);
+}
+
+function confirmarImport() {
+  const val = document.getElementById('input-import').value.replace(/\D/g, '');
+  if (val.length !== 4) return;
+
+  importActivo = val;
+  cerrarModalImport();
+  activarModoImportacion(val);
+  showToast('✅ Importación ' + val + ' activada', 'ok');
+}
+
+// ════════════════════════════════════════════════
+//  MODO IMPORTACIÓN BLOQUEADA
+// ════════════════════════════════════════════════
+function activarModoImportacion(num) {
+  importActivo = num;
+
+  // Badge en landing
+  document.getElementById('landing-import-num').textContent = num;
+  document.getElementById('landing-import-badge').classList.add('on');
+
+  // Badge en pantalla del operador (solo lectura)
+  document.getElementById('import-badge-num').textContent = num;
+  document.getElementById('import-badge').classList.add('on');
+
+  // Ocultar input normal, mostrar input dividido
+  document.getElementById('wrapper-normal').style.display = 'none';
+  document.getElementById('wrapper-split').classList.add('on');
+  document.getElementById('split-prefix').textContent = num + '.';
+
+  // Limpiar y enfocar
+  document.getElementById('input-suffix').value = '';
+  resetSplitEstado();
+  setHint('Ingresa los 2 dígitos del pallet  (' + num + '.XX)', 'sup');
+  ocultarResultados();
+
+  setTimeout(() => document.getElementById('input-suffix').focus(), 150);
+}
+
+function limpiarImportacion() {
+  importActivo = '';
+  document.getElementById('landing-import-badge').classList.remove('on');
+  document.getElementById('import-badge').classList.remove('on');
+  document.getElementById('wrapper-split').classList.remove('on');
+  document.getElementById('wrapper-normal').style.display = '';
+  document.getElementById('input-pallet').value = '';
+  document.getElementById('input-suffix').value  = '';
+  ocultarResultados();
+  resetNormalEstado();
+  setHint('Ingresa o escanea el número de pallet', '');
+}
+
+function volverLanding() {
+  palletActual = null;
+  ocultarResultados();
+  showScreen('s-landing');
+  // Si hay importación activa, re-aplicar estado visual del split al volver
+  if (importActivo) {
+    document.getElementById('wrapper-normal').style.display = 'none';
+    document.getElementById('wrapper-split').classList.add('on');
+  }
+}
+
+// ── EVENTOS INPUT SUFIJO (2 dígitos) ──────────────
+const inputSuffix = document.getElementById('input-suffix');
+
+inputSuffix.addEventListener('input', () => {
+  const val = inputSuffix.value.replace(/\D/g, '').slice(0, 2);
+  inputSuffix.value = val;
+
+  if (!val) {
+    resetSplitEstado();
+    setHint('Ingresa los 2 dígitos del pallet (' + importActivo + '.XX)', 'sup');
+    ocultarResultados();
+    return;
+  }
+
+  if (val.length === 2) {
+    // Búsqueda automática al completar 2 dígitos
+    const numCompleto = importActivo + '.' + val;
+    buscarPallet(numCompleto);
+  } else {
+    setSplitEstado('');
+    setHint('Ingresa los 2 dígitos del pallet (' + importActivo + '.' + val + '_)', 'active');
+  }
+});
+
+inputSuffix.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && inputSuffix.value.replace(/\D/g,'').length === 2) {
+    buscarPallet(importActivo + '.' + inputSuffix.value.replace(/\D/g,''));
+  }
+});
+
+// ── EVENTOS INPUT NORMAL ───────────────────────────
 const inputPallet = document.getElementById('input-pallet');
 
 inputPallet.addEventListener('input', () => {
   const val = inputPallet.value.trim();
-
-  // Limpiar resultados previos si se borra el campo
   if (!val) {
     clearDebounce();
-    resetUI();
+    resetNormalEstado();
     setHint('Ingresa o escanea el número de pallet', '');
-    setStatusIcon('🔍');
-    inputPallet.className = 'search-input';
+    ocultarResultados();
     return;
   }
-
-  // Búsqueda INMEDIATA solo si tiene el formato completo con punto: XXXX.XX
-  // Ej: 1864.31 → dispara al instante (scanner de código de barras)
   const formatoScanner = /^\d{3,6}\.\d{2}$/.test(val);
-
-  // Tipeo manual sin punto → esperar 1500ms para que termine de escribir
   clearDebounce();
   setHint('Escribiendo...', 'active');
-  setStatusIcon('⌨️');
+  setNormalEstado('');
 
   if (formatoScanner) {
-    // Formato completo con punto → buscar de inmediato
     buscarPallet(val);
   } else {
-    // Sin punto o incompleto → debounce largo (1500ms)
     debounceTimer = setTimeout(() => {
       const v = inputPallet.value.trim();
       if (v) buscarPallet(v);
@@ -245,7 +706,6 @@ inputPallet.addEventListener('input', () => {
   }
 });
 
-// También disparar con Enter
 inputPallet.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     clearDebounce();
@@ -258,14 +718,17 @@ function clearDebounce() {
   if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
 }
 
-// ── BÚSQUEDA ───────────────────────────────────────────────────
+// ════════════════════════════════════════════════
+//  BÚSQUEDA
+// ════════════════════════════════════════════════
 async function buscarPallet(num) {
   if (buscando) return;
   buscando = true;
 
-  inputPallet.className = 'search-input buscando';
+  setSplitEstado('buscando');
+  setNormalEstado('buscando');
   setStatusIcon('<span class="spinner"></span>');
-  setHint('Buscando pallet...', 'active');
+  setHint('Buscando  ' + num + '...', 'active');
   ocultarResultados();
 
   try {
@@ -284,38 +747,40 @@ async function buscarPallet(num) {
       document.getElementById('pallet-info').style.display = 'block';
       document.getElementById('action-btns').style.display  = 'grid';
 
-      inputPallet.className = 'search-input encontrado';
+      setSplitEstado('encontrado');
+      setNormalEstado('encontrado');
       setStatusIcon('✅');
       setHint('Pallet encontrado — selecciona acción', 'ok');
     } else {
-      inputPallet.className = 'search-input error';
+      setSplitEstado('error');
+      setNormalEstado('error');
       setStatusIcon('❌');
       setHint(data.msg || 'Pallet no encontrado', 'err');
       showToast(data.msg || '❌ No encontrado', 'err');
     }
   } catch (e) {
-    inputPallet.className = 'search-input error';
+    setSplitEstado('error');
+    setNormalEstado('error');
     setStatusIcon('⚠️');
     setHint('Error de conexión — reintenta', 'err');
     showToast('⚠️ Error de conexión', 'err');
   } finally {
-    // Siempre liberar el flag, sin importar si hubo error o éxito
     buscando = false;
   }
 }
 
-// ── REGISTRO ───────────────────────────────────────────────────
+// ════════════════════════════════════════════════
+//  REGISTRO
+// ════════════════════════════════════════════════
 async function registrar(estado) {
   if (!palletActual || !opActual) return;
-
   const btns = document.querySelectorAll('.btn-act');
   btns.forEach(b => b.disabled = true);
-
   showToast(`Registrando ${estado}...`, '');
 
   const payload = {
     rowIndex:     palletActual.rowIndex,
-    estado:       estado,
+    estado,
     grueroId:     opActual.id,
     grueroNombre: opActual.nombre,
     fecha:        new Date().toLocaleDateString('es-CL'),
@@ -323,7 +788,7 @@ async function registrar(estado) {
   };
 
   try {
-    const res  = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const res  = await fetch(SCRIPT_URL, { method:'POST', body: JSON.stringify(payload) });
     const data = await res.json();
     if (data.ok) {
       showToast('✅ REGISTRADO CON ÉXITO', 'ok');
@@ -338,17 +803,26 @@ async function registrar(estado) {
   }
 }
 
-// ── HELPERS ────────────────────────────────────────────────────
+// ════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════
 function reset() {
   palletActual = null;
-  // Re-habilitar botones ANTES de ocultarlos para que el próximo ciclo arranque limpio
   document.querySelectorAll('.btn-act').forEach(b => b.disabled = false);
-  inputPallet.value = '';
-  inputPallet.className = 'search-input';
-  setStatusIcon('🔍');
-  setHint('Ingresa o escanea el número de pallet', '');
   ocultarResultados();
-  inputPallet.focus();
+
+  if (importActivo) {
+    // En modo importación: limpiar solo el sufijo
+    document.getElementById('input-suffix').value = '';
+    resetSplitEstado();
+    setHint('Ingresa los 2 dígitos del pallet (' + importActivo + '.XX)', 'sup');
+    setTimeout(() => document.getElementById('input-suffix').focus(), 100);
+  } else {
+    document.getElementById('input-pallet').value = '';
+    resetNormalEstado();
+    setHint('Ingresa o escanea el número de pallet', '');
+    setTimeout(() => document.getElementById('input-pallet').focus(), 100);
+  }
 }
 
 function ocultarResultados() {
@@ -356,20 +830,36 @@ function ocultarResultados() {
   document.getElementById('action-btns').style.display  = 'none';
 }
 
-function resetUI() {
-  palletActual = null;
-  ocultarResultados();
+function focusInput() {
+  if (importActivo) {
+    document.getElementById('input-suffix').focus();
+  } else {
+    document.getElementById('input-pallet').focus();
+  }
 }
 
 function setHint(msg, cls) {
   const el = document.getElementById('search-hint');
-  el.textContent  = msg;
-  el.className    = 'search-hint' + (cls ? ' ' + cls : '');
+  el.textContent = msg;
+  el.className   = 'search-hint' + (cls ? ' ' + cls : '');
 }
 
 function setStatusIcon(html) {
-  document.getElementById('status-icon').innerHTML = html;
+  document.getElementById('status-icon-normal').innerHTML = html;
+  document.getElementById('status-icon-split').innerHTML  = html;
 }
+
+function setSplitEstado(cls) {
+  const w = document.getElementById('wrapper-split');
+  w.className = 'split-input-wrapper on' + (cls ? ' ' + cls : '');
+}
+function resetSplitEstado() { setSplitEstado(''); }
+
+function setNormalEstado(cls) {
+  const inp = document.getElementById('input-pallet');
+  inp.className = 'search-input' + (cls ? ' ' + cls : '');
+}
+function resetNormalEstado() { setNormalEstado(''); }
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
