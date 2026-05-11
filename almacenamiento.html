@@ -28,7 +28,11 @@ body { background: var(--bg); color: var(--txt); font-family: 'Exo 2', sans-seri
 .gruero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
 .gruero-btn { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: border-color 0.2s, transform 0.1s; }
 .gruero-btn:active { transform: scale(0.95); border-color: var(--gold); }
+.gruero-btn.disabled { opacity: .35; cursor: not-allowed; filter: grayscale(1); }
+.gruero-btn.disabled:active { transform: none; border-color: var(--border); }
 .gruero-name { font-family: 'Rajdhani', sans-serif; font-weight: 700; margin-top: 8px; }
+.no-import-hint { text-align: center; font-size: 11px; color: var(--txt2); letter-spacing: .5px; padding: 4px 0; display: none; }
+.no-import-hint.on { display: block; }
 /* Badge importación en landing */
 .landing-import-badge {
   display: none; width: 100%;
@@ -313,6 +317,9 @@ body { background: var(--bg); color: var(--txt); font-family: 'Exo 2', sans-seri
     <!-- Grid operadores -->
     <div class="gruero-grid" id="gruero-grid"></div>
 
+    <!-- Aviso cuando no hay importación -->
+    <div class="no-import-hint on" id="no-import-hint">⛔ Asigna una importación antes de seleccionar operador</div>
+
     <!-- Botón supervisor (abajo del grid) -->
     <button class="btn-supervisor-landing" onclick="abrirModalClave()">🔐 SUPERVISOR — Asignar Importación</button>
   </div>
@@ -469,13 +476,27 @@ setInterval(() => {
 
 // ── OPERADORES ────────────────────────────────────
 document.getElementById('gruero-grid').innerHTML = OPERADORES.map(op => `
-  <div class="gruero-btn" onclick="selOperador('${op.id}')">
+  <div class="gruero-btn disabled" id="btn-op-${op.id}" onclick="selOperador('${op.id}')">
     <div style="font-size:30px">${op.emoji}</div>
     <div class="gruero-name">${op.nombre}</div>
   </div>
 `).join('');
 
+function setOperadoresActivos(activo) {
+  OPERADORES.forEach(op => {
+    const btn = document.getElementById('btn-op-' + op.id);
+    if (activo) {
+      btn.classList.remove('disabled');
+    } else {
+      btn.classList.add('disabled');
+    }
+  });
+  const hint = document.getElementById('no-import-hint');
+  if (activo) hint.classList.remove('on'); else hint.classList.add('on');
+}
+
 function selOperador(id) {
+  if (!importActivo) return;  // bloqueado sin importación
   opActual = OPERADORES.find(o => o.id === id);
   document.getElementById('user-name').textContent  = opActual.nombre;
   document.getElementById('fecha-hoy').textContent  = new Date().toLocaleDateString('es-CL');
@@ -603,6 +624,9 @@ function confirmarImport() {
 function activarModoImportacion(num) {
   importActivo = num;
 
+  // Activar botones de operadores
+  setOperadoresActivos(true);
+
   // Badge en landing
   document.getElementById('landing-import-num').textContent = num;
   document.getElementById('landing-import-badge').classList.add('on');
@@ -627,6 +651,7 @@ function activarModoImportacion(num) {
 
 function limpiarImportacion() {
   importActivo = '';
+  setOperadoresActivos(false);
   document.getElementById('landing-import-badge').classList.remove('on');
   document.getElementById('import-badge').classList.remove('on');
   document.getElementById('wrapper-split').classList.remove('on');
