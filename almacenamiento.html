@@ -421,10 +421,26 @@ let debounceTimer  = null;
 let buscando       = false;
 let importActivo   = '';   // '' = sin importación bloqueada, '1864' = bloqueada
 
-// ── RELOJ ─────────────────────────────────────────
-setInterval(() => {
-  document.getElementById('clk').textContent = new Date().toLocaleTimeString('es-CL');
-}, 1000);
+// ── INICIALIZACIÓN ──────────────────────────────────
+window.onload = async () => {
+  // 1. Iniciar Reloj
+  setInterval(() => {
+    document.getElementById('clk').textContent = new Date().toLocaleTimeString('es-CL');
+  }, 1000);
+
+  // 2. Consultar Importación Activa al cargar la página
+  try {
+    const response = await fetch(`${SCRIPT_URL}?action=getImportacionActiva`);
+    const data = await response.json();
+    if (data.ok && data.importacionActiva) {
+      importActivo = data.importacionActiva;
+      activarModoImportacion(importActivo);
+      showToast('📦 Importación ' + importActivo + ' cargada', 'ok');
+    }
+  } catch (e) {
+    console.error('Error al cargar importación inicial:', e);
+  }
+};
 
 // ── OPERADORES ────────────────────────────────────
 document.getElementById('gruero-grid').innerHTML = OPERADORES.map(op => `
@@ -580,22 +596,19 @@ async function confirmarImport() {
   importActivo = val;
   cerrarModalImport();
 
-  // NUEVO: Enviar la importación activa al backend
+  // NUEVO: Enviar la importación activa al backend (Usamos GET para simplificar con Apps Script)
   try {
-    const response = await fetch(`${SCRIPT_URL}?action=setImportacionActiva&num=${encodeURIComponent(val)}`, { method: 'GET' });
+    const response = await fetch(`${SCRIPT_URL}?action=setImportacionActiva&num=${encodeURIComponent(val)}`);
     const data = await response.json();
-    if (!data.ok) {
-      console.error('Error al guardar la importación activa en el backend:', data.error);
-      showToast('❌ Error al guardar importación activa', 'err');
-      // Considerar cómo manejar este error: ¿permitir continuar o bloquear?
+    if (data.ok) {
+      activarModoImportacion(val);
+      showToast('✅ Importación ' + val + ' activada', 'ok');
+    } else {
+      showToast('❌ Error al guardar en servidor', 'err');
     }
   } catch (e) {
-    console.error('Error de red al enviar importación activa:', e);
-    showToast('❌ Error de red al guardar importación', 'err');
+    showToast('❌ Error de conexión', 'err');
   }
-
-  activarModoImportacion(val);
-  showToast('✅ Importación ' + val + ' activada', 'ok');
 }
 
 // ════════════════════════════════════════════════
@@ -784,6 +797,7 @@ async function registrar(estado) {
   showToast(`Registrando ${estado}...`, '');
 
   const payload = {
+    action:       'registrar', // Añadimos la acción al payload para el POST
     rowIndex:     palletActual.rowIndex,
     estado,
     grueroId:     opActual.id,
@@ -793,7 +807,11 @@ async function registrar(estado) {
   };
 
   try {
-    const res  = await fetch(`${SCRIPT_URL}?action=registrar`, { method:'POST', body: JSON.stringify(payload) });
+    // En Apps Script, el POST a veces es más robusto enviando como texto plano o URLSearchParams
+    const res  = await fetch(SCRIPT_URL, { 
+      method:'POST', 
+      body: JSON.stringify(payload) 
+    });
     const data = await res.json();
     if (data.ok) {
       showToast('✅ REGISTRADO CON ÉXITO', 'ok');
