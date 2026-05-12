@@ -44,7 +44,7 @@
             font-size: 22px;
         }
         header span { color: var(--linde-red); }
-
+ 
         .content { padding: 10px; max-width: 900px; margin: 0 auto; flex: 1; width: 100%; }
         
         .grid-operadores {
@@ -85,7 +85,7 @@
             border: 2px solid var(--bg);
         }
         .badge-tareas.zero { display: none; }
-
+ 
         .op-img-container {
             width: 100%;
             height: 80px;
@@ -107,7 +107,7 @@
         }
         .op-name { font-weight: bold; font-size: 11px; display: block; color: var(--txt); line-height: 1.1; }
         .op-sub { font-size: 9px; color: var(--linde-red); text-transform: uppercase; font-weight: bold; margin-bottom: 2px; display: block; }
-
+ 
         .card {
             background: var(--card);
             border-radius: 12px;
@@ -140,7 +140,7 @@
         .btn-red    { background: var(--red);    color: white; }
         .btn-orange { background: var(--orange); color: white; }
         .btn:disabled { opacity: 0.8; cursor: not-allowed; }
-
+ 
         /* ── NO CORRESPONDE achicado ── */
         .btn-nc {
             background: var(--orange);
@@ -151,7 +151,7 @@
             border-radius: 6px;
             letter-spacing: .5px;
         }
-
+ 
         /* ── VISUAL-REPOS ── */
         .btn-visual {
             background: linear-gradient(135deg, #1e3a5f, #2d5986);
@@ -163,7 +163,7 @@
             letter-spacing: .5px;
         }
         .btn-visual:active { opacity: .85; }
-
+ 
         /* ── PANTALLA VISUAL-REPOS ── */
         #secVisualRepos { display: none; }
         .vr-header {
@@ -229,9 +229,9 @@
         .vr-meta { font-size: 11px; color: var(--txt-dim); margin-top: 2px; }
         .vr-empty { text-align: center; padding: 40px 20px; color: var(--txt-dim); }
         .vr-empty .ei { font-size: 40px; margin-bottom: 8px; }
-
+ 
         .fa-gear.spinning { animation: fa-spin 2s infinite linear; font-size: 18px; }
-
+ 
         .firma-autor {
             text-align: center;
             margin-top: 15px;
@@ -241,7 +241,7 @@
             padding: 10px 0;
         }
         .firma-autor strong { color: var(--linde-red); font-weight: 600; }
-
+ 
         .status-msg {
             position: fixed;
             bottom: 20px;
@@ -258,13 +258,13 @@
     </style>
 </head>
 <body>
-
+ 
 <header>
     <h1>REPO<span>SYSTEM</span> APILADORES</h1>
 </header>
-
+ 
 <div class="content">
-
+ 
     <!-- ══ SELECCIÓN OPERADOR ══ -->
     <div id="secSeleccion">
         <h3 style="text-align:center;color:var(--txt-dim);margin-top:10px;font-size:13px;letter-spacing:1px;">¿Seleccione su Nombre..?</h3>
@@ -306,7 +306,7 @@
         </button>
         <div class="firma-autor">Diseñado por: <strong>Raul Layseca</strong></div>
     </div>
-
+ 
     <!-- ══ TAREAS ══ -->
     <div id="secTareas" class="hidden">
         <div class="card">
@@ -319,7 +319,7 @@
             </div>
             <button class="btn" style="background:transparent;border:1px solid var(--border);color:var(--txt-dim);padding:10px;font-size:12px;" onclick="volverASeleccion()">← Volver al Menú</button>
         </div>
-
+ 
         <div id="controlesApilador" class="hidden">
             <div class="card" style="text-align:center;padding:10px;">
                 <!-- Botones REALIZADO y VACÍA — tamaño normal -->
@@ -335,7 +335,7 @@
             </div>
         </div>
     </div>
-
+ 
     <!-- ══ VISUAL-REPOS ══ -->
     <div id="secVisualRepos">
         <div class="vr-header">
@@ -349,23 +349,23 @@
         <div id="vr-lista"></div>
         <button class="btn" style="background:transparent;border:1px solid var(--border);color:var(--txt-dim);padding:10px;font-size:12px;" onclick="cerrarVisualRepos()">← Volver a mis tareas</button>
     </div>
-
+ 
 </div>
-
+ 
 <div id="mensajeGlobal" class="status-msg"></div>
-
+ 
 <script>
     // ══ CONFIGURACIÓN ══
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec";
-
+ 
     let todasLasTareas = [];
     let tareasFiltradas = [];
     let realizadasHoy   = [];   // cache para Visual-Repos
     let indexActual     = 0;
     let nombreOperador  = "";
-
+ 
     window.onload = obtenerContadores;
-
+ 
     // ══ CONTADORES ══
     async function obtenerContadores() {
         const btn   = document.getElementById('btnActualizar');
@@ -375,7 +375,7 @@
         icono.className = "fa-solid fa-gear spinning";
         texto.innerText = 'PROCESANDO...';
         btn.style.backgroundColor = "#1e293b";
-
+ 
         try {
             const resp = await fetch(`${SCRIPT_URL}?action=getTareas`);
             const data = await resp.json();
@@ -397,7 +397,7 @@
             btn.style.backgroundColor = "var(--blue)";
         }
     }
-
+ 
     // ══ SELECCIÓN OPERADOR ══
     function seleccionarOperador(nombre) {
         nombreOperador = nombre;
@@ -407,7 +407,7 @@
         document.getElementById('secTareas').classList.remove('hidden');
         cargarTareas();
     }
-
+ 
     function volverASeleccion() {
         nombreOperador = "";
         document.getElementById('secTareas').classList.add('hidden');
@@ -415,7 +415,7 @@
         document.getElementById('secSeleccion').classList.remove('hidden');
         obtenerContadores();
     }
-
+ 
     // ══ MENSAJE TOAST ══
     function mostrarMensaje(texto, tipo) {
         const m = document.getElementById('mensajeGlobal');
@@ -424,7 +424,7 @@
         m.style.backgroundColor = tipo === 'error' ? 'var(--red)' : tipo === 'success' ? 'var(--green)' : 'var(--blue)';
         setTimeout(() => m.style.display = 'none', 3000);
     }
-
+ 
     // ══ CARGAR TAREAS ══
     async function cargarTareas() {
         document.getElementById('tareaContenido').innerHTML = "<p style='text-align:center;'>Buscando tus tareas...</p>";
@@ -442,10 +442,10 @@
                 const hoy = new Date().toLocaleDateString('es-CL');
                 realizadasHoy = todasLasTareas.filter(t =>
                     t.operador.toLowerCase().includes(nombreOperador.split(' ')[0].toLowerCase())
-                    && t.resultado === 'REALIZADO'
-                    && t.fecha_ejec === hoy
+                    && String(t.resultado).toUpperCase().trim() === 'REALIZADO'
+                    && String(t.fecha_ejec).replace(/\//g, '-') === hoy.replace(/\//g, '-')
                 );
-
+ 
                 if (tareasFiltradas.length > 0) {
                     indexActual = 0;
                     mostrarTarea();
@@ -461,7 +461,7 @@
             }
         } catch(err) { mostrarMensaje("Error de conexión", "error"); }
     }
-
+ 
     // ══ MOSTRAR TAREA ACTUAL ══
     function mostrarTarea() {
         const t = tareasFiltradas[indexActual];
@@ -475,7 +475,7 @@
             <div class="info-row"><span class="info-label">Destino</span><span class="info-value" style="color:var(--green);">${t.ubic_destino}</span></div>
         `;
     }
-
+ 
     // ══ ENVIAR RESULTADO ══
     async function enviarResultado(resultado) {
         const t   = tareasFiltradas[indexActual];
@@ -490,7 +490,7 @@
             fecha:       now.toLocaleDateString('es-CL'),
             hora:        now.toLocaleTimeString('es-CL')
         };
-
+ 
         mostrarMensaje("Grabando...", "info");
         try {
             const resp = await fetch(SCRIPT_URL, {
@@ -524,17 +524,17 @@
             }, 900);
         } catch(err) { mostrarMensaje("❌ Error al grabar: " + err.message, "error"); }
     }
-
+ 
     // ══ VISUAL-REPOS ══
     function mostrarVisualRepos() {
         const hoy    = new Date().toLocaleDateString('es-CL');
         const nombre = nombreOperador.split(' ').slice(0, 2).join(' ');
-
+ 
         document.getElementById('vr-subtitulo').textContent = nombre + ' — REALIZADAS hoy';
         document.getElementById('vr-fecha').textContent     = hoy;
         document.getElementById('vr-total').textContent     =
             realizadasHoy.length + ' ubicación' + (realizadasHoy.length !== 1 ? 'es' : '');
-
+ 
         if (!realizadasHoy.length) {
             document.getElementById('vr-lista').innerHTML = `
                 <div class="vr-empty">
@@ -553,12 +553,12 @@
                 </div>
             `).join('');
         }
-
+ 
         // Ocultar tareas, mostrar Visual-Repos
         document.getElementById('secTareas').classList.add('hidden');
         document.getElementById('secVisualRepos').style.display = 'block';
     }
-
+ 
     function cerrarVisualRepos() {
         document.getElementById('secVisualRepos').style.display = 'none';
         document.getElementById('secTareas').classList.remove('hidden');
