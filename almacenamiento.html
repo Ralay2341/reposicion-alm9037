@@ -1,568 +1,885 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APILADORES - RepoSYSTEM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --bg: #0b0f18;
-            --card: #131926;
-            --linde-red: #e30613;
-            --blue: #3b82f6;
-            --green: #22c55e;
-            --red: #ef4444;
-            --orange: #f97316;
-            --txt: #e8eaf0;
-            --txt-dim: #8896b0;
-            --border: #1e2d45;
-        }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
-            font-family: 'Barlow', sans-serif;
-            background-color: var(--bg);
-            color: var(--txt);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        header {
-            background: linear-gradient(180deg, #090e1a, #111827);
-            padding: 15px;
-            text-align: center;
-            border-bottom: 3px solid var(--linde-red);
-        }
-        header h1 {
-            font-family: 'Barlow Condensed', sans-serif;
-            margin: 0;
-            color: var(--txt);
-            letter-spacing: 2px;
-            font-size: 22px;
-        }
-        header span { color: var(--linde-red); }
- 
-        .content { padding: 10px; max-width: 900px; margin: 0 auto; flex: 1; width: 100%; }
-        
-        .grid-operadores {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .op-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            overflow: visible;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-        .op-card:active { transform: scale(0.95); background: #1a2234; }
-        
-        .badge-tareas {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: var(--linde-red);
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-            z-index: 10;
-            border: 2px solid var(--bg);
-        }
-        .badge-tareas.zero { display: none; }
- 
-        .op-img-container {
-            width: 100%;
-            height: 80px;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 5px;
-            border-radius: 10px 10px 0 0;
-        }
-        .op-img-container img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-        .op-info {
-            padding: 8px 4px;
-            text-align: center;
-        }
-        .op-name { font-weight: bold; font-size: 11px; display: block; color: var(--txt); line-height: 1.1; }
-        .op-sub { font-size: 9px; color: var(--linde-red); text-transform: uppercase; font-weight: bold; margin-bottom: 2px; display: block; }
- 
-        .card {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border);
-        }
-        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
-        .info-label { color: var(--linde-red); font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .info-value { font-weight: 600; font-size: 14px; text-align: right; }
-        
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            font-size: 14px;
-            transition: 0.3s;
-        }
-        .btn-blue   { background: var(--blue);   color: white; }
-        .btn-green  { background: var(--green);  color: white; }
-        .btn-red    { background: var(--red);    color: white; }
-        .btn-orange { background: var(--orange); color: white; }
-        .btn:disabled { opacity: 0.8; cursor: not-allowed; }
- 
-        /* ── NO CORRESPONDE achicado ── */
-        .btn-nc {
-            background: var(--orange);
-            color: white;
-            padding: 9px 14px;
-            font-size: 11px;
-            margin-top: 8px;
-            border-radius: 6px;
-            letter-spacing: .5px;
-        }
- 
-        /* ── VISUAL-REPOS ── */
-        .btn-visual {
-            background: linear-gradient(135deg, #1e3a5f, #2d5986);
-            color: #7ec8e3;
-            border: 1.5px solid #2d5986;
-            padding: 13px 16px;
-            font-size: 13px;
-            margin-top: 8px;
-            letter-spacing: .5px;
-        }
-        .btn-visual:active { opacity: .85; }
- 
-        /* ── PANTALLA VISUAL-REPOS ── */
-        #secVisualRepos { display: none; }
-        .vr-header {
-            background: linear-gradient(135deg, #0f2744, #1a3a5c);
-            border: 1px solid #2d5986;
-            border-radius: 12px;
-            padding: 14px 16px;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-        .vr-header h3 {
-            margin: 0;
-            color: #7ec8e3;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 22px;
-            font-weight: 900;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        .vr-header p { margin: 4px 0 0; color: #4a7fa5; font-size: 12px; }
-        .vr-count {
-            background: #1a2f1a;
-            border: 1px solid #2e7d32;
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .vr-count span { color: #4caf50; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; }
-        .vr-count small { color: #388e3c; font-size: 11px; }
-        .vr-item {
-            background: var(--card);
-            border: 1.5px solid #2e7d32;
-            border-radius: 12px;
-            padding: 12px 14px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .vr-num {
-            background: #2e7d32;
-            color: #fff;
-            border-radius: 8px;
-            min-width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 13px;
-            flex-shrink: 0;
-        }
-        .vr-ubic {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 19px;
-            font-weight: 700;
-            color: #4caf50;
-            letter-spacing: .5px;
-        }
-        .vr-meta { font-size: 11px; color: var(--txt-dim); margin-top: 2px; }
-        .vr-empty { text-align: center; padding: 40px 20px; color: var(--txt-dim); }
-        .vr-empty .ei { font-size: 40px; margin-bottom: 8px; }
- 
-        .fa-gear.spinning { animation: fa-spin 2s infinite linear; font-size: 18px; }
- 
-        .firma-autor {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 12px;
-            color: var(--txt-dim);
-            letter-spacing: 1px;
-            padding: 10px 0;
-        }
-        .firma-autor strong { color: var(--linde-red); font-weight: 600; }
- 
-        .status-msg {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-weight: bold;
-            display: none;
-            z-index: 1000;
-            font-size: 13px;
-        }
-        .hidden { display: none; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Almacenamiento ALM9037 - V3</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Share+Tech+Mono&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c14; --surface: #0e1520; --card: #121c2e; --border: #1e3050;
+  --gold: #f0a500; --cyan: #00d4ff; --green: #00e676; --red: #ff4444;
+  --orange: #ff8c00; --txt: #d0e4ff; --txt2: #6b8aac; --purple: #a855f7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--txt); font-family: 'Exo 2', sans-serif; height: 100vh; overflow: hidden; }
+
+.hdr { background: #0a1020; border-bottom: 2px solid var(--gold); padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; }
+.hdr-logo { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 2px; }
+.hdr-clock { font-family: 'Share Tech Mono', monospace; font-size: 18px; color: var(--cyan); }
+
+.screen { position: fixed; inset: 0; padding-top: 60px; display: none; flex-direction: column; overflow-y: auto; }
+.screen.on { display: flex; }
+
+/* LANDING */
+#s-landing { align-items: center; justify-content: center; padding: 20px; }
+.landing-inner { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 14px; }
+.landing-title { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color: var(--gold); text-align: center; letter-spacing: 1px; }
+.gruero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+.gruero-btn { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: border-color 0.2s, transform 0.1s; }
+.gruero-btn:active { transform: scale(0.95); border-color: var(--gold); }
+.gruero-btn.disabled { opacity: .35; cursor: not-allowed; filter: grayscale(1); }
+.gruero-btn.disabled:active { transform: none; border-color: var(--border); }
+.gruero-name { font-family: 'Rajdhani', sans-serif; font-weight: 700; margin-top: 8px; }
+.no-import-hint { text-align: center; font-size: 11px; color: var(--txt2); letter-spacing: .5px; padding: 4px 0; display: none; }
+.no-import-hint.on { display: block; }
+/* Badge importación en landing */
+.landing-import-badge {
+  display: none; width: 100%;
+  background: rgba(168,85,247,.1); border: 1px solid rgba(168,85,247,.35);
+  border-radius: 10px; padding: 10px 14px;
+  align-items: center; justify-content: space-between;
+  animation: fadeIn .3s ease;
+}
+.landing-import-badge.on { display: flex; }
+/* Botón supervisor en landing */
+.btn-supervisor-landing {
+  width: 100%; padding: 14px; border-radius: 10px;
+  background: transparent; border: 2px solid rgba(168,85,247,.4);
+  color: var(--purple); font-family: 'Rajdhani', sans-serif;
+  font-size: 16px; font-weight: 700; letter-spacing: 1px;
+  cursor: pointer; transition: background .2s, border-color .2s; text-transform: uppercase;
+}
+.btn-supervisor-landing:active { background: rgba(168,85,247,.12); border-color: var(--purple); }
+
+/* MAIN */
+#s-main { padding: 15px; max-width: 500px; margin: 0 auto; width: 100%; }
+
+/* USER BAR */
+.user-bar {
+  background: var(--card); padding: 12px; border-radius: 12px;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 15px; border: 1px solid var(--border);
+}
+.user-bar-btns { display: flex; gap: 8px; align-items: center; }
+.btn-logout {
+  background: transparent; border: 1px solid var(--red);
+  color: var(--red); padding: 5px 10px; border-radius: 6px;
+  font-size: 11px; cursor: pointer; font-family: 'Exo 2', sans-serif;
+  font-weight: 600; letter-spacing: .5px;
+}
+.btn-supervisor {
+  background: transparent; border: 1px solid var(--purple);
+  color: var(--purple); padding: 5px 10px; border-radius: 6px;
+  font-size: 11px; cursor: pointer; font-family: 'Exo 2', sans-serif;
+  font-weight: 700; letter-spacing: .5px;
+  transition: background .2s;
+}
+.btn-supervisor:active { background: rgba(168,85,247,.15); }
+
+/* BADGE IMPORTACIÓN ACTIVA */
+.import-badge {
+  display: none;
+  background: rgba(168,85,247,.1);
+  border: 1px solid rgba(168,85,247,.35);
+  border-radius: 10px;
+  padding: 9px 14px;
+  margin-bottom: 12px;
+  align-items: center;
+  justify-content: space-between;
+  animation: fadeIn .3s ease;
+}
+.import-badge.on { display: flex; }
+.import-badge-left { display: flex; align-items: center; gap: 10px; }
+.import-badge-icon { font-size: 18px; }
+.import-badge-k { font-size: 10px; color: var(--txt2); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
+.import-badge-v { font-family: 'Share Tech Mono', monospace; font-size: 16px; color: var(--purple); letter-spacing: 2px; font-weight: 700; }
+.import-badge-clear {
+  font-size: 10px; color: var(--txt2); cursor: pointer;
+  border: 1px solid var(--border); border-radius: 5px;
+  padding: 4px 8px; font-weight: 600; font-family: 'Exo 2', sans-serif;
+}
+
+/* SEARCH BOX */
+.search-box { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; }
+
+/* INPUT NORMAL (sin importación bloqueada) */
+.input-wrapper { position: relative; margin-bottom: 8px; }
+.search-input {
+  width: 100%; background: var(--bg); border: 2px solid var(--border);
+  border-radius: 8px; padding: 14px 48px 14px 14px;
+  color: #fff; font-family: 'Share Tech Mono', monospace;
+  font-size: 22px; outline: none; letter-spacing: 2px; transition: border-color 0.2s;
+}
+.search-input:focus { border-color: var(--gold); }
+.search-input.buscando { border-color: var(--cyan); animation: pulse-border 0.8s infinite; }
+.search-input.encontrado { border-color: var(--green); }
+.search-input.error { border-color: var(--red); }
+
+/* INPUT DIVIDIDO (con prefijo de importación bloqueado) */
+.split-input-wrapper {
+  display: none;
+  align-items: center;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.split-input-wrapper.on { display: flex; }
+.split-input-wrapper.buscando { border-color: var(--cyan); animation: pulse-border 0.8s infinite; }
+.split-input-wrapper.encontrado { border-color: var(--green); }
+.split-input-wrapper.error { border-color: var(--red); }
+
+.split-prefix {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 22px; letter-spacing: 2px;
+  color: var(--purple); padding: 14px 0 14px 14px;
+  flex-shrink: 0; user-select: none; white-space: nowrap;
+}
+.split-suffix {
+  flex: 1; background: transparent; border: none; outline: none;
+  font-family: 'Share Tech Mono', monospace; font-size: 22px;
+  letter-spacing: 4px; color: #fff;
+  padding: 14px 48px 14px 2px;
+  width: 80px; min-width: 0;
+}
+.split-suffix::placeholder { color: #2a4060; letter-spacing: 2px; }
+
+.status-icon {
+  position: absolute; right: 14px; top: 50%;
+  transform: translateY(-50%); font-size: 20px;
+}
+/* Para split-input el status va relativo al wrapper */
+.split-status {
+  position: relative; flex-shrink: 0;
+  font-size: 20px; padding-right: 14px; line-height: 1;
+  display: flex; align-items: center;
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: var(--cyan); box-shadow: 0 0 0 0 rgba(0,212,255,.3); }
+  50%       { border-color: var(--cyan); box-shadow: 0 0 0 6px rgba(0,212,255,0); }
+}
+
+.search-hint {
+  font-size: 11px; color: var(--txt2); text-align: center;
+  font-family: 'Share Tech Mono', monospace; min-height: 16px; transition: color .2s;
+}
+.search-hint.active { color: var(--cyan); }
+.search-hint.ok { color: var(--green); }
+.search-hint.err { color: var(--red); }
+.search-hint.sup { color: var(--purple); }
+
+/* RESULTADOS */
+.pallet-info {
+  background: var(--card); padding: 15px; border-radius: 12px;
+  border: 1px solid var(--border); margin-bottom: 15px;
+  display: none; animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.info-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #1e3050; align-items: center; }
+.info-row:last-child { border-bottom: none; }
+.info-k { font-size: 11px; color: var(--txt2); text-transform: uppercase; }
+.info-v { font-family: 'Share Tech Mono', monospace; font-size: 15px; text-align: right; max-width: 65%; word-break: break-word; }
+
+.action-btns { display: none; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-act { padding: 20px; border-radius: 12px; border: none; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 17px; cursor: pointer; color: #000; transition: transform 0.1s, filter 0.1s; }
+.btn-realizado { background: var(--green); }
+.btn-pendiente { background: var(--orange); }
+.btn-act:active { transform: scale(0.95); filter: brightness(0.9); }
+
+/* SPINNER */
+.spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(0,212,255,.3); border-top-color: var(--cyan); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* TOAST */
+.toast { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #000; border: 1px solid var(--border); padding: 15px; border-radius: 10px; text-align: center; transform: translateY(100px); transition: .3s; z-index: 100; font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; }
+.toast.on { transform: translateY(0); }
+.toast.ok { border-color: var(--green); color: var(--green); }
+.toast.err { border-color: var(--red); color: var(--red); }
+
+/* ════════════════════════════════════════
+   MODAL BASE
+════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.75); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.on { display: flex; }
+
+.modal-box {
+  background: #0e1520; border: 2px solid var(--purple);
+  border-radius: 18px; padding: 28px 24px;
+  width: 100%; max-width: 360px;
+  box-shadow: 0 0 40px rgba(168,85,247,.2);
+  animation: modalIn .25s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes modalIn { from { transform: scale(.85); opacity:0; } to { transform: scale(1); opacity:1; } }
+
+.modal-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px; font-weight: 700; color: var(--purple);
+  text-align: center; margin-bottom: 20px;
+}
+.modal-input {
+  width: 100%; background: var(--bg); border: 2px solid var(--border);
+  border-radius: 8px; padding: 14px; color: #fff;
+  font-family: 'Share Tech Mono', monospace; font-size: 22px;
+  outline: none; letter-spacing: 2px; text-align: center;
+  margin-bottom: 15px;
+}
+.modal-input:focus { border-color: var(--purple); }
+.modal-input::placeholder { color: #2a4060; }
+.modal-btn {
+  width: 100%; padding: 14px; border-radius: 10px;
+  background: var(--purple); border: none; color: #fff;
+  font-family: 'Rajdhani', sans-serif; font-size: 16px;
+  font-weight: 700; letter-spacing: 1px; cursor: pointer;
+  transition: background .2s; text-transform: uppercase;
+}
+.modal-btn:active { background: #9333ea; }
+.modal-btn:disabled { opacity: .35; cursor: not-allowed; }
+.modal-error { font-size: 11px; color: var(--red); text-align: center; min-height: 16px; margin-top: -10px; margin-bottom: 10px; }
+
+/* ════════════════════════════════════════
+   MODAL CLAVE
+════════════════════════════════════════ */
+#modal-clave .modal-box { border-color: var(--gold); box-shadow: 0 0 40px rgba(240,165,0,.2); }
+#modal-clave .modal-title { color: var(--gold); }
+#modal-clave .modal-btn { background: var(--gold); }
+#modal-clave .modal-btn:active { background: #d49000; }
+
+.clave-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+.clave-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--border); transition: background .2s; }
+.clave-dot.on { background: var(--gold); }
+
+.teclado-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  width: 100%; max-width: 280px; margin: 0 auto;
+}
+.teclado-grid button {
+  background: #182236; border: 1px solid #1e3050; border-radius: 8px;
+  padding: 16px; font-size: 20px; font-family: 'Share Tech Mono', monospace;
+  color: var(--txt); cursor: pointer; transition: background .1s;
+}
+.teclado-grid button:active { background: #243452; }
+.teclado-grid button.confirm { color: var(--green); }
+.teclado-grid button.delete { color: var(--red); }
+
+/* ════════════════════════════════════════
+   MODAL IMPORTACIÓN
+════════════════════════════════════════ */
+#modal-import .modal-box { border-color: var(--purple); box-shadow: 0 0 40px rgba(168,85,247,.2); }
+#modal-import .modal-title { color: var(--purple); }
+#modal-import .modal-btn { background: var(--purple); }
+#modal-import .modal-btn:active { background: #9333ea; }
+
+</style>
 </head>
 <body>
- 
-<header>
-    <h1>REPO<span>SYSTEM</span> APILADORES</h1>
-</header>
- 
-<div class="content">
- 
-    <!-- ══ SELECCIÓN OPERADOR ══ -->
-    <div id="secSeleccion">
-        <h3 style="text-align:center;color:var(--txt-dim);margin-top:10px;font-size:13px;letter-spacing:1px;">¿Seleccione su Nombre..?</h3>
-        <div class="grid-operadores">
-            <div class="op-card" onclick="seleccionarOperador('Francisco Vigueras')">
-                <div id="badge-Francisco" class="badge-tareas zero">0</div>
-                <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
-                <div class="op-info"><span class="op-sub">Apilador 1</span><span class="op-name">Francisco Vigueras</span></div>
-            </div>
-            <div class="op-card" onclick="seleccionarOperador('Diego Nahuelcheo')">
-                <div id="badge-Diego" class="badge-tareas zero">0</div>
-                <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
-                <div class="op-info"><span class="op-sub">Apilador 2</span><span class="op-name">Diego Nahuelcheo</span></div>
-            </div>
-            <div class="op-card" onclick="seleccionarOperador('Gonzalo Díaz')">
-                <div id="badge-Gonzalo" class="badge-tareas zero">0</div>
-                <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
-                <div class="op-info"><span class="op-sub">Apilador 3</span><span class="op-name">Gonzalo Díaz</span></div>
-            </div>
-            <div class="op-card" onclick="seleccionarOperador('Jorge González')">
-                <div id="badge-Jorge" class="badge-tareas zero">0</div>
-                <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
-                <div class="op-info"><span class="op-sub">Apilador 4</span><span class="op-name">Jorge González</span></div>
-            </div>
-            <div class="op-card" onclick="seleccionarOperador('Jim San')">
-                <div id="badge-Jim" class="badge-tareas zero">0</div>
-                <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
-                <div class="op-info"><span class="op-sub">Apilador 5</span><span class="op-name">Jim San</span></div>
-            </div>
-            <div class="op-card" onclick="seleccionarOperador('Grúa Apoyo')">
-                <div id="badge-Grúa" class="badge-tareas zero">0</div>
-                <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
-                <div class="op-info"><span class="op-sub">Apilador 6</span><span class="op-name">Grúa Apoyo</span></div>
-            </div>
-        </div>
-        <button id="btnActualizar" class="btn btn-blue" onclick="obtenerContadores()">
-            <i id="iconoBtn" class="fa-solid fa-arrows-rotate"></i>
-            <span id="textoBtn">Actualizar Contadores</span>
-        </button>
-        <div class="firma-autor">Diseñado por: <strong>Raul Layseca</strong></div>
-    </div>
- 
-    <!-- ══ TAREAS ══ -->
-    <div id="secTareas" class="hidden">
-        <div class="card">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <h3 id="tituloOperador" style="margin:0;color:var(--linde-red);font-size:13px;">TAREAS</h3>
-                <span id="contador" style="font-size:11px;color:var(--txt-dim);">0 / 0</span>
-            </div>
-            <div id="tareaContenido">
-                <p style="text-align:center;color:var(--txt-dim);padding:10px;">Buscando tareas...</p>
-            </div>
-            <button class="btn" style="background:transparent;border:1px solid var(--border);color:var(--txt-dim);padding:10px;font-size:12px;" onclick="volverASeleccion()">← Volver al Menú</button>
-        </div>
- 
-        <div id="controlesApilador" class="hidden">
-            <div class="card" style="text-align:center;padding:10px;">
-                <!-- Botones REALIZADO y VACÍA — tamaño normal -->
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                    <button class="btn btn-green" style="margin-top:0;" onclick="enviarResultado('REALIZADO')">✅ REALIZADO</button>
-                    <button class="btn btn-red"   style="margin-top:0;" onclick="enviarResultado('UBIC. VACÍA')">📭 VACÍA</button>
-                </div>
-                <!-- NO CORRESPONDE — achicado -->
-                <button class="btn btn-nc" onclick="enviarResultado('CÓD. NO CORRESPONDE')">🔄 Cód. No Corresponde</button>
-                <!-- VISUAL-REPOS — nuevo -->
-                <button class="btn btn-visual" onclick="mostrarVisualRepos()">📋 Visual-Repos</button>
-                <div class="firma-autor">Diseñado por: <strong>Raul Layseca</strong></div>
-            </div>
-        </div>
-    </div>
- 
-    <!-- ══ VISUAL-REPOS ══ -->
-    <div id="secVisualRepos">
-        <div class="vr-header">
-            <h3>📋 Visual-Repos</h3>
-            <p id="vr-subtitulo">Reposiciones REALIZADAS hoy</p>
-        </div>
-        <div class="vr-count">
-            <span id="vr-total">0 ubicaciones</span>
-            <small id="vr-fecha"></small>
-        </div>
-        <div id="vr-lista"></div>
-        <button class="btn" style="background:transparent;border:1px solid var(--border);color:var(--txt-dim);padding:10px;font-size:12px;" onclick="cerrarVisualRepos()">← Volver a mis tareas</button>
-    </div>
- 
+
+<div class="hdr">
+  <div class="hdr-logo">ALM9037</div>
+  <div class="hdr-clock" id="clk"></div>
 </div>
- 
-<div id="mensajeGlobal" class="status-msg"></div>
- 
+
+<!-- LANDING SCREEN -->
+<div class="screen on" id="s-landing">
+  <div class="landing-inner">
+    <div class="landing-title">Selecciona tu usuario</div>
+    <div class="gruero-grid" id="gruero-grid"></div>
+    <div class="no-import-hint on" id="no-import-hint">El supervisor debe asignar una importación primero</div>
+
+    <div class="landing-import-badge" id="landing-import-badge">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:20px;">📦</div>
+        <div>
+          <div style="font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Importación Activa</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:16px;color:var(--purple);letter-spacing:2px;font-weight:700;" id="landing-import-num"></div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--txt2);cursor:pointer;border:1px solid var(--border);border-radius:5px;padding:4px 8px;font-weight:600;font-family:'Exo 2',sans-serif;" onclick="limpiarImportacion()">Limpiar</div>
+    </div>
+
+    <button class="btn-supervisor-landing" onclick="abrirModalClave()">Soy Supervisor</button>
+  </div>
+</div>
+
+<!-- MAIN SCREEN -->
+<div class="screen" id="s-main-screen">
+  <div class="user-bar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="font-size:20px;">👨‍🏭</div>
+      <div style="font-weight:700;" id="user-name"></div>
+    </div>
+    <div class="user-bar-btns">
+      <div class="btn-supervisor" onclick="abrirModalClave()">Supervisor</div>
+      <div class="btn-logout" onclick="volverLanding()">Salir</div>
+    </div>
+  </div>
+
+  <div class="import-badge" id="import-badge">
+    <div class="import-badge-left">
+      <div class="import-badge-icon">📦</div>
+      <div>
+        <div class="import-badge-k">Importación Activa</div>
+        <div class="import-badge-v" id="import-badge-num"></div>
+      </div>
+    </div>
+    <div class="import-badge-clear" onclick="limpiarImportacion()">Limpiar</div>
+  </div>
+
+  <div class="search-box">
+    <div class="input-wrapper" id="wrapper-normal">
+      <input type="text" class="search-input" id="input-pallet" placeholder="Pallet" autocomplete="off" inputmode="numeric">
+      <div class="status-icon" id="status-icon-normal"></div>
+    </div>
+    <div class="split-input-wrapper" id="wrapper-split">
+      <div class="split-prefix" id="split-prefix"></div>
+      <input type="text" class="split-suffix" id="input-suffix" placeholder="XX" autocomplete="off" inputmode="numeric">
+      <div class="split-status" id="status-icon-split"></div>
+    </div>
+    <div class="search-hint" id="search-hint">Ingresa o escanea el número de pallet</div>
+  </div>
+
+  <div class="pallet-info" id="pallet-info">
+    <div class="info-row">
+      <div class="info-k">Pallet</div>
+      <div class="info-v" id="v-pallet"></div>
+    </div>
+    <div class="info-row">
+      <div class="info-k">Ubicación</div>
+      <div class="info-v" id="v-ubic"></div>
+    </div>
+    <div class="info-row">
+      <div class="info-k">SAP</div>
+      <div class="info-v" id="v-sap"></div>
+    </div>
+    <div class="info-row">
+      <div class="info-k">Descripción</div>
+      <div class="info-v" id="v-desc"></div>
+    </div>
+    <div class="info-row">
+      <div class="info-k">Cantidad</div>
+      <div class="info-v" id="v-qty"></div>
+    </div>
+  </div>
+
+  <div class="action-btns" id="action-btns">
+    <button class="btn-act btn-realizado" onclick="registrar('REALIZADO')">Realizado</button>
+    <button class="btn-act btn-pendiente" onclick="registrar('PENDIENTE')">Pendiente</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- MODAL CLAVE -->
+<div class="modal-overlay" id="modal-clave">
+  <div class="modal-box">
+    <div class="modal-title">Ingresa Clave Supervisor</div>
+    <div class="clave-dots">
+      <div class="clave-dot" id="dot-0"></div>
+      <div class="clave-dot" id="dot-1"></div>
+      <div class="clave-dot" id="dot-2"></div>
+      <div class="clave-dot" id="dot-3"></div>
+      <div class="clave-dot" id="dot-4"></div>
+    </div>
+    <div class="modal-error" id="error-clave"></div>
+    <div class="teclado-grid" id="teclado-clave"></div>
+    <button class="modal-btn" id="btn-confirmar-clave" onclick="confirmarClave()" disabled>Confirmar</button>
+  </div>
+</div>
+
+<!-- MODAL NÚMERO IMPORTACIÓN -->
+<div class="modal-overlay" id="modal-import">
+  <div class="modal-box">
+    <div class="modal-title">Asignar Importación</div>
+    <input type="text" class="modal-input" id="input-import" placeholder="XXXX" maxlength="4" inputmode="numeric" oninput="onImportInput()">
+    <div class="modal-error" id="error-import"></div>
+    <button class="modal-btn" id="btn-confirmar-import" onclick="confirmarImport()" disabled>Asignar</button>
+  </div>
+</div>
+
 <script>
-    // ══ CONFIGURACIÓN ══
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpL300-rxjv_X82spLrOpSdgBM0K2T2Hvtbsla1YeFuBzJdfCITGHcvXcx4fFHL6opRg/exec";
- 
-    let todasLasTareas = [];
-    let tareasFiltradas = [];
-    let realizadasHoy   = [];   // cache para Visual-Repos
-    let indexActual     = 0;
-    let nombreOperador  = "";
- 
-    window.onload = obtenerContadores;
- 
-    // ══ CONTADORES ══
-    async function obtenerContadores() {
-        const btn   = document.getElementById('btnActualizar');
-        const icono = document.getElementById('iconoBtn');
-        const texto = document.getElementById('textoBtn');
-        btn.disabled = true;
-        icono.className = "fa-solid fa-gear spinning";
-        texto.innerText = 'PROCESANDO...';
-        btn.style.backgroundColor = "#1e293b";
- 
-        try {
-            const resp = await fetch(`${SCRIPT_URL}?action=getTareas`);
-            const data = await resp.json();
-            if (data.tareas) {
-                todasLasTareas = data.tareas;
-                ['Francisco','Diego','Gonzalo','Jorge','Jim','Grúa'].forEach(op => {
-                    const cant  = todasLasTareas.filter(t =>
-                        t.operador.toLowerCase().includes(op.toLowerCase()) && !t.resultado
-                    ).length;
-                    const badge = document.getElementById(`badge-${op}`);
-                    if (badge) { badge.innerText = cant; badge.classList.toggle('zero', cant === 0); }
-                });
-            }
-        } catch(err) { console.error("Error contadores:", err); }
-        finally {
-            btn.disabled = false;
-            icono.className = "fa-solid fa-arrows-rotate";
-            texto.innerText = 'ACTUALIZAR CONTADORES';
-            btn.style.backgroundColor = "var(--blue)";
-        }
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0QsRE6vmsFPXtQSdsmJsrZxB4fmCPhYAjEp2oFgxv9BZ5rTSD0nTSZXo3IAWbecY/exec';
+const CLAVE_SUPERVISOR = '00435';
+
+const OPERADORES = [
+  { id:'G1', nombre:'Francisco Vigueras', emoji:'🔋' },
+  { id:'G2', nombre:'Diego Nahuelcheo',   emoji:'🔋' },
+  { id:'G3', nombre:'Gonzalo Díaz',       emoji:'🔋' },
+  { id:'G4', nombre:'Jorge González',     emoji:'🔋' },
+];
+
+let opActual       = null;
+let palletActual   = null;
+let debounceTimer  = null;
+let buscando       = false;
+let importActivo   = '';   // '' = sin importación bloqueada, '1864' = bloqueada
+
+// ── RELOJ ─────────────────────────────────────────
+setInterval(() => {
+  document.getElementById('clk').textContent = new Date().toLocaleTimeString('es-CL');
+}, 1000);
+
+// ── OPERADORES ────────────────────────────────────
+document.getElementById('gruero-grid').innerHTML = OPERADORES.map(op => `
+  <div class="gruero-btn disabled" id="btn-op-${op.id}" onclick="selOperador('${op.id}')">
+    <div style="font-size:30px">${op.emoji}</div>
+    <div class="gruero-name">${op.nombre}</div>
+  </div>
+`).join('');
+
+function setOperadoresActivos(activo) {
+  OPERADORES.forEach(op => {
+    const btn = document.getElementById('btn-op-' + op.id);
+    if (activo) {
+      btn.classList.remove('disabled');
+    } else {
+      btn.classList.add('disabled');
     }
- 
-    // ══ SELECCIÓN OPERADOR ══
-    function seleccionarOperador(nombre) {
-        nombreOperador = nombre;
-        document.getElementById('tituloOperador').innerText = `OPERADOR: ${nombre.toUpperCase()}`;
-        document.getElementById('secSeleccion').classList.add('hidden');
-        document.getElementById('secVisualRepos').style.display = 'none';
-        document.getElementById('secTareas').classList.remove('hidden');
-        cargarTareas();
+  });
+  const hint = document.getElementById('no-import-hint');
+  if (activo) hint.classList.remove('on'); else hint.classList.add('on');
+}
+
+async function selOperador(id) {
+  opActual = OPERADORES.find(o => o.id === id);
+  document.getElementById('user-name').textContent  = opActual.nombre;
+  document.getElementById('fecha-hoy').textContent  = new Date().toLocaleDateString('es-CL');
+  showScreen('s-main-screen');
+
+  // NUEVO: Consultar la importación activa del backend
+  try {
+    const response = await fetch(`${SCRIPT_URL}?action=getImportacionActiva`, { method: 'GET' });
+    const data = await response.json();
+    if (data.ok && data.importacionActiva) {
+      importActivo = data.importacionActiva; // Actualizar la variable local
+      activarModoImportacion(importActivo);
+    } else if (!data.ok) {
+      console.error('Error al obtener importación activa del backend:', data.error);
     }
- 
-    function volverASeleccion() {
-        nombreOperador = "";
-        document.getElementById('secTareas').classList.add('hidden');
-        document.getElementById('secVisualRepos').style.display = 'none';
-        document.getElementById('secSeleccion').classList.remove('hidden');
-        obtenerContadores();
+  } catch (e) {
+    console.error('Error de red al obtener importación activa:', e);
+  }
+
+  // Si el supervisor ya asignó importación, activar modo dividido
+  if (importActivo) {
+    activarModoImportacion(importActivo);
+  } else {
+    setTimeout(() => document.getElementById('input-pallet').focus(), 150);
+  }
+}
+
+// ════════════════════════════════════════════════
+//  MODAL CONTRASEÑA
+// ════════════════════════════════════════════════
+let claveIngresada = '';
+
+function buildTeclado() {
+  const nums = ['1','2','3','4','5','6','7','8','9','←','0','✓'];
+  document.getElementById('teclado-clave').innerHTML = nums.map(n => `
+    <button onclick="teclaPresionada('${n}')"
+      style="background:#182236;border:1px solid #1e3050;border-radius:8px;
+             padding:16px;font-size:20px;font-family:'Share Tech Mono',monospace;
+             color:${n==='✓'?'var(--green)':n==='←'?'var(--red)':'var(--txt)'};
+             cursor:pointer;transition:background .1s;"
+      onmousedown="this.style.background='#243452'"
+      onmouseup="this.style.background='#182236'"
+      ontouchstart="this.style.background='#243452'"
+      ontouchend="this.style.background='#182236'"
+    >${n}</button>
+  `).join('');
+}
+buildTeclado();
+
+function teclaPresionada(k) {
+  if (k === '←') {
+    claveIngresada = claveIngresada.slice(0, -1);
+  } else if (k === '✓') {
+    confirmarClave();
+    return;
+  } else {
+    if (claveIngresada.length < 5) claveIngresada += k;
+  }
+  actualizarDots();
+  document.getElementById('error-clave').textContent = '';
+  document.getElementById('btn-confirmar-clave').disabled = (claveIngresada.length < 5);
+}
+
+function actualizarDots() {
+  for (let i = 0; i < 5; i++) {
+    document.getElementById('dot-' + i).classList.toggle('on', i < claveIngresada.length);
+  }
+}
+
+function abrirModalClave() {
+  claveIngresada = '';
+  actualizarDots();
+  document.getElementById('error-clave').textContent  = '';
+  document.getElementById('btn-confirmar-clave').disabled = true;
+  document.getElementById('modal-clave').classList.add('on');
+}
+
+function cerrarModalClave() {
+  claveIngresada = '';
+  actualizarDots();
+  document.getElementById('modal-clave').classList.remove('on');
+}
+
+function confirmarClave() {
+  if (claveIngresada === CLAVE_SUPERVISOR) {
+    cerrarModalClave();
+    // Abrir modal de importación
+    setTimeout(() => abrirModalImport(), 150);
+  } else {
+    document.getElementById('error-clave').textContent = '⛔ Contraseña incorrecta';
+    // Animar input como error
+    const inp = document.getElementById('input-clave');
+    inp.classList.add('shake');
+    // Shake en los dots
+    document.getElementById('teclado-clave').style.animation = '';
+    setTimeout(() => { inp.classList.remove('shake'); }, 400);
+    // Limpiar
+    claveIngresada = '';
+    actualizarDots();
+    document.getElementById('btn-confirmar-clave').disabled = true;
+  }
+}
+
+// ════════════════════════════════════════════════
+//  MODAL NÚMERO IMPORTACIÓN
+// ════════════════════════════════════════════════
+function abrirModalImport() {
+  document.getElementById('input-import').value      = '';
+  document.getElementById('error-import').textContent = '';
+  document.getElementById('btn-confirmar-import').disabled = true;
+  document.getElementById('modal-import').classList.add('on');
+  setTimeout(() => document.getElementById('input-import').focus(), 200);
+}
+
+function cerrarModalImport() {
+  document.getElementById('modal-import').classList.remove('on');
+}
+
+function onImportInput() {
+  const val = document.getElementById('input-import').value.replace(/\D/g, '').slice(0, 4);
+  document.getElementById('input-import').value = val;
+  document.getElementById('error-import').textContent = '';
+  document.getElementById('btn-confirmar-import').disabled = (val.length !== 4);
+}
+
+async function confirmarImport() {
+  const val = document.getElementById('input-import').value.replace(/\D/g, '');
+  if (val.length !== 4) return;
+
+  importActivo = val;
+  cerrarModalImport();
+
+  // NUEVO: Enviar la importación activa al backend
+  try {
+    const response = await fetch(`${SCRIPT_URL}?action=setImportacionActiva&num=${encodeURIComponent(val)}`, { method: 'GET' });
+    const data = await response.json();
+    if (!data.ok) {
+      console.error('Error al guardar la importación activa en el backend:', data.error);
+      showToast('❌ Error al guardar importación activa', 'err');
+      // Considerar cómo manejar este error: ¿permitir continuar o bloquear?
     }
- 
-    // ══ MENSAJE TOAST ══
-    function mostrarMensaje(texto, tipo) {
-        const m = document.getElementById('mensajeGlobal');
-        m.innerText = texto;
-        m.style.display = 'block';
-        m.style.backgroundColor = tipo === 'error' ? 'var(--red)' : tipo === 'success' ? 'var(--green)' : 'var(--blue)';
-        setTimeout(() => m.style.display = 'none', 3000);
+  } catch (e) {
+    console.error('Error de red al enviar importación activa:', e);
+    showToast('❌ Error de red al guardar importación', 'err');
+  }
+
+  activarModoImportacion(val);
+  showToast('✅ Importación ' + val + ' activada', 'ok');
+}
+
+// ════════════════════════════════════════════════
+//  MODO IMPORTACIÓN BLOQUEADA
+// ════════════════════════════════════════════════
+function activarModoImportacion(num) {
+  importActivo = num;
+
+  // Activar botones de operadores
+  setOperadoresActivos(true);
+
+  // Badge en landing
+  document.getElementById('landing-import-num').textContent = num;
+  document.getElementById('landing-import-badge').classList.add('on');
+
+  // Badge en pantalla del operador (solo lectura)
+  document.getElementById('import-badge-num').textContent = num;
+  document.getElementById('import-badge').classList.add('on');
+
+  // Ocultar input normal, mostrar input dividido
+  document.getElementById('wrapper-normal').style.display = 'none';
+  document.getElementById('wrapper-split').classList.add('on');
+  document.getElementById('split-prefix').textContent = num + '.';
+
+  // Limpiar y enfocar
+  document.getElementById('input-suffix').value = '';
+  resetSplitEstado();
+  setHint('Ingresa los 2 dígitos del pallet  (' + num + '.XX)', 'sup');
+  ocultarResultados();
+
+  setTimeout(() => document.getElementById('input-suffix').focus(), 150);
+}
+
+function limpiarImportacion() {
+  importActivo = '';
+  setOperadoresActivos(false);
+  document.getElementById('landing-import-badge').classList.remove('on');
+  document.getElementById('import-badge').classList.remove('on');
+  document.getElementById('wrapper-split').classList.remove('on');
+  document.getElementById('wrapper-normal').style.display = '';
+  document.getElementById('input-pallet').value = '';
+  document.getElementById('input-suffix').value  = '';
+  ocultarResultados();
+  resetNormalEstado();
+  setHint('Ingresa o escanea el número de pallet', '');
+}
+
+function volverLanding() {
+  palletActual = null;
+  ocultarResultados();
+  showScreen('s-landing');
+  // Si hay importación activa, re-aplicar estado visual del split al volver
+  if (importActivo) {
+    document.getElementById('wrapper-normal').style.display = 'none';
+    document.getElementById('wrapper-split').classList.add('on');
+  }
+}
+
+// ── EVENTOS INPUT SUFIJO (2 dígitos) ──────────────
+const inputSuffix = document.getElementById('input-suffix');
+
+inputSuffix.addEventListener('input', () => {
+  const val = inputSuffix.value.replace(/\D/g, '').slice(0, 2);
+  inputSuffix.value = val;
+
+  if (!val) {
+    resetSplitEstado();
+    setHint('Ingresa los 2 dígitos del pallet (' + importActivo + '.XX)', 'sup');
+    ocultarResultados();
+    return;
+  }
+
+  if (val.length === 2) {
+    // Búsqueda automática al completar 2 dígitos
+    const numCompleto = importActivo + '.' + val;
+    buscarPallet(numCompleto);
+  } else {
+    setSplitEstado('');
+    setHint('Ingresa los 2 dígitos del pallet (' + importActivo + '.' + val + '_)', 'active');
+  }
+});
+
+inputSuffix.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && inputSuffix.value.replace(/\D/g,'').length === 2) {
+    buscarPallet(importActivo + '.' + inputSuffix.value.replace(/\D/g,''));
+  }
+});
+
+// ── EVENTOS INPUT NORMAL ───────────────────────────
+const inputPallet = document.getElementById('input-pallet');
+
+inputPallet.addEventListener('input', () => {
+  const val = inputPallet.value.trim();
+  if (!val) {
+    clearDebounce();
+    resetNormalEstado();
+    setHint('Ingresa o escanea el número de pallet', '');
+    ocultarResultados();
+    return;
+  }
+  const formatoScanner = /^\d{3,6}\.\d{2}$/.test(val);
+  clearDebounce();
+  setHint('Escribiendo...', 'active');
+  setNormalEstado('');
+
+  if (formatoScanner) {
+    buscarPallet(val);
+  } else {
+    debounceTimer = setTimeout(() => {
+      const v = inputPallet.value.trim();
+      if (v) buscarPallet(v);
+    }, 1500);
+  }
+});
+
+inputPallet.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    clearDebounce();
+    const val = inputPallet.value.trim();
+    if (val) buscarPallet(val);
+  }
+});
+
+function clearDebounce() {
+  if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
+}
+
+// ════════════════════════════════════════════════
+//  BÚSQUEDA
+// ════════════════════════════════════════════════
+async function buscarPallet(num) {
+  if (buscando) return;
+  buscando = true;
+
+  setSplitEstado('buscando');
+  setNormalEstado('buscando');
+  setStatusIcon('<span class="spinner"></span>');
+  setHint('Buscando  ' + num + '...', 'active');
+  ocultarResultados();
+
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?action=getPalletByNum&num=${encodeURIComponent(num)}`);
+    const data = await res.json();
+
+    if (data.encontrado) {
+      palletActual = data.pallet;
+
+      document.getElementById('v-pallet').textContent = palletActual.nPallet;
+      document.getElementById('v-ubic').textContent   = palletActual.ubicDestino || 'SIN UBICACIÓN';
+      document.getElementById('v-sap').textContent    = palletActual.sap;
+      document.getElementById('v-desc').textContent   = palletActual.descripcion;
+      document.getElementById('v-qty').textContent    = palletActual.cantidad;
+
+      document.getElementById('pallet-info').style.display = 'block';
+      document.getElementById('action-btns').style.display  = 'grid';
+
+      setSplitEstado('encontrado');
+      setNormalEstado('encontrado');
+      setStatusIcon('✅');
+      setHint('Pallet encontrado — selecciona acción', 'ok');
+    } else {
+      setSplitEstado('error');
+      setNormalEstado('error');
+      setStatusIcon('❌');
+      setHint(data.msg || 'Pallet no encontrado', 'err');
+      showToast(data.msg || '❌ No encontrado', 'err');
     }
- 
-    // ══ CARGAR TAREAS ══
-    async function cargarTareas() {
-        document.getElementById('tareaContenido').innerHTML = "<p style='text-align:center;'>Buscando tus tareas...</p>";
-        try {
-            const resp = await fetch(`${SCRIPT_URL}?action=getTareas`);
-            const data = await resp.json();
-            if (data.tareas) {
-                todasLasTareas = data.tareas;
-                // Pendientes del operador (sin resultado)
-                tareasFiltradas = todasLasTareas.filter(t =>
-                    t.operador.toLowerCase().includes(nombreOperador.split(' ')[0].toLowerCase())
-                    && !t.resultado
-                );
-                // Realizadas HOY — filtra por operador + REALIZADO + fecha_ejec == hoy (dd/mm/yyyy)
-                const hoy = new Date().toLocaleDateString('es-CL');
-                realizadasHoy = todasLasTareas.filter(t =>
-                    t.operador.toLowerCase().includes(nombreOperador.split(' ')[0].toLowerCase())
-                    && String(t.resultado).toUpperCase().trim() === 'REALIZADO'
-                    && String(t.fecha_ejec).replace(/\//g, '-') === hoy.replace(/\//g, '-')
-                );
- 
-                if (tareasFiltradas.length > 0) {
-                    indexActual = 0;
-                    mostrarTarea();
-                    document.getElementById('controlesApilador').classList.remove('hidden');
-                } else {
-                    document.getElementById('tareaContenido').innerHTML =
-                        `<p style='text-align:center;color:var(--txt-dim);padding:20px;'>
-                            No tienes tareas pendientes, ${nombreOperador.split(' ')[0]}.<br>
-                            <span style='font-size:11px;'>Puedes revisar las realizadas con 📋 Visual-Repos.</span>
-                        </p>`;
-                    document.getElementById('controlesApilador').classList.remove('hidden'); // mostrar igual para poder abrir Visual-Repos
-                }
-            }
-        } catch(err) { mostrarMensaje("Error de conexión", "error"); }
+  } catch (e) {
+    setSplitEstado('error');
+    setNormalEstado('error');
+    setStatusIcon('⚠️');
+    setHint('Error de conexión — reintenta', 'err');
+    showToast('⚠️ Error de conexión', 'err');
+  } finally {
+    buscando = false;
+  }
+}
+
+// ════════════════════════════════════════════════
+//  REGISTRO
+// ════════════════════════════════════════════════
+async function registrar(estado) {
+  if (!palletActual || !opActual) return;
+  const btns = document.querySelectorAll('.btn-act');
+  btns.forEach(b => b.disabled = true);
+  showToast(`Registrando ${estado}...`, '');
+
+  const payload = {
+    rowIndex:     palletActual.rowIndex,
+    estado,
+    grueroId:     opActual.id,
+    grueroNombre: opActual.nombre,
+    fecha:        new Date().toLocaleDateString('es-CL'),
+    hora:         new Date().toLocaleTimeString('es-CL')
+  };
+
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?action=registrar`, { method:'POST', body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (data.ok) {
+      showToast('✅ REGISTRADO CON ÉXITO', 'ok');
+      reset();
+    } else {
+      showToast('❌ ERROR AL GRABAR', 'err');
+      btns.forEach(b => b.disabled = false);
     }
- 
-    // ══ MOSTRAR TAREA ACTUAL ══
-    function mostrarTarea() {
-        const t = tareasFiltradas[indexActual];
-        document.getElementById('contador').innerText = `${indexActual + 1} / ${tareasFiltradas.length}`;
-        document.getElementById('tareaContenido').innerHTML = `
-            <div class="info-row"><span class="info-label">Origen</span><span class="info-value" style="color:#f0a500;">${t.ubic_origen}</span></div>
-            <div class="info-row"><span class="info-label">SAP</span><span class="info-value">${t.sap}</span></div>
-            <div class="info-row"><span class="info-label">Descripción</span><span class="info-value" style="font-size:12px;">${t.descripcion}</span></div>
-            <div class="info-row"><span class="info-label">Cant / Lote</span><span class="info-value">${t.cantidad} (${t.lote})</span></div>
-            <div class="info-row"><span class="info-label">IMPO</span><span class="info-value" style="color:var(--blue);">${t.impo}</span></div>
-            <div class="info-row"><span class="info-label">Destino</span><span class="info-value" style="color:var(--green);">${t.ubic_destino}</span></div>
-        `;
-    }
- 
-    // ══ ENVIAR RESULTADO ══
-    async function enviarResultado(resultado) {
-        const t   = tareasFiltradas[indexActual];
-        const now = new Date();
-        const payload = {
-            action:      'registrarResultado',
-            folio:       t.folio,
-            ubic_origen: t.ubic_origen,
-            sap:         t.sap,
-            operador:    nombreOperador,
-            resultado:   resultado,
-            fecha:       now.toLocaleDateString('es-CL'),
-            hora:        now.toLocaleTimeString('es-CL')
-        };
- 
-        mostrarMensaje("Grabando...", "info");
-        try {
-            const resp = await fetch(SCRIPT_URL, {
-                method:  'POST',
-                headers: { 'Content-Type': 'text/plain' },  // sin mode:'no-cors'
-                body:    JSON.stringify(payload)
-            });
-            const result = await resp.json();
-            if (result.ok) {
-                mostrarMensaje("✅ Grabado correctamente", "success");
-                // Si fue REALIZADO, lo guardamos en cache para Visual-Repos
-                if (resultado === 'REALIZADO') {
-                    const hoyStr = new Date().toLocaleDateString('es-CL');
-                    realizadasHoy.push({ ...t, resultado, hora: payload.hora, fecha_ejec: hoyStr });
-                }
-            } else {
-                mostrarMensaje("⚠️ " + (result.error || 'Error al grabar'), "error");
-            }
-            setTimeout(() => {
-                indexActual++;
-                if (indexActual < tareasFiltradas.length) {
-                    mostrarTarea();
-                } else {
-                    document.getElementById('tareaContenido').innerHTML =
-                        `<p style='text-align:center;color:var(--green);padding:20px;'>
-                            🎉 ¡Todas las tareas completadas!<br>
-                            <span style='font-size:11px;color:var(--txt-dim);'>Usa 📋 Visual-Repos para verificar.</span>
-                        </p>`;
-                    document.getElementById('contador').innerText = `${tareasFiltradas.length} / ${tareasFiltradas.length}`;
-                }
-            }, 900);
-        } catch(err) { mostrarMensaje("❌ Error al grabar: " + err.message, "error"); }
-    }
- 
-    // ══ VISUAL-REPOS ══
-    function mostrarVisualRepos() {
-        const hoy    = new Date().toLocaleDateString('es-CL');
-        const nombre = nombreOperador.split(' ').slice(0, 2).join(' ');
- 
-        document.getElementById('vr-subtitulo').textContent = nombre + ' — REALIZADAS hoy';
-        document.getElementById('vr-fecha').textContent     = hoy;
-        document.getElementById('vr-total').textContent     =
-            realizadasHoy.length + ' ubicación' + (realizadasHoy.length !== 1 ? 'es' : '');
- 
-        if (!realizadasHoy.length) {
-            document.getElementById('vr-lista').innerHTML = `
-                <div class="vr-empty">
-                    <div class="ei">📭</div>
-                    <p>Aún no hay reposiciones<br>marcadas como REALIZADAS hoy.</p>
-                </div>`;
-        } else {
-            document.getElementById('vr-lista').innerHTML = realizadasHoy.map((t, i) => `
-                <div class="vr-item">
-                    <div class="vr-num">${i + 1}</div>
-                    <div>
-                        <div class="vr-ubic">📍 ${t.ubic_origen}</div>
-                        ${t.ubic_destino ? `<div class="vr-meta">➡️ Destino: ${t.ubic_destino}</div>` : ''}
-                        ${t.sap         ? `<div class="vr-meta">SAP: ${t.sap}${t.hora ? ' · ' + t.hora : ''}</div>` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
- 
-        // Ocultar tareas, mostrar Visual-Repos
-        document.getElementById('secTareas').classList.add('hidden');
-        document.getElementById('secVisualRepos').style.display = 'block';
-    }
- 
-    function cerrarVisualRepos() {
-        document.getElementById('secVisualRepos').style.display = 'none';
-        document.getElementById('secTareas').classList.remove('hidden');
-    }
+  } catch (e) {
+    showToast('❌ ERROR DE RED', 'err');
+    btns.forEach(b => b.disabled = false);
+  }
+}
+
+// ════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════
+function reset() {
+  palletActual = null;
+  document.querySelectorAll('.btn-act').forEach(b => b.disabled = false);
+  ocultarResultados();
+
+  if (importActivo) {
+    // En modo importación: limpiar solo el sufijo
+    document.getElementById('input-suffix').value = '';
+    resetSplitEstado();
+    setHint('Ingresa los 2 dígitos del pallet (' + importActivo + '.XX)', 'sup');
+    setTimeout(() => document.getElementById('input-suffix').focus(), 100);
+  } else {
+    document.getElementById('input-pallet').value = '';
+    resetNormalEstado();
+    setHint('Ingresa o escanea el número de pallet', '');
+    setTimeout(() => document.getElementById('input-pallet').focus(), 100);
+  }
+}
+
+function ocultarResultados() {
+  document.getElementById('pallet-info').style.display = 'none';
+  document.getElementById('action-btns').style.display  = 'none';
+}
+
+function focusInput() {
+  if (importActivo) {
+    document.getElementById('input-suffix').focus();
+  } else {
+    document.getElementById('input-pallet').focus();
+  }
+}
+
+function setHint(msg, cls) {
+  const el = document.getElementById('search-hint');
+  el.textContent = msg;
+  el.className   = 'search-hint' + (cls ? ' ' + cls : '');
+}
+
+function setStatusIcon(html) {
+  document.getElementById('status-icon-normal').innerHTML = html;
+  document.getElementById('status-icon-split').innerHTML  = html;
+}
+
+function setSplitEstado(cls) {
+  const w = document.getElementById('wrapper-split');
+  w.className = 'split-input-wrapper on' + (cls ? ' ' + cls : '');
+}
+function resetSplitEstado() { setSplitEstado(''); }
+
+function setNormalEstado(cls) {
+  const inp = document.getElementById('input-pallet');
+  inp.className = 'search-input' + (cls ? ' ' + cls : '');
+}
+function resetNormalEstado() { setNormalEstado(''); }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+
+let toastTimer = null;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast on' + (type ? ' ' + type : '');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = 'toast'; }, 3000);
+}
 </script>
 </body>
 </html>
+
