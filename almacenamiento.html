@@ -221,188 +221,236 @@ body { background: var(--bg); color: var(--txt); font-family: 'Exo 2', sans-seri
 @keyframes modalIn { from { transform: scale(.85); opacity:0; } to { transform: scale(1); opacity:1; } }
 
 .modal-title {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 20px; font-weight: 700; color: var(--purple);
-  text-align: center; margin-bottom: 20px;
+  font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700;
+  color: var(--purple); letter-spacing: 2px; text-transform: uppercase;
+  text-align: center; margin-bottom: 6px;
 }
+.modal-sub {
+  font-size: 11px; color: var(--txt2); text-align: center;
+  letter-spacing: .5px; margin-bottom: 20px;
+}
+
+.modal-label {
+  font-size: 10px; color: var(--txt2); text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 8px; font-weight: 600;
+}
+
+/* Input de modal (clave / importación) */
 .modal-input {
-  width: 100%; background: var(--bg); border: 2px solid var(--border);
-  border-radius: 8px; padding: 14px; color: #fff;
-  font-family: 'Share Tech Mono', monospace; font-size: 22px;
-  outline: none; letter-spacing: 2px; text-align: center;
-  margin-bottom: 15px;
+  width: 100%; background: #080c14;
+  border: 2px solid #1e3050; border-radius: 10px;
+  padding: 16px 20px; text-align: center;
+  font-family: 'Share Tech Mono', monospace; font-size: 28px;
+  font-weight: 700; color: var(--purple); letter-spacing: 10px;
+  outline: none; transition: border-color .2s;
+  -webkit-appearance: none;
 }
-.modal-input:focus { border-color: var(--purple); }
-.modal-input::placeholder { color: #2a4060; }
+.modal-input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(168,85,247,.12); }
+.modal-input.shake { animation: shake .35s; }
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%,60% { transform: translateX(-8px); }
+  40%,80% { transform: translateX(8px); }
+}
+
+.modal-error {
+  font-size: 11px; color: var(--red); text-align: center;
+  min-height: 16px; margin-top: 6px; font-weight: 600;
+  letter-spacing: .5px;
+}
+
 .modal-btn {
-  width: 100%; padding: 14px; border-radius: 10px;
-  background: var(--purple); border: none; color: #fff;
-  font-family: 'Rajdhani', sans-serif; font-size: 16px;
-  font-weight: 700; letter-spacing: 1px; cursor: pointer;
-  transition: background .2s; text-transform: uppercase;
+  width: 100%; margin-top: 18px; padding: 16px;
+  border-radius: 10px; border: none; cursor: pointer;
+  font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 2px;
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  color: #fff; transition: opacity .2s, transform .1s;
 }
-.modal-btn:active { background: #9333ea; }
-.modal-btn:disabled { opacity: .35; cursor: not-allowed; }
-.modal-error { font-size: 11px; color: var(--red); text-align: center; min-height: 16px; margin-top: -10px; margin-bottom: 10px; }
+.modal-btn:disabled { opacity: .3; cursor: not-allowed; }
+.modal-btn:not(:disabled):active { transform: scale(.97); }
 
-/* ════════════════════════════════════════
-   MODAL CLAVE
-════════════════════════════════════════ */
-#modal-clave .modal-box { border-color: var(--gold); box-shadow: 0 0 40px rgba(240,165,0,.2); }
-#modal-clave .modal-title { color: var(--gold); }
-#modal-clave .modal-btn { background: var(--gold); }
-#modal-clave .modal-btn:active { background: #d49000; }
-
-.clave-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
-.clave-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--border); transition: background .2s; }
-.clave-dot.on { background: var(--gold); }
-
-.teclado-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-  width: 100%; max-width: 280px; margin: 0 auto;
+.modal-btn-cancel {
+  width: 100%; margin-top: 8px; padding: 12px;
+  border-radius: 10px; background: transparent;
+  border: 1px solid var(--border); cursor: pointer;
+  font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700;
+  color: var(--txt2); text-transform: uppercase; letter-spacing: 1px;
 }
-.teclado-grid button {
-  background: #182236; border: 1px solid #1e3050; border-radius: 8px;
-  padding: 16px; font-size: 20px; font-family: 'Share Tech Mono', monospace;
-  color: var(--txt); cursor: pointer; transition: background .1s;
+
+/* Puntos de contraseña */
+.pwd-dots {
+  display: flex; justify-content: center; gap: 10px;
+  margin-bottom: 6px; margin-top: 4px;
 }
-.teclado-grid button:active { background: #243452; }
-.teclado-grid button.confirm { color: var(--green); }
-.teclado-grid button.delete { color: var(--red); }
-
-/* ════════════════════════════════════════
-   MODAL IMPORTACIÓN
-════════════════════════════════════════ */
-#modal-import .modal-box { border-color: var(--purple); box-shadow: 0 0 40px rgba(168,85,247,.2); }
-#modal-import .modal-title { color: var(--purple); }
-#modal-import .modal-btn { background: var(--purple); }
-#modal-import .modal-btn:active { background: #9333ea; }
-
+.pwd-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #1e3050; transition: background .15s;
+}
+.pwd-dot.on { background: var(--purple); box-shadow: 0 0 8px var(--purple); }
 </style>
 </head>
 <body>
 
 <div class="hdr">
   <div class="hdr-logo">ALM9037</div>
-  <div class="hdr-clock" id="clk"></div>
+  <div class="hdr-clock" id="clk">00:00:00</div>
 </div>
 
-<!-- LANDING SCREEN -->
+<!-- ══ LANDING ══ -->
 <div class="screen on" id="s-landing">
   <div class="landing-inner">
-    <div class="landing-title">Selecciona tu usuario</div>
-    <div class="gruero-grid" id="gruero-grid"></div>
-    <div class="no-import-hint on" id="no-import-hint">El supervisor debe asignar una importación primero</div>
+    <div class="landing-title">🏗️ ALM9037 — SELECCIONAR OPERADOR</div>
 
+    <!-- Badge importación activa (visible antes de seleccionar operador) -->
     <div class="landing-import-badge" id="landing-import-badge">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="font-size:20px;">📦</div>
+      <div class="import-badge-left">
+        <span class="import-badge-icon">📋</span>
         <div>
-          <div style="font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Importación Activa</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:16px;color:var(--purple);letter-spacing:2px;font-weight:700;" id="landing-import-num"></div>
+          <div class="import-badge-k">Importación activa</div>
+          <div class="import-badge-v" id="landing-import-num">----</div>
         </div>
       </div>
-      <div style="font-size:10px;color:var(--txt2);cursor:pointer;border:1px solid var(--border);border-radius:5px;padding:4px 8px;font-weight:600;font-family:'Exo 2',sans-serif;" onclick="limpiarImportacion()">Limpiar</div>
+      <span class="import-badge-clear" onclick="limpiarImportacion()">✕ Limpiar</span>
     </div>
 
-    <button class="btn-supervisor-landing" onclick="abrirModalClave()">Soy Supervisor</button>
+    <!-- Grid operadores -->
+    <div class="gruero-grid" id="gruero-grid"></div>
+
+    <!-- Aviso cuando no hay importación -->
+    <div class="no-import-hint on" id="no-import-hint">⛔ Asigna una importación antes de seleccionar operador</div>
+
+    <!-- Botón supervisor (abajo del grid) -->
+    <button class="btn-supervisor-landing" onclick="abrirModalClave()">🔐 SUPERVISOR — Asignar Importación</button>
   </div>
 </div>
 
-<!-- MAIN SCREEN -->
+<!-- ══ OPERACIÓN ══ -->
 <div class="screen" id="s-main-screen">
-  <div class="user-bar">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <div style="font-size:20px;">👨‍🏭</div>
-      <div style="font-weight:700;" id="user-name"></div>
-    </div>
-    <div class="user-bar-btns">
-      <div class="btn-supervisor" onclick="abrirModalClave()">Supervisor</div>
-      <div class="btn-logout" onclick="volverLanding()">Salir</div>
-    </div>
-  </div>
+  <div id="s-main">
 
-  <div class="import-badge" id="import-badge">
-    <div class="import-badge-left">
-      <div class="import-badge-icon">📦</div>
+    <!-- Barra usuario -->
+    <div class="user-bar">
       <div>
-        <div class="import-badge-k">Importación Activa</div>
-        <div class="import-badge-v" id="import-badge-num"></div>
+        <div id="user-name" style="font-weight:700;font-family:'Rajdhani';font-size:17px">---</div>
+        <div style="font-size:10px;color:var(--txt2)" id="fecha-hoy">--/--/----</div>
+      </div>
+      <div class="user-bar-btns">
+        <button class="btn-logout" onclick="volverLanding()">← SALIR</button>
       </div>
     </div>
-    <div class="import-badge-clear" onclick="limpiarImportacion()">Limpiar</div>
-  </div>
 
-  <div class="search-box">
-    <div class="input-wrapper" id="wrapper-normal">
-      <input type="text" class="search-input" id="input-pallet" placeholder="Pallet" autocomplete="off" inputmode="numeric">
-      <div class="status-icon" id="status-icon-normal"></div>
+    <!-- Badge importación activa (solo lectura en pantalla del operador) -->
+    <div class="import-badge" id="import-badge">
+      <div class="import-badge-left">
+        <span class="import-badge-icon">📋</span>
+        <div>
+          <div class="import-badge-k">Importación activa</div>
+          <div class="import-badge-v" id="import-badge-num">----</div>
+        </div>
+      </div>
     </div>
-    <div class="split-input-wrapper" id="wrapper-split">
-      <div class="split-prefix" id="split-prefix"></div>
-      <input type="text" class="split-suffix" id="input-suffix" placeholder="XX" autocomplete="off" inputmode="numeric">
-      <div class="split-status" id="status-icon-split"></div>
-    </div>
-    <div class="search-hint" id="search-hint">Ingresa o escanea el número de pallet</div>
-  </div>
 
-  <div class="pallet-info" id="pallet-info">
-    <div class="info-row">
-      <div class="info-k">Pallet</div>
-      <div class="info-v" id="v-pallet"></div>
-    </div>
-    <div class="info-row">
-      <div class="info-k">Ubicación</div>
-      <div class="info-v" id="v-ubic"></div>
-    </div>
-    <div class="info-row">
-      <div class="info-k">SAP</div>
-      <div class="info-v" id="v-sap"></div>
-    </div>
-    <div class="info-row">
-      <div class="info-k">Descripción</div>
-      <div class="info-v" id="v-desc"></div>
-    </div>
-    <div class="info-row">
-      <div class="info-k">Cantidad</div>
-      <div class="info-v" id="v-qty"></div>
-    </div>
-  </div>
+    <!-- Search box -->
+    <div class="search-box">
 
-  <div class="action-btns" id="action-btns">
-    <button class="btn-act btn-realizado" onclick="registrar('REALIZADO')">Realizado</button>
-    <button class="btn-act btn-pendiente" onclick="registrar('PENDIENTE')">Pendiente</button>
+      <!-- Input NORMAL (sin importación bloqueada) -->
+      <div class="input-wrapper" id="wrapper-normal">
+        <input
+          type="text" class="search-input" id="input-pallet"
+          placeholder="Nº PALLET" inputmode="decimal"
+          autocomplete="off" autocorrect="off" spellcheck="false"
+        >
+        <span class="status-icon" id="status-icon-normal">🔍</span>
+      </div>
+
+      <!-- Input DIVIDIDO (con prefijo de importación bloqueado) -->
+      <div class="split-input-wrapper" id="wrapper-split">
+        <span class="split-prefix" id="split-prefix">1234.</span>
+        <input
+          type="tel" class="split-suffix" id="input-suffix"
+          placeholder="XX" maxlength="2" inputmode="numeric"
+          autocomplete="off" autocorrect="off" spellcheck="false"
+        >
+        <span class="split-status" id="status-icon-split">🔍</span>
+      </div>
+
+      <div class="search-hint" id="search-hint">Ingresa o escanea el número de pallet</div>
+    </div>
+
+    <!-- Resultado -->
+    <div class="pallet-info" id="pallet-info">
+      <div class="info-row"><span class="info-k">Nº Pallet</span><span class="info-v" style="color:var(--cyan)" id="v-pallet">--</span></div>
+      <div class="info-row"><span class="info-k">Ubicación</span><span class="info-v" style="color:var(--green)" id="v-ubic">--</span></div>
+      <div class="info-row"><span class="info-k">SAP</span><span class="info-v" id="v-sap">--</span></div>
+      <div class="info-row"><span class="info-k">Descripción</span><span class="info-v" id="v-desc" style="font-size:12px">--</span></div>
+      <div class="info-row"><span class="info-k">Cantidad</span><span class="info-v" style="color:var(--gold)" id="v-qty">--</span></div>
+    </div>
+
+    <!-- Botones acción -->
+    <div class="action-btns" id="action-btns">
+      <button class="btn-act btn-realizado" onclick="registrar('REALIZADO')">REALIZADO ✅</button>
+      <button class="btn-act btn-pendiente" onclick="registrar('PENDIENTE')">PENDIENTE ⏳</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ MODAL CONTRASEÑA ══ -->
+<div class="modal-overlay" id="modal-clave">
+  <div class="modal-box">
+    <div class="modal-title">🔐 Acceso Supervisor</div>
+    <div class="modal-sub">INGRESA LA CONTRASEÑA DE SUPERVISOR</div>
+    <div class="modal-label">Contraseña</div>
+
+    <!-- Puntos visuales -->
+    <div class="pwd-dots" id="pwd-dots">
+      <div class="pwd-dot" id="dot-0"></div>
+      <div class="pwd-dot" id="dot-1"></div>
+      <div class="pwd-dot" id="dot-2"></div>
+      <div class="pwd-dot" id="dot-3"></div>
+      <div class="pwd-dot" id="dot-4"></div>
+    </div>
+
+    <!-- Input oculto real -->
+    <input
+      type="password" class="modal-input" id="input-clave"
+      maxlength="5" inputmode="numeric"
+      autocomplete="new-password"
+      style="opacity:0;position:absolute;pointer-events:none;"
+    >
+
+    <!-- Teclado numérico visual -->
+    <div id="teclado-clave" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;">
+    </div>
+
+    <div class="modal-error" id="error-clave"></div>
+    <button class="modal-btn" id="btn-confirmar-clave" onclick="confirmarClave()" disabled>CONFIRMAR</button>
+    <button class="modal-btn-cancel" onclick="cerrarModalClave()">CANCELAR</button>
+  </div>
+</div>
+
+<!-- ══ MODAL NÚMERO IMPORTACIÓN ══ -->
+<div class="modal-overlay" id="modal-import">
+  <div class="modal-box">
+    <div class="modal-title">📋 Número de Importación</div>
+    <div class="modal-sub">INGRESA LOS 4 DÍGITOS DE LA IMPORTACIÓN</div>
+    <div class="modal-label">Nº Importación</div>
+
+    <input
+      type="tel" class="modal-input" id="input-import"
+      maxlength="4" inputmode="numeric"
+      placeholder="0000" autocomplete="off"
+      oninput="onImportInput()"
+      onkeydown="if(event.key==='Enter') confirmarImport()"
+    >
+    <div class="modal-error" id="error-import"></div>
+    <button class="modal-btn" id="btn-confirmar-import" onclick="confirmarImport()" disabled>ACTIVAR IMPORTACIÓN</button>
+    <button class="modal-btn-cancel" onclick="cerrarModalImport()">CANCELAR</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
-
-<!-- MODAL CLAVE -->
-<div class="modal-overlay" id="modal-clave">
-  <div class="modal-box">
-    <div class="modal-title">Ingresa Clave Supervisor</div>
-    <div class="clave-dots">
-      <div class="clave-dot" id="dot-0"></div>
-      <div class="clave-dot" id="dot-1"></div>
-      <div class="clave-dot" id="dot-2"></div>
-      <div class="clave-dot" id="dot-3"></div>
-      <div class="clave-dot" id="dot-4"></div>
-    </div>
-    <div class="modal-error" id="error-clave"></div>
-    <div class="teclado-grid" id="teclado-clave"></div>
-    <button class="modal-btn" id="btn-confirmar-clave" onclick="confirmarClave()" disabled>Confirmar</button>
-  </div>
-</div>
-
-<!-- MODAL NÚMERO IMPORTACIÓN -->
-<div class="modal-overlay" id="modal-import">
-  <div class="modal-box">
-    <div class="modal-title">Asignar Importación</div>
-    <input type="text" class="modal-input" id="input-import" placeholder="XXXX" maxlength="4" inputmode="numeric" oninput="onImportInput()">
-    <div class="modal-error" id="error-import"></div>
-    <button class="modal-btn" id="btn-confirmar-import" onclick="confirmarImport()" disabled>Asignar</button>
-  </div>
-</div>
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0QsRE6vmsFPXtQSdsmJsrZxB4fmCPhYAjEp2oFgxv9BZ5rTSD0nTSZXo3IAWbecY/exec';
@@ -421,26 +469,10 @@ let debounceTimer  = null;
 let buscando       = false;
 let importActivo   = '';   // '' = sin importación bloqueada, '1864' = bloqueada
 
-// ── INICIALIZACIÓN ──────────────────────────────────
-window.onload = async () => {
-  // 1. Iniciar Reloj
-  setInterval(() => {
-    document.getElementById('clk').textContent = new Date().toLocaleTimeString('es-CL');
-  }, 1000);
-
-  // 2. Consultar Importación Activa al cargar la página
-  try {
-    const response = await fetch(`${SCRIPT_URL}?action=getImportacionActiva`);
-    const data = await response.json();
-    if (data.ok && data.importacionActiva) {
-      importActivo = data.importacionActiva;
-      activarModoImportacion(importActivo);
-      showToast('📦 Importación ' + importActivo + ' cargada', 'ok');
-    }
-  } catch (e) {
-    console.error('Error al cargar importación inicial:', e);
-  }
-};
+// ── RELOJ ─────────────────────────────────────────
+setInterval(() => {
+  document.getElementById('clk').textContent = new Date().toLocaleTimeString('es-CL');
+}, 1000);
 
 // ── OPERADORES ────────────────────────────────────
 document.getElementById('gruero-grid').innerHTML = OPERADORES.map(op => `
@@ -463,25 +495,12 @@ function setOperadoresActivos(activo) {
   if (activo) hint.classList.remove('on'); else hint.classList.add('on');
 }
 
-async function selOperador(id) {
+function selOperador(id) {
+  if (!importActivo) return;  // bloqueado sin importación
   opActual = OPERADORES.find(o => o.id === id);
   document.getElementById('user-name').textContent  = opActual.nombre;
   document.getElementById('fecha-hoy').textContent  = new Date().toLocaleDateString('es-CL');
   showScreen('s-main-screen');
-
-  // NUEVO: Consultar la importación activa del backend
-  try {
-    const response = await fetch(`${SCRIPT_URL}?action=getImportacionActiva`, { method: 'GET' });
-    const data = await response.json();
-    if (data.ok && data.importacionActiva) {
-      importActivo = data.importacionActiva; // Actualizar la variable local
-      activarModoImportacion(importActivo);
-    } else if (!data.ok) {
-      console.error('Error al obtener importación activa del backend:', data.error);
-    }
-  } catch (e) {
-    console.error('Error de red al obtener importación activa:', e);
-  }
 
   // Si el supervisor ya asignó importación, activar modo dividido
   if (importActivo) {
@@ -589,26 +608,14 @@ function onImportInput() {
   document.getElementById('btn-confirmar-import').disabled = (val.length !== 4);
 }
 
-async function confirmarImport() {
+function confirmarImport() {
   const val = document.getElementById('input-import').value.replace(/\D/g, '');
   if (val.length !== 4) return;
 
   importActivo = val;
   cerrarModalImport();
-
-  // NUEVO: Enviar la importación activa al backend (Usamos GET para simplificar con Apps Script)
-  try {
-    const response = await fetch(`${SCRIPT_URL}?action=setImportacionActiva&num=${encodeURIComponent(val)}`);
-    const data = await response.json();
-    if (data.ok) {
-      activarModoImportacion(val);
-      showToast('✅ Importación ' + val + ' activada', 'ok');
-    } else {
-      showToast('❌ Error al guardar en servidor', 'err');
-    }
-  } catch (e) {
-    showToast('❌ Error de conexión', 'err');
-  }
+  activarModoImportacion(val);
+  showToast('✅ Importación ' + val + ' activada', 'ok');
 }
 
 // ════════════════════════════════════════════════
@@ -797,7 +804,6 @@ async function registrar(estado) {
   showToast(`Registrando ${estado}...`, '');
 
   const payload = {
-    action:       'registrar', // Añadimos la acción al payload para el POST
     rowIndex:     palletActual.rowIndex,
     estado,
     grueroId:     opActual.id,
@@ -807,11 +813,7 @@ async function registrar(estado) {
   };
 
   try {
-    // En Apps Script, el POST a veces es más robusto enviando como texto plano o URLSearchParams
-    const res  = await fetch(SCRIPT_URL, { 
-      method:'POST', 
-      body: JSON.stringify(payload) 
-    });
+    const res  = await fetch(SCRIPT_URL, { method:'POST', body: JSON.stringify(payload) });
     const data = await res.json();
     if (data.ok) {
       showToast('✅ REGISTRADO CON ÉXITO', 'ok');
@@ -900,4 +902,3 @@ function showToast(msg, type) {
 </script>
 </body>
 </html>
-
