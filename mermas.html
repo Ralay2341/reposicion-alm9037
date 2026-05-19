@@ -598,9 +598,36 @@
     }
     @keyframes rotating { to { transform: rotate(360deg); } }
 
-    /* ══════════════════════════════════════════
-       INSTALL BANNER
-    ══════════════════════════════════════════ */
+    .btn-pdf {
+      background: var(--surface2);
+      color     : var(--amber);
+      border    : 1px solid var(--amber);
+    }
+    .btn-pdf:hover { background: var(--amber-dim); }
+
+    /* Print styles para PDF */
+    @media print {
+      .topbar, #installBanner, #offlineBanner, #syncBadge,
+      .card:not(#printArea), #accionesCard, #datosCard,
+      #productoCard, .scan-area { display: none !important; }
+      body { background: #fff; color: #000; }
+      #histCard { display: block !important; }
+      .hist-item {
+        background: #f9f9f9 !important;
+        border: 1px solid #ccc !important;
+        break-inside: avoid;
+      }
+      .hist-num  { color: #000 !important; background: #eee !important; }
+      .hist-desc { color: #000 !important; }
+      .hist-time, .hist-cat, .hist-codigo { color: #555 !important; }
+      .print-header { display: block !important; }
+    }
+    .print-header {
+      display: none;
+      text-align: center;
+      margin-bottom: 20px;
+      font-family: sans-serif;
+    }
     #installBanner {
       display      : none;
       align-items  : center;
@@ -804,7 +831,17 @@
 
     <!-- HISTORIAL -->
     <div id="histCard">
-      <div class="sec-label" style="margin-top:8px">Sesión actual</div>
+      <div class="print-header">
+        <h2>Control de Mermas</h2>
+        <p id="printFecha"></p>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;margin-bottom:8px">
+        <div class="sec-label" style="margin:0">Sesión actual</div>
+        <button class="btn btn-pdf" onclick="exportarPDF()"
+                style="width:auto;padding:7px 16px;font-size:0.8rem;flex:none">
+          📄 EXPORTAR PDF
+        </button>
+      </div>
       <div class="hist-list" id="histList"></div>
     </div>
 
@@ -819,7 +856,7 @@
     // ────────────────────────────────────────
     // ⚙️  CONFIGURACIÓN — pega tu URL aquí
     // ────────────────────────────────────────
-    const API_URL = "https://script.google.com/macros/s/AKfycbxJtbKZ2JzgZCwBtIVnM1N0s2ESNTuqUn_p6ytW3-I4b70WDb8gEF2zLTmePHXBraNswQ/exec";
+    const API_URL = "TU_URL_DE_APPS_SCRIPT_AQUÍ";
     // Ejemplo:
     // const API_URL = "https://script.google.com/macros/s/AKfy.../exec";
 
@@ -1084,7 +1121,7 @@
       focusInput();
     }
 
-    function mostrar(id) { document.getElementById(id).style.display = ""; }
+    function mostrar(id) { document.getElementById(id).style.display = "block"; }
     function ocultar(id) { document.getElementById(id).style.display = "none"; }
     function focusInput() { setTimeout(() => document.getElementById("inputBarras").focus(), 50); }
 
@@ -1095,6 +1132,22 @@
       t.className = `show ${tipo}`;
       clearTimeout(toastT);
       toastT = setTimeout(() => t.className = "", 3200);
+    }
+
+    // ────────────────────────────────────────
+    // PDF — impresión de sesión actual
+    // ────────────────────────────────────────
+    function exportarPDF() {
+      if (sesion.length === 0) {
+        toast("No hay registros en esta sesión", "warn"); return;
+      }
+      // Poner fecha en el header de impresión
+      document.getElementById("printFecha").textContent =
+        "Fecha: " + new Date().toLocaleDateString("es-CL", {
+          weekday:"long", year:"numeric", month:"long", day:"numeric"
+        }) + "  ·  Total registros: " + sesion.length;
+      toast("Abriendo vista de impresión…", "warn");
+      setTimeout(() => window.print(), 400);
     }
 
     // ────────────────────────────────────────
