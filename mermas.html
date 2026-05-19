@@ -856,7 +856,7 @@
     // ────────────────────────────────────────
     // ⚙️  CONFIGURACIÓN — pega tu URL aquí
     // ────────────────────────────────────────
-    const API_URL = "https://script.google.com/macros/s/AKfycbxJtbKZ2JzgZCwBtIVnM1N0s2ESNTuqUn_p6ytW3-I4b70WDb8gEF2zLTmePHXBraNswQ/exec";
+    const API_URL = "TU_URL_DE_APPS_SCRIPT_AQUÍ";
     // Ejemplo:
     // const API_URL = "https://script.google.com/macros/s/AKfy.../exec";
 
@@ -1077,11 +1077,18 @@
 
     async function apiGuardar(datos) {
       try {
-        const r = await fetch(API_URL, {
-          method : "POST",
-          headers: { "Content-Type": "application/json" },
-          body   : JSON.stringify(datos)
+        const params = new URLSearchParams({
+          action          : "guardar",
+          codigoBarras    : datos.codigoBarras    || "",
+          codigoSAP       : datos.codigoSAP       || "",
+          descripcion     : datos.descripcion     || "",
+          motivo          : datos.motivo          || "",
+          almDestino      : datos.almDestino      || "",
+          desde           : datos.desde           || "",
+          causaRaiz       : datos.causaRaiz       || "",
+          motivoUnificado : datos.motivoUnificado || ""
         });
+        const r = await fetch(`${API_URL}?${params.toString()}`);
         return await r.json();
       } catch { return { ok: false }; }
     }
