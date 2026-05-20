@@ -474,7 +474,7 @@
 
     .hist-item {
       display          : grid;
-      grid-template-columns: 36px 1fr auto;
+      grid-template-columns: 36px 1fr auto auto;
       align-items      : center;
       gap              : 12px;
       background       : var(--surface2);
@@ -482,7 +482,38 @@
       border-radius    : var(--radius);
       padding          : 12px;
       animation        : slide-in 0.25s ease;
+      transition       : border-color 0.2s;
     }
+    .hist-item.eliminando {
+      border-color: var(--red);
+      opacity     : 0.5;
+      pointer-events: none;
+    }
+
+    .btn-eliminar {
+      width        : 30px;
+      height       : 30px;
+      border-radius: 50%;
+      border       : 1px solid var(--border2);
+      background   : transparent;
+      color        : var(--muted);
+      font-size    : 0.9rem;
+      cursor       : pointer;
+      display      : flex;
+      align-items  : center;
+      justify-content: center;
+      transition   : background 0.15s, color 0.15s, border-color 0.15s;
+      flex-shrink  : 0;
+      line-height  : 1;
+    }
+    .btn-eliminar:hover {
+      background  : var(--red-dim);
+      border-color: var(--red);
+      color       : var(--red);
+    }
+
+    /* Ocultar X al imprimir */
+    @media print { .btn-eliminar { display: none !important; } }
     @keyframes slide-in {
       from { opacity: 0; transform: translateY(-8px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -856,7 +887,7 @@
     // ────────────────────────────────────────
     // ⚙️  CONFIGURACIÓN — pega tu URL aquí
     // ────────────────────────────────────────
-    const API_URL = "https://script.google.com/macros/s/AKfycbxJtbKZ2JzgZCwBtIVnM1N0s2ESNTuqUn_p6ytW3-I4b70WDb8gEF2zLTmePHXBraNswQ/exec";
+    const API_URL = "TU_URL_DE_APPS_SCRIPT_AQUÍ";
     // Ejemplo:
     // const API_URL = "https://script.google.com/macros/s/AKfy.../exec";
 
@@ -1057,7 +1088,7 @@
 
       // Historial
       const ts = Date.now();
-      sesion.unshift({ nro, ts, offline: !guardadoOnline, ...datos });
+      sesion.unshift({ nro, ts, fila: guardadoOnline ? res.fila : 0, offline: !guardadoOnline, ...datos });
       renderHistorial();
 
       btn.disabled  = false;
@@ -1100,7 +1131,7 @@
       if (sesion.length === 0) { ocultar("histCard"); return; }
       mostrar("histCard");
       document.getElementById("histList").innerHTML = sesion.map(r => `
-        <div class="hist-item" data-ts="${r.ts}">
+        <div class="hist-item" data-ts="${r.ts}" id="item-${r.ts}">
           <div class="hist-num">#${r.nro}</div>
           <div class="hist-info">
             <div class="hist-codigo">${r.codigoBarras}</div>
@@ -1111,6 +1142,8 @@
             <div class="hist-time">${new Date(r.ts).toLocaleTimeString("es-CL",{hour:"2-digit",minute:"2-digit"})}</div>
             <div class="${r.offline ? 'hist-pending' : 'hist-saved'}">${r.offline ? '⏳ Pendiente' : '✓ Guardado'}</div>
           </div>
+          <button class="btn-eliminar" onclick="eliminarRegistro(${r.ts}, ${r.fila || 0}, ${r.offline || false})"
+                  title="Eliminar registro">✕</button>
         </div>`).join("");
     }
 
@@ -1139,6 +1172,47 @@
       t.className = `show ${tipo}`;
       clearTimeout(toastT);
       toastT = setTimeout(() => t.className = "", 3200);
+    }
+
+    // ────────────────────────────────────────
+    // Eliminar registro (✕ en historial)
+    // ────────────────────────────────────────
+    async function eliminarRegistro(ts, fila, esOffline) {
+      if (!confirm("¿Eliminar este registro? Se borrará también de Google Sheets.")) return;
+
+      // Marcar visualmente como eliminando
+      const el = document.getElementById("item-" + ts);
+      if (el) el.classList.add("eliminando");
+
+      // Si fue guardado online → borrar de Sheets
+      if (!esOffline && fila > 0) {
+        const res = await apiEliminar(fila);
+        if (!res.ok) {
+          toast("Error al eliminar de Sheets: " + (res.mensaje || ""), "error");
+          if (el) el.classList.remove("eliminando");
+          return;
+        }
+      }
+
+      // Si estaba en cola offline → sacarlo de la cola
+      if (esOffline) {
+        const q = getQueue().filter(item => item._ts !== ts);
+        saveQueue(q);
+        checkPending();
+      }
+
+      // Quitar del array de sesión y re-renderizar
+      sesion = sesion.filter(r => r.ts !== ts);
+      renderHistorial();
+      toast("✓ Registro eliminado", "success");
+    }
+
+    async function apiEliminar(fila) {
+      try {
+        const params = new URLSearchParams({ action: "eliminar", fila: fila });
+        const r = await fetch(`${API_URL}?${params.toString()}`);
+        return await r.json();
+      } catch { return { ok: false, mensaje: "Error de red" }; }
     }
 
     // ────────────────────────────────────────
