@@ -887,7 +887,7 @@
     // ────────────────────────────────────────
     // ⚙️  CONFIGURACIÓN — pega tu URL aquí
     // ────────────────────────────────────────
-    const API_URL = "https://script.google.com/macros/s/AKfycbxJtbKZ2JzgZCwBtIVnM1N0s2ESNTuqUn_p6ytW3-I4b70WDb8gEF2zLTmePHXBraNswQ/exec";
+    const API_URL = "TU_URL_DE_APPS_SCRIPT_AQUÍ";
     // Ejemplo:
     // const API_URL = "https://script.google.com/macros/s/AKfy.../exec";
 
@@ -1053,47 +1053,52 @@
       }
 
       const btn = document.getElementById("btnGuardar");
-      btn.disabled    = true;
-      btn.innerHTML   = '<span class="spin"></span>GUARDANDO';
+      btn.disabled  = true;
+      btn.innerHTML = '<span class="spin"></span>GUARDANDO';
 
-      const datos = {
-        ...producto,
-        almDestino     : alm,
-        desde          : desde,
-        causaRaiz      : causa,
-        motivo         : motivo,
-        motivoUnificado: motivoUnif,
-        action         : "guardar"
-      };
+      try {
+        const datos = {
+          ...producto,
+          almDestino     : alm,
+          desde          : desde,
+          causaRaiz      : causa,
+          motivo         : motivo,
+          motivoUnificado: motivoUnif,
+          action         : "guardar"
+        };
 
-      let guardadoOnline = false;
-      let nro = sesion.length + 1;
+        let guardadoOnline = false;
+        let nro  = sesion.length + 1;
+        let fila = 0;                        // ← declarado aquí, accesible siempre
 
-      if (navigator.onLine) {
-        const res = await apiGuardar(datos);
-        if (res.ok) {
-          guardadoOnline = true;
-          nro = res.nro;
-          toast(`✓ Registro #${nro} guardado`, "success");
+        if (navigator.onLine) {
+          const res = await apiGuardar(datos);
+          if (res.ok) {
+            guardadoOnline = true;
+            nro  = res.nro  || nro;
+            fila = res.fila || 0;            // ← guardado antes de salir del bloque
+            toast(`✓ Registro #${nro} guardado`, "success");
+          } else {
+            toast("Error de red — guardado localmente", "warn");
+          }
         } else {
-          toast("Error de red — guardado localmente", "warn");
+          toast("⚡ Sin conexión — guardado localmente", "warn");
         }
-      } else {
-        toast("⚡ Sin conexión — guardado localmente", "warn");
+
+        if (!guardadoOnline) addToQueue(datos);
+
+        const ts = Date.now();
+        sesion.unshift({ nro, ts, fila, offline: !guardadoOnline, ...datos });
+        renderHistorial();
+        cancelar();
+
+      } catch (err) {
+        toast("Error inesperado: " + err.message, "error");
+      } finally {
+        // Siempre se ejecuta — pase lo que pase el botón vuelve a normal
+        btn.disabled  = false;
+        btn.innerHTML = "↑ GUARDAR";
       }
-
-      if (!guardadoOnline) {
-        addToQueue(datos);
-      }
-
-      // Historial
-      const ts = Date.now();
-      sesion.unshift({ nro, ts, fila: guardadoOnline ? res.fila : 0, offline: !guardadoOnline, ...datos });
-      renderHistorial();
-
-      btn.disabled  = false;
-      btn.innerHTML = "↑ GUARDAR";
-      cancelar();
     }
 
     // ────────────────────────────────────────
