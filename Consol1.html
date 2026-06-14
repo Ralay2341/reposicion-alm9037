@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ALM9037 · Ralay</title>
+  <title>ALM9037 · Pick System</title>
   <style>
     :root {
       --bg:#0f172a; --surface:#1e293b; --surface2:#273449; --border:#334155;
@@ -18,8 +18,10 @@
       display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
     .logo{display:flex;align-items:center;gap:10px;}
     .badge{background:var(--accent);color:#000;font-weight:800;font-size:11px;
-      padding:3px 8px;border-radius:4px;letter-spacing:1px;}
-    header h1{font-size:16px;font-weight:700;}
+      padding:3px 8px;border-radius:4px;letter-spacing:1px;white-space:nowrap;}
+    .logo-text{display:flex;flex-direction:column;gap:1px;}
+    header h1{font-size:14px;font-weight:700;line-height:1.2;}
+    header h1 .propietario{font-size:10px;font-weight:400;color:var(--muted);letter-spacing:.3px;}
     .hdr-right{display:flex;align-items:center;gap:10px;}
     #btnVolver{display:none;background:var(--border);border:none;color:var(--text);
       padding:7px 13px;border-radius:6px;cursor:pointer;font-size:13px;font-family:var(--sans);}
@@ -82,7 +84,7 @@
     .tareas-header h2 span{color:var(--accent);}
     .progress-sticky{
       position:sticky;
-      top:49px;
+      top:0px;
       z-index:90;
       background:var(--bg);
       padding:8px 0 10px;
@@ -156,10 +158,12 @@
   <div id="loadingMsg">Conectando con Google Sheets…</div>
 </div>
 
-<header>
+<header id="mainHeader">
   <div class="logo">
     <span class="badge">ALM9037</span>
-    <h1>PICKING CONSOLIDADO - Propiedad de:Raul Layseca Beas</h1>
+    <div class="logo-text">
+      <h1>PICKING CONSOLIDADO <span class="propietario">· Propiedad de: Raúl Layseca Beas</span></h1>
+    </div>
   </div>
   <div class="hdr-right">
     <button id="btnRefresh" onclick="recargar()">⟳ Sync</button>
@@ -484,8 +488,18 @@ async function recargar(){
   setLoading(false);
 }
 
+// ── AJUSTE STICKY DINÁMICO ───────────────────────────────────────────
+function ajustarSticky(){
+  const hdrH = document.getElementById('mainHeader').offsetHeight;
+  document.querySelectorAll('.progress-sticky').forEach(el => {
+    el.style.top = hdrH + 'px';
+  });
+}
+
 // ── INIT ─────────────────────────────────────────────────────────────
 (async () => {
+  ajustarSticky();
+  window.addEventListener('resize', ajustarSticky);
   setLoading(true, 'Cargando datos del warehouse…');
   try{
     await fetchData();
