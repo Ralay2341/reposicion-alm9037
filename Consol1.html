@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ALM9037 · Pick System</title>
+  <title>ALM9037 · CONSOLIDADO</title>
   <style>
     :root {
       --bg:        #0f172a;
@@ -482,7 +482,7 @@
 
 <!-- PANTALLA OPERADORES -->
 <div id="screenOps">
-  <h2>Selecciona tu Operador</h2>
+  <h2>Selecciona tu Nombre..?</h2>
   <p>Elige tu nombre para ver y gestionar tus tareas de hoy.</p>
   <div class="ops-grid" id="opsGrid"></div>
 </div>
@@ -580,7 +580,7 @@ async function fetchSheet() {
 // ─── GOOGLE APPS SCRIPT WEB APP (para escritura) ──────────────────
 // Necesitarás deployar el Apps Script incluido al final como comentario
 // y pegar la URL aquí:
-const APPS_SCRIPT_URL = 'TU_WEBAPP_URL_AQUÍ';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxnEv94Nt1rhn2KOQBuUw3HSZ1HCDviQQSuwa623cTwTbwLX_KSKuQVy7DmgNAbjN-tSA/exec';
 
 async function writeToSheet(rowNum, updates) {
   // updates: { K: valor, L: valor, M: valor, N: valor }
