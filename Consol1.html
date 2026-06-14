@@ -121,6 +121,20 @@
     .empty-msg{text-align:center;color:var(--muted);padding:48px 20px;font-size:14px;}
     .empty-msg span{font-size:38px;display:block;margin-bottom:10px;}
 
+    .cant-box{
+      background:rgba(249,115,22,.12);
+      border:1px solid rgba(249,115,22,.35);
+      border-radius:8px;
+      padding:10px 14px;
+      margin-bottom:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .cant-label{font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.8px;text-transform:uppercase;}
+    .cant-valor{font-family:var(--mono);font-size:28px;font-weight:900;color:var(--text);line-height:1;}
+
     @media(max-width:420px){
       .card-actions{flex-direction:column;}
     }
@@ -195,6 +209,8 @@ const OPERATORS = [
 ];
 
 // índices 0-based: A=0 B=1 C=2 D=3 E=4 F=5 G=6 H=7 I=8 J=9 K=10 L=11 M=12 N=13
+// Columna K(10)=Nombre operador quien realizó, L(11)=Fecha, M(12)=Hora, N(13)=Cant.Pendiente
+// El "Estado" se deduce: si K tiene nombre → Realizado; si N tiene valor → Pendiente
 const CI = {
   FECHA:0, OP:1, SEC:2, DESDE:3, SAP:4, DESC:5, CB:6, CANT:7,
   FORMATO:8, DESTINO:9, ESTADO:10, NOMBRE_K:10, FECHA_L:11, HORA_M:12, CANT_N:13
@@ -237,12 +253,14 @@ async function fetchData(){
 
 // ── ESCRITURA vía GET (evita CORS de OPTIONS preflight) ──────────────
 async function writeRow(rowNum, updates){
-  // updates: {K:'valor', L:'valor', ...}
-  let params = `action=write&row=${rowNum}`;
+  // updates: {K:'valor', L:'valor', N:'valor'...}
+  const params = new URLSearchParams();
+  params.set('action', 'write');
+  params.set('row', String(rowNum));
   for(const col in updates){
-    params += `&${col}=${encodeURIComponent(updates[col])}`;
+    params.set(col, String(updates[col]));
   }
-  const url  = APPS_SCRIPT_URL + '?' + params;
+  const url  = APPS_SCRIPT_URL + '?' + params.toString();
   const resp = await fetch(url);
   if(!resp.ok) throw new Error('HTTP ' + resp.status);
   const json = await resp.json();
@@ -256,7 +274,7 @@ function renderOps(){
   OPERATORS.forEach(op => {
     const mis   = allRows.filter(r => r.vals[CI.OP].trim().toLowerCase() === op.name.toLowerCase());
     const total = mis.length;
-    const done  = mis.filter(r => r.vals[CI.ESTADO].trim().toLowerCase() === 'realizado').length;
+    const done  = mis.filter(r => r.vals[CI.NOMBRE_K].trim() !== '').length;
 
     const btn = document.createElement('button');
     btn.className = 'op-btn' + (op.apoyo ? ' apoyo' : '');
@@ -304,7 +322,7 @@ function filtrar(btn){
 function renderTareas(){
   const mis   = allRows.filter(r => r.vals[CI.OP].trim().toLowerCase() === currentOp.toLowerCase());
   const total = mis.length;
-  const done  = mis.filter(r => r.vals[CI.ESTADO].trim().toLowerCase() === 'realizado').length;
+  const done  = mis.filter(r => r.vals[CI.NOMBRE_K].trim() !== '').length;
   const pct   = total ? Math.round(done / total * 100) : 0;
 
   $('progressFill').style.width  = pct + '%';
@@ -313,11 +331,11 @@ function renderTareas(){
 
   let visible = mis;
   if(currentFilter === 'realizadas')
-    visible = mis.filter(r => r.vals[CI.ESTADO].trim().toLowerCase() === 'realizado');
+    visible = mis.filter(r => r.vals[CI.NOMBRE_K].trim() !== '');
   else if(currentFilter === 'pendientes')
-    visible = mis.filter(r => r.vals[CI.CANT_N] !== '' && r.vals[CI.ESTADO].trim().toLowerCase() !== 'realizado');
+    visible = mis.filter(r => r.vals[CI.CANT_N] !== '' && r.vals[CI.NOMBRE_K].trim() === '');
   else if(currentFilter === 'en-espera')
-    visible = mis.filter(r => r.vals[CI.ESTADO] === '' && r.vals[CI.CANT_N] === '');
+    visible = mis.filter(r => r.vals[CI.NOMBRE_K].trim() === '' && r.vals[CI.CANT_N] === '');
 
   const list = $('cardsList');
   list.innerHTML = '';
@@ -329,7 +347,9 @@ function renderTareas(){
 
   visible.forEach(row => {
     const v      = row.vals;
-    const isDone = v[CI.ESTADO].trim().toLowerCase() === 'realizado';
+    // Realizado: columna K tiene nombre (operador quien ejecutó)
+    // Pendiente: columna N tiene cantidad Y columna K vacía
+    const isDone = v[CI.NOMBRE_K].trim() !== '';
     const cantN  = v[CI.CANT_N];
     const isPend = cantN !== '' && !isDone;
 
@@ -358,8 +378,11 @@ function renderTareas(){
       <div class="card-meta">
         <div class="meta-pill">SAP <b>${v[CI.SAP]||'—'}</b></div>
         <div class="meta-pill">Cód.Barra <b>${v[CI.CB]||'—'}</b></div>
-        <div class="meta-pill">Cant. <b>${v[CI.CANT]||'—'}</b></div>
         <div class="meta-pill">Formato <b>${v[CI.FORMATO]||'—'}</b></div>
+      </div>
+      <div class="cant-box">
+        <span class="cant-label">CANTIDAD SOLICITADA</span>
+        <span class="cant-valor">${v[CI.CANT]||'—'}</span>
       </div>
       <div class="card-actions">
         <button class="btn-realizado" ${isDone?'disabled':''} onclick="marcarRealizado(${row.rowNum},this)">
