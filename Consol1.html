@@ -1,451 +1,138 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ALM9037 · CONSOLIDADO</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ALM9037 · Pick System</title>
   <style>
     :root {
-      --bg:        #0f172a;
-      --surface:   #1e293b;
-      --surface2:  #273449;
-      --border:    #334155;
-      --accent:    #f97316;
-      --accent2:   #fb923c;
-      --ok:        #22c55e;
-      --warn:      #eab308;
-      --text:      #f1f5f9;
-      --muted:     #94a3b8;
-      --mono:      'Courier New', monospace;
-      --sans:      'Segoe UI', system-ui, sans-serif;
+      --bg:#0f172a; --surface:#1e293b; --surface2:#273449; --border:#334155;
+      --accent:#f97316; --accent2:#fb923c; --ok:#22c55e; --warn:#eab308;
+      --text:#f1f5f9; --muted:#94a3b8;
+      --mono:'Courier New',monospace; --sans:'Segoe UI',system-ui,sans-serif;
     }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* HEADER */
+    header{background:var(--surface);border-bottom:2px solid var(--accent);padding:12px 18px;
+      display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+    .logo{display:flex;align-items:center;gap:10px;}
+    .badge{background:var(--accent);color:#000;font-weight:800;font-size:11px;
+      padding:3px 8px;border-radius:4px;letter-spacing:1px;}
+    header h1{font-size:16px;font-weight:700;}
+    .hdr-right{display:flex;align-items:center;gap:10px;}
+    #btnVolver{display:none;background:var(--border);border:none;color:var(--text);
+      padding:7px 13px;border-radius:6px;cursor:pointer;font-size:13px;font-family:var(--sans);}
+    #btnVolver:hover{background:var(--surface2);}
+    #btnRefresh{background:transparent;border:1px solid var(--border);color:var(--muted);
+      padding:6px 10px;border-radius:6px;cursor:pointer;font-size:13px;font-family:var(--sans);}
+    #btnRefresh:hover{border-color:var(--accent);color:var(--accent);}
+    #statusDot{width:9px;height:9px;border-radius:50%;background:var(--warn);}
+    #statusDot.ok{background:var(--ok);}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      min-height: 100vh;
-    }
+    /* TOAST */
+    #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+      background:var(--surface);border:1px solid var(--accent);color:var(--text);
+      padding:11px 20px;border-radius:10px;font-size:13px;z-index:999;
+      transition:transform .3s ease;pointer-events:none;white-space:nowrap;}
+    #toast.show{transform:translateX(-50%) translateY(0);}
 
-    /* ── HEADER ── */
-    header {
-      background: var(--surface);
-      border-bottom: 2px solid var(--accent);
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    header .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    header .logo span.badge {
-      background: var(--accent);
-      color: #000;
-      font-weight: 800;
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 4px;
-      letter-spacing: 1px;
-    }
-    header h1 {
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: .5px;
-    }
-    header .right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    #btnVolver {
-      display: none;
-      background: var(--border);
-      border: none;
-      color: var(--text);
-      padding: 7px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
-      font-family: var(--sans);
-    }
-    #btnVolver:hover { background: var(--surface2); }
-    #statusDot {
-      width: 9px; height: 9px;
-      border-radius: 50%;
-      background: var(--warn);
-      transition: background .4s;
-    }
-    #statusDot.ok { background: var(--ok); }
+    /* LOADING */
+    #loadingOverlay{position:fixed;inset:0;background:rgba(15,23,42,.88);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;gap:14px;}
+    .spinner{width:42px;height:42px;border:4px solid var(--border);border-top-color:var(--accent);
+      border-radius:50%;animation:spin .7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    #loadingMsg{font-size:14px;color:var(--muted);}
 
-    /* ── TOAST ── */
-    #toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: #1e293b;
-      border: 1px solid var(--accent);
-      color: var(--text);
-      padding: 12px 22px;
-      border-radius: 10px;
-      font-size: 14px;
-      z-index: 999;
-      transition: transform .35s ease;
-      pointer-events: none;
-      white-space: nowrap;
-    }
-    #toast.show { transform: translateX(-50%) translateY(0); }
+    /* MODAL */
+    #modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;
+      align-items:center;justify-content:center;}
+    #modal.open{display:flex;}
+    .modal-box{background:var(--surface);border:1px solid var(--warn);border-radius:14px;
+      padding:26px 22px;width:310px;max-width:92vw;}
+    .modal-box h3{font-size:15px;margin-bottom:5px;}
+    .modal-box p{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;}
+    .modal-box input{width:100%;background:var(--bg);border:1px solid var(--border);
+      border-radius:8px;color:var(--text);font-size:20px;font-family:var(--mono);
+      padding:10px 13px;outline:none;margin-bottom:16px;}
+    .modal-box input:focus{border-color:var(--warn);}
+    .modal-actions{display:flex;gap:10px;}
+    .modal-actions button{flex:1;padding:10px;border:none;border-radius:8px;
+      font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);}
+    #btnModalOk{background:var(--warn);color:#000;}
+    #btnModalCancel{background:var(--border);color:var(--text);}
 
-    /* ── PANTALLA OPERADORES ── */
-    #screenOps {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 36px 20px;
-    }
-    #screenOps h2 {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: var(--accent);
-    }
-    #screenOps p {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 28px;
-    }
-    .ops-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .op-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px 16px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      transition: border-color .2s, transform .15s;
-      color: var(--text);
-      font-family: var(--sans);
-    }
-    .op-btn:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-    .op-btn .avatar {
-      width: 52px; height: 52px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: #000;
-      font-size: 20px;
-      font-weight: 900;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .op-btn.apoyo .avatar {
-      background: var(--border);
-      color: var(--muted);
-    }
-    .op-btn span.name {
-      font-size: 13px;
-      font-weight: 600;
-      text-align: center;
-      line-height: 1.3;
-    }
-    .op-btn span.counter {
-      font-size: 11px;
-      color: var(--muted);
-    }
-    .op-btn span.counter b { color: var(--accent2); }
+    /* PANTALLA OPERADORES */
+    #screenOps{max-width:580px;margin:0 auto;padding:32px 18px;}
+    #screenOps h2{font-size:20px;font-weight:700;color:var(--accent);margin-bottom:6px;}
+    #screenOps p{color:var(--muted);font-size:13px;margin-bottom:24px;}
+    .ops-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+    .op-btn{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+      padding:18px 14px;cursor:pointer;display:flex;flex-direction:column;
+      align-items:center;gap:9px;transition:border-color .2s,transform .15s;
+      color:var(--text);font-family:var(--sans);}
+    .op-btn:hover{border-color:var(--accent);transform:translateY(-2px);}
+    .avatar{width:50px;height:50px;border-radius:50%;background:var(--accent);color:#000;
+      font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center;}
+    .op-btn.apoyo .avatar{background:var(--border);color:var(--muted);}
+    .op-btn .op-name{font-size:12px;font-weight:600;text-align:center;line-height:1.3;}
+    .op-counter{font-size:11px;color:var(--muted);}
+    .op-counter b{color:var(--accent2);}
 
-    /* ── PANTALLA TAREAS ── */
-    #screenTareas { display: none; padding: 20px; }
+    /* PANTALLA TAREAS */
+    #screenTareas{display:none;padding:18px;}
+    .tareas-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+    .tareas-header h2{font-size:17px;font-weight:700;}
+    .tareas-header h2 span{color:var(--accent);}
+    .progress-wrap{background:var(--border);border-radius:6px;height:6px;overflow:hidden;margin-bottom:4px;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));
+      border-radius:6px;transition:width .4s ease;}
+    .progress-label{font-size:11px;color:var(--muted);margin-bottom:16px;}
+    .filter-tabs{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;}
+    .filter-tabs button{background:var(--surface);border:1px solid var(--border);color:var(--muted);
+      padding:5px 13px;border-radius:20px;cursor:pointer;font-size:12px;font-family:var(--sans);}
+    .filter-tabs button.active{border-color:var(--accent);color:var(--accent);
+      background:rgba(249,115,22,.1);}
 
-    .tareas-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 18px;
-    }
-    .tareas-header h2 {
-      font-size: 18px;
-      font-weight: 700;
-    }
-    .tareas-header h2 span { color: var(--accent); }
+    /* CARDS */
+    .cards-list{display:flex;flex-direction:column;gap:11px;}
+    .task-card{background:var(--surface);border:1px solid var(--border);
+      border-radius:12px;padding:15px;}
+    .task-card.done{border-color:var(--ok);opacity:.6;}
+    .task-card.pend-state{border-color:var(--warn);}
+    .card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+    .card-sec{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);}
+    .card-fecha{font-size:11px;color:var(--muted);}
+    .card-origin{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.22);
+      border-radius:5px;padding:3px 9px;font-family:var(--mono);font-size:11px;
+      color:var(--accent2);display:inline-block;margin-bottom:7px;}
+    .card-desc{font-size:14px;font-weight:600;margin-bottom:7px;line-height:1.4;}
+    .card-meta{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+    .meta-pill{background:var(--surface2);border-radius:5px;padding:3px 8px;
+      font-size:11px;color:var(--muted);}
+    .meta-pill b{color:var(--text);font-family:var(--mono);}
+    .card-actions{display:flex;gap:9px;}
+    .btn-realizado,.btn-pendiente{flex:1;border:none;border-radius:8px;padding:10px 6px;
+      font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);
+      display:flex;align-items:center;justify-content:center;gap:5px;transition:opacity .2s;}
+    .btn-realizado{background:var(--ok);color:#000;}
+    .btn-pendiente{background:var(--warn);color:#000;}
+    .btn-realizado:hover,.btn-pendiente:hover{opacity:.85;}
+    .btn-realizado:disabled,.btn-pendiente:disabled{opacity:.3;cursor:not-allowed;}
+    .card-status{margin-top:9px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+    .chip-done{background:rgba(34,197,94,.15);border:1px solid var(--ok);color:var(--ok);
+      border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;}
+    .chip-pend{background:rgba(234,179,8,.15);border:1px solid var(--warn);color:var(--warn);
+      border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;}
+    .chip-info{font-size:11px;color:var(--muted);}
+    .empty-msg{text-align:center;color:var(--muted);padding:48px 20px;font-size:14px;}
+    .empty-msg span{font-size:38px;display:block;margin-bottom:10px;}
 
-    .progress-bar-wrap {
-      background: var(--border);
-      border-radius: 6px;
-      height: 6px;
-      overflow: hidden;
-      margin-bottom: 20px;
-    }
-    .progress-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      border-radius: 6px;
-      transition: width .4s ease;
-    }
-    .progress-label {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 4px;
-      margin-bottom: 20px;
-    }
-
-    /* filter tabs */
-    .filter-tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .filter-tabs button {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      padding: 6px 14px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 12px;
-      font-family: var(--sans);
-      transition: all .2s;
-    }
-    .filter-tabs button.active {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: rgba(249,115,22,.1);
-    }
-
-    /* cards */
-    .cards-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .task-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      transition: border-color .2s;
-    }
-    .task-card.done {
-      border-color: var(--ok);
-      opacity: .65;
-    }
-    .task-card.pending-state {
-      border-color: var(--warn);
-    }
-
-    .card-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .card-sec {
-      font-family: var(--mono);
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--accent);
-      white-space: nowrap;
-    }
-    .card-fecha {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .card-origin {
-      background: rgba(249,115,22,.12);
-      border: 1px solid rgba(249,115,22,.25);
-      border-radius: 6px;
-      padding: 4px 10px;
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--accent2);
-      display: inline-block;
-      margin-bottom: 8px;
-    }
-
-    .card-desc {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 6px;
-      line-height: 1.4;
-    }
-
-    .card-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .meta-pill {
-      background: var(--surface2);
-      border-radius: 6px;
-      padding: 3px 9px;
-      font-size: 11px;
-      color: var(--muted);
-    }
-    .meta-pill b { color: var(--text); font-family: var(--mono); }
-
-    .card-actions {
-      display: flex;
-      gap: 10px;
-    }
-    .btn-realizado, .btn-pendiente {
-      flex: 1;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 8px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: var(--sans);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: opacity .2s, transform .1s;
-    }
-    .btn-realizado {
-      background: var(--ok);
-      color: #000;
-    }
-    .btn-pendiente {
-      background: var(--warn);
-      color: #000;
-    }
-    .btn-realizado:hover, .btn-pendiente:hover { opacity: .85; }
-    .btn-realizado:active, .btn-pendiente:active { transform: scale(.97); }
-    .btn-realizado:disabled, .btn-pendiente:disabled {
-      opacity: .35;
-      cursor: not-allowed;
-    }
-
-    .card-status {
-      margin-top: 10px;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .chip-done {
-      background: rgba(34,197,94,.15);
-      border: 1px solid var(--ok);
-      color: var(--ok);
-      border-radius: 5px;
-      padding: 2px 8px;
-      font-size: 11px;
-      font-weight: 700;
-    }
-    .chip-pend {
-      background: rgba(234,179,8,.15);
-      border: 1px solid var(--warn);
-      color: var(--warn);
-      border-radius: 5px;
-      padding: 2px 8px;
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    /* empty */
-    .empty-msg {
-      text-align: center;
-      color: var(--muted);
-      padding: 50px 20px;
-      font-size: 15px;
-    }
-    .empty-msg span { font-size: 40px; display: block; margin-bottom: 12px; }
-
-    /* loading */
-    #loadingOverlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15,23,42,.85);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 200;
-      gap: 16px;
-    }
-    .spinner {
-      width: 44px; height: 44px;
-      border: 4px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    #loadingMsg { font-size: 14px; color: var(--muted); }
-
-    /* modal pendiente */
-    #modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.6);
-      z-index: 300;
-      align-items: center;
-      justify-content: center;
-    }
-    #modal.open { display: flex; }
-    .modal-box {
-      background: var(--surface);
-      border: 1px solid var(--accent);
-      border-radius: 14px;
-      padding: 28px 24px;
-      width: 320px;
-      max-width: 90vw;
-    }
-    .modal-box h3 { font-size: 16px; margin-bottom: 6px; }
-    .modal-box p { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
-    .modal-box input {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 18px;
-      font-family: var(--mono);
-      padding: 10px 14px;
-      outline: none;
-      margin-bottom: 18px;
-    }
-    .modal-box input:focus { border-color: var(--accent); }
-    .modal-actions { display: flex; gap: 10px; }
-    .modal-actions button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: var(--sans);
-    }
-    #btnModalOk { background: var(--warn); color: #000; }
-    #btnModalCancel { background: var(--border); color: var(--text); }
-
-    @media (max-width: 480px) {
-      .ops-grid { grid-template-columns: 1fr 1fr; }
-      .card-actions { flex-direction: column; }
+    @media(max-width:420px){
+      .card-actions{flex-direction:column;}
+      .ops-grid{grid-template-columns:1fr 1fr;}
     }
   </style>
 </head>
@@ -461,9 +148,10 @@
     <span class="badge">ALM9037</span>
     <h1>Pick System</h1>
   </div>
-  <div class="right">
-    <button id="btnVolver" onclick="volverOps()">← Operadores</button>
-    <div id="statusDot" title="Estado conexión"></div>
+  <div class="hdr-right">
+    <button id="btnRefresh" onclick="recargar()">⟳ Sync</button>
+    <button id="btnVolver" onclick="volverOps()">← Volver</button>
+    <div id="statusDot"></div>
   </div>
 </header>
 
@@ -471,8 +159,8 @@
 <div id="modal">
   <div class="modal-box">
     <h3>⚠️ Marcar como Pendiente</h3>
-    <p id="modalDesc">Ingresa la cantidad pendiente para este ítem.</p>
-    <input type="number" id="modalCantidad" placeholder="Ej: 5" min="0" />
+    <p id="modalDesc">Ingresa la cantidad pendiente.</p>
+    <input type="number" id="modalCantidad" placeholder="Ej: 5" min="0"/>
     <div class="modal-actions">
       <button id="btnModalCancel" onclick="cerrarModal()">Cancelar</button>
       <button id="btnModalOk" onclick="confirmarPendiente()">Confirmar</button>
@@ -482,8 +170,8 @@
 
 <!-- PANTALLA OPERADORES -->
 <div id="screenOps">
-  <h2>Selecciona tu Nombre..?</h2>
-  <p>Elige tu nombre para ver y gestionar tus tareas de hoy.</p>
+  <h2>Selecciona tu Nombre</h2>
+  <p>Elige tu operador para ver y gestionar tus tareas.</p>
   <div class="ops-grid" id="opsGrid"></div>
 </div>
 
@@ -491,17 +179,15 @@
 <div id="screenTareas">
   <div class="tareas-header">
     <h2>Tareas · <span id="opNombre"></span></h2>
-    <div id="contadorChip" style="font-size:13px;color:var(--muted)"></div>
+    <div id="contadorLabel" style="font-size:12px;color:var(--muted);"></div>
   </div>
-  <div class="progress-bar-wrap">
-    <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
-  </div>
+  <div class="progress-wrap"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
   <div class="progress-label" id="progressLabel"></div>
   <div class="filter-tabs">
-    <button class="active" data-f="todas" onclick="filtrar(this)">Todas</button>
-    <button data-f="pendientes" onclick="filtrar(this)">Pendientes</button>
-    <button data-f="realizadas" onclick="filtrar(this)">Realizadas</button>
-    <button data-f="en-espera" onclick="filtrar(this)">En espera</button>
+    <button class="active" data-f="todas"     onclick="filtrar(this)">Todas</button>
+    <button               data-f="en-espera"  onclick="filtrar(this)">En espera</button>
+    <button               data-f="pendientes" onclick="filtrar(this)">Pendientes</button>
+    <button               data-f="realizadas" onclick="filtrar(this)">Realizadas</button>
   </div>
   <div class="cards-list" id="cardsList"></div>
 </div>
@@ -509,220 +195,209 @@
 <div id="toast"></div>
 
 <script>
-// ─── CONFIGURACIÓN ────────────────────────────────────────────────
-const SHEET_ID   = '13XldwYyihycsUGy5DVU7ZK5-tyHLBpe8eDgj0lrM5UQ';
-const SHEET_NAME = 'CONSOLIDADO';
-const OPERATORS  = [
-  { name: 'Diego Nahuelcheo',   initials: 'DN' },
-  { name: 'Gonzalo Diaz',       initials: 'GD' },
-  { name: 'Jorge Gonzalez',     initials: 'JG' },
-  { name: 'Francisco Vigueras', initials: 'FV' },
-  { name: 'Jim San Martin',     initials: 'JS' },
-  { name: 'Apoyo1',             initials: 'A1', apoyo: true },
-  { name: 'Apoyo2',             initials: 'A2', apoyo: true },
+// ── CONFIG ──────────────────────────────────────────────────────────
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxnEv94Nt1rhn2KOQBuUw3HSZ1HCDviQQSuwa623cTwTbwLX_KSKuQVy7DmgNAbjN-tSA/exec';
+
+const OPERATORS = [
+  {name:'Diego Nahuelcheo',   ini:'DN'},
+  {name:'Francisco Vigueras', ini:'FV'},
+  {name:'Gonzalo Diaz',       ini:'GD'},
+  {name:'Jorge Gonzalez',     ini:'JG'},
+  {name:'Jim San Martin',     ini:'JS'},
+  {name:'Apoyo1',             ini:'A1', apoyo:true},
+  {name:'Apoyo2',             ini:'A2', apoyo:true},
 ];
 
-// Columnas (índice 0-based en el array de valores de la fila)
+// Índices 0-based en el array de cada fila
 // A=0 B=1 C=2 D=3 E=4 F=5 G=6 H=7 I=8 J=9 K=10 L=11 M=12 N=13
-const COL = { SEC:2, DESDE:3, SAP:4, DESC:5, CB:6, CANT:7, ESTADO:10, NOMBRE_K:10, FECHA_L:11, HORA_M:12, CANT_PEND_N:13 };
+const CI = {FECHA:0,OP:1,SEC:2,DESDE:3,SAP:4,DESC:5,CB:6,CANT:7,FORMATO:8,DESTINO:9,ESTADO:10,NOMBRE_K:10,FECHA_L:11,HORA_M:12,CANT_N:13};
 
-// ─── ESTADO ───────────────────────────────────────────────────────
-let allRows      = [];  // array de objetos {rowNum, vals}
+// ── ESTADO ───────────────────────────────────────────────────────────
+let allRows      = [];   // [{rowNum, vals:[]}]
 let currentOp    = null;
-let currentFilter = 'todas';
-let pendienteTarget = null; // {rowNum, cardEl}
+let currentFilter= 'todas';
+let pendTarget   = null; // {rowNum}
 
-// ─── HELPERS DE FECHA/HORA ────────────────────────────────────────
-function hoy() {
+// ── UTILS ────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+function hoy(){
   return new Date().toLocaleDateString('es-CL');
 }
-function ahora() {
-  return new Date().toLocaleTimeString('es-CL', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-}
-function formatFecha(s) {
-  if (!s) return '';
-  return String(s).slice(0,10);
+function ahora(){
+  return new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 }
 
-// ─── TOAST ────────────────────────────────────────────────────────
-function showToast(msg, dur=2800) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), dur);
+function toast(msg, dur=2800){
+  const t=$('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
 }
 
-// ─── LOADING ──────────────────────────────────────────────────────
-function setLoading(show, msg='') {
-  const ov = document.getElementById('loadingOverlay');
-  ov.style.display = show ? 'flex' : 'none';
-  if (msg) document.getElementById('loadingMsg').textContent = msg;
+function setLoading(show, msg=''){
+  $('loadingOverlay').style.display = show?'flex':'none';
+  if(msg) $('loadingMsg').textContent=msg;
 }
 
-// ─── GOOGLE SHEETS API (JSON feed público) ────────────────────────
-// Para leer sin auth usamos el endpoint gviz/tq
-async function fetchSheet() {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error('Error al conectar con Google Sheets');
-  const text = await resp.text();
-  // Strip the JSONP wrapper
-  const json = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}')+1));
-  const rows = json.table.rows;
-  // row 0 is headers; filas reales desde índice 1
-  // rowNum en sheet = índice+2 (1-based + header)
-  allRows = rows.slice(1).map((r, i) => ({
-    rowNum: i + 2,
-    vals: r.c ? r.c.map(cell => cell ? (cell.v ?? cell.f ?? '') : '') : []
+function setStatus(ok){
+  const d=$('statusDot');
+  d.classList.toggle('ok',ok);
+  d.title = ok ? 'Conectado' : 'Sin conexión';
+}
+
+// ── FETCH DATOS ──────────────────────────────────────────────────────
+async function fetchData(){
+  const resp = await fetch(APPS_SCRIPT_URL + '?v=' + Date.now());
+  if(!resp.ok) throw new Error('HTTP '+resp.status);
+  const json = await resp.json();
+  if(!json.ok) throw new Error(json.msg || 'Error en Apps Script');
+  // json.data = array 2D incluyendo fila de encabezados (fila 1)
+  // Filas reales empiezan en índice 1 del array → rowNum en sheet = índice+1
+  allRows = json.data.slice(1).map((vals, i) => ({
+    rowNum: i + 2,   // fila 2 en adelante en el sheet
+    vals: vals.map(v => v === null || v === undefined ? '' : String(v))
   }));
 }
 
-// ─── GOOGLE APPS SCRIPT WEB APP (para escritura) ──────────────────
-// Necesitarás deployar el Apps Script incluido al final como comentario
-// y pegar la URL aquí:
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxnEv94Nt1rhn2KOQBuUw3HSZ1HCDviQQSuwa623cTwTbwLX_KSKuQVy7DmgNAbjN-tSA/exec';
-
-async function writeToSheet(rowNum, updates) {
-  // updates: { K: valor, L: valor, M: valor, N: valor }
-  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'TU_WEBAPP_URL_AQUÍ') {
-    console.warn('Apps Script URL no configurada. Solo modo lectura.');
-    return { ok: false, msg: 'Apps Script URL no configurada' };
-  }
-  const body = { sheetId: SHEET_ID, sheetName: SHEET_NAME, row: rowNum, updates };
-  try {
-    const r = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    return await r.json();
-  } catch(e) {
-    return { ok: false, msg: e.message };
-  }
+// ── ESCRIBIR EN SHEET ─────────────────────────────────────────────────
+async function writeRow(rowNum, updates){
+  const body = JSON.stringify({row: rowNum, updates});
+  const resp = await fetch(APPS_SCRIPT_URL, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body
+  });
+  const json = await resp.json();
+  if(!json.ok) throw new Error(json.msg || 'Error al escribir');
 }
 
-// ─── RENDER PANTALLA OPERADORES ───────────────────────────────────
-function renderOps() {
-  const grid = document.getElementById('opsGrid');
+// ── RENDER OPERADORES ─────────────────────────────────────────────────
+function renderOps(){
+  const grid = $('opsGrid');
   grid.innerHTML = '';
   OPERATORS.forEach(op => {
-    // contar tareas del operador
-    const total = allRows.filter(r => String(r.vals[1]||'').trim().toLowerCase() === op.name.toLowerCase()).length;
-    const done  = allRows.filter(r =>
-      String(r.vals[1]||'').trim().toLowerCase() === op.name.toLowerCase() &&
-      String(r.vals[COL.ESTADO]||'').trim().toLowerCase() === 'realizado'
+    const mis = allRows.filter(r =>
+      r.vals[CI.OP].trim().toLowerCase() === op.name.toLowerCase()
+    );
+    const total = mis.length;
+    const done  = mis.filter(r =>
+      r.vals[CI.ESTADO].trim().toLowerCase() === 'realizado'
     ).length;
+
     const btn = document.createElement('button');
-    btn.className = 'op-btn' + (op.apoyo ? ' apoyo' : '');
+    btn.className = 'op-btn' + (op.apoyo?' apoyo':'');
     btn.innerHTML = `
-      <div class="avatar">${op.initials}</div>
-      <span class="name">${op.name}</span>
-      <span class="counter">
-        ${total > 0 ? `<b>${done}</b>/${total} completadas` : 'Sin tareas asignadas'}
+      <div class="avatar">${op.ini}</div>
+      <span class="op-name">${op.name}</span>
+      <span class="op-counter">
+        ${total > 0
+          ? `<b>${done}</b>/${total} realizadas`
+          : 'Sin tareas'}
       </span>`;
-    btn.onclick = () => abrirOperador(op.name);
+    btn.onclick = () => abrirOp(op.name);
     grid.appendChild(btn);
   });
 }
 
-// ─── ABRIR OPERADOR ───────────────────────────────────────────────
-function abrirOperador(nombre) {
+// ── ABRIR OPERADOR ────────────────────────────────────────────────────
+function abrirOp(nombre){
   currentOp = nombre;
-  document.getElementById('screenOps').style.display   = 'none';
-  document.getElementById('screenTareas').style.display = 'block';
-  document.getElementById('opNombre').textContent = nombre;
-  document.getElementById('btnVolver').style.display   = 'inline-block';
+  currentFilter = 'todas';
+  document.querySelectorAll('.filter-tabs button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.f==='todas');
+  });
+  $('screenOps').style.display    = 'none';
+  $('screenTareas').style.display = 'block';
+  $('opNombre').textContent = nombre;
+  $('btnVolver').style.display = 'inline-block';
   renderTareas();
 }
 
-function volverOps() {
-  document.getElementById('screenOps').style.display   = 'block';
-  document.getElementById('screenTareas').style.display = 'none';
-  document.getElementById('btnVolver').style.display   = 'none';
+function volverOps(){
+  $('screenOps').style.display    = 'block';
+  $('screenTareas').style.display = 'none';
+  $('btnVolver').style.display    = 'none';
+  currentOp = null;
   renderOps();
 }
 
-// ─── FILTRO ───────────────────────────────────────────────────────
-function filtrar(btn) {
-  document.querySelectorAll('.filter-tabs button').forEach(b => b.classList.remove('active'));
+// ── FILTRO ────────────────────────────────────────────────────────────
+function filtrar(btn){
+  document.querySelectorAll('.filter-tabs button').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   currentFilter = btn.dataset.f;
   renderTareas();
 }
 
-// ─── RENDER TAREAS ────────────────────────────────────────────────
-function renderTareas() {
-  const misTareas = allRows.filter(r =>
-    String(r.vals[1]||'').trim().toLowerCase() === currentOp.toLowerCase()
+// ── RENDER TAREAS ─────────────────────────────────────────────────────
+function renderTareas(){
+  const mis = allRows.filter(r =>
+    r.vals[CI.OP].trim().toLowerCase() === currentOp.toLowerCase()
   );
+  const total  = mis.length;
+  const done   = mis.filter(r => r.vals[CI.ESTADO].trim().toLowerCase()==='realizado').length;
+  const pct    = total ? Math.round(done/total*100) : 0;
 
-  const total    = misTareas.length;
-  const done     = misTareas.filter(r => String(r.vals[COL.ESTADO]||'').toLowerCase() === 'realizado').length;
-  const pct      = total ? Math.round(done/total*100) : 0;
+  $('progressFill').style.width  = pct+'%';
+  $('progressLabel').textContent = `${done} de ${total} tareas realizadas (${pct}%)`;
+  $('contadorLabel').textContent = `${total-done} por completar`;
 
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressLabel').textContent = `${done} de ${total} tareas completadas (${pct}%)`;
-  document.getElementById('contadorChip').textContent  = `${total - done} pendientes`;
+  let visible = mis;
+  if(currentFilter==='realizadas')
+    visible = mis.filter(r => r.vals[CI.ESTADO].trim().toLowerCase()==='realizado');
+  else if(currentFilter==='pendientes')
+    visible = mis.filter(r => r.vals[CI.CANT_N]!=='' && r.vals[CI.ESTADO].trim().toLowerCase()!=='realizado');
+  else if(currentFilter==='en-espera')
+    visible = mis.filter(r => r.vals[CI.ESTADO]==='' && r.vals[CI.CANT_N]==='');
 
-  // filtro
-  let visible = misTareas;
-  if (currentFilter === 'realizadas') visible = misTareas.filter(r => String(r.vals[COL.ESTADO]||'').toLowerCase() === 'realizado');
-  else if (currentFilter === 'pendientes') visible = misTareas.filter(r => String(r.vals[COL.CANT_PEND_N]||'') !== '' && String(r.vals[COL.ESTADO]||'').toLowerCase() !== 'realizado');
-  else if (currentFilter === 'en-espera')  visible = misTareas.filter(r => String(r.vals[COL.ESTADO]||'') === '' && String(r.vals[COL.CANT_PEND_N]||'') === '');
+  const list = $('cardsList');
+  list.innerHTML='';
 
-  const list = document.getElementById('cardsList');
-  list.innerHTML = '';
-
-  if (!visible.length) {
-    list.innerHTML = `<div class="empty-msg"><span>📭</span>No hay tareas en esta categoría.</div>`;
+  if(!visible.length){
+    list.innerHTML='<div class="empty-msg"><span>📭</span>No hay tareas en esta categoría.</div>';
     return;
   }
 
   visible.forEach(row => {
-    const v     = row.vals;
-    const sec   = v[COL.SEC]   || '—';
-    const desde = v[COL.DESDE] || '—';
-    const sap   = v[COL.SAP]   || '—';
-    const desc  = v[COL.DESC]  || '—';
-    const cb    = v[COL.CB]    || '—';
-    const cant  = v[COL.CANT]  || '—';
-    const fecha = formatFecha(v[0]);
-    const estado = String(v[COL.ESTADO]||'').toLowerCase();
-    const cantPend = v[COL.CANT_PEND_N] || '';
-    const isDone   = estado === 'realizado';
-    const isPend   = cantPend !== '' && !isDone;
+    const v       = row.vals;
+    const isDone  = v[CI.ESTADO].trim().toLowerCase() === 'realizado';
+    const cantN   = v[CI.CANT_N];
+    const isPend  = cantN !== '' && !isDone;
 
     const card = document.createElement('div');
-    card.className = 'task-card' + (isDone ? ' done' : '') + (isPend ? ' pending-state' : '');
-    card.dataset.row = row.rowNum;
+    card.className = 'task-card'+(isDone?' done':'')+(isPend?' pend-state':'');
 
+    // estado badge
     let statusHtml = '';
-    if (isDone) {
-      const k = v[COL.NOMBRE_K] || '';
-      const l = v[COL.FECHA_L]  || '';
-      const m = v[COL.HORA_M]   || '';
-      statusHtml = `<div class="card-status"><span class="chip-done">✔ REALIZADO</span> <span style="color:var(--muted);font-size:11px">${k} · ${l} ${m}</span></div>`;
-    } else if (isPend) {
-      statusHtml = `<div class="card-status"><span class="chip-pend">⏳ PENDIENTE</span> <span style="color:var(--muted);font-size:11px">Cant. pendiente: ${cantPend}</span></div>`;
+    if(isDone){
+      statusHtml = `<div class="card-status">
+        <span class="chip-done">✔ REALIZADO</span>
+        <span class="chip-info">${v[CI.NOMBRE_K]} · ${v[CI.FECHA_L]} ${v[CI.HORA_M]}</span>
+      </div>`;
+    } else if(isPend){
+      statusHtml = `<div class="card-status">
+        <span class="chip-pend">⏳ PENDIENTE</span>
+        <span class="chip-info">Cant. pendiente: ${cantN}</span>
+      </div>`;
     }
 
     card.innerHTML = `
       <div class="card-top">
-        <span class="card-sec">SEC #${sec}</span>
-        <span class="card-fecha">${fecha}</span>
+        <span class="card-sec">SEC #${v[CI.SEC]||'—'}</span>
+        <span class="card-fecha">${String(v[CI.FECHA]).slice(0,10)||''}</span>
       </div>
-      <div class="card-origin">📍 ${desde}</div>
-      <div class="card-desc">${desc}</div>
+      <div class="card-origin">📍 ${v[CI.DESDE]||'—'}</div>
+      <div class="card-desc">${v[CI.DESC]||'—'}</div>
       <div class="card-meta">
-        <div class="meta-pill">SAP <b>${sap}</b></div>
-        <div class="meta-pill">C.Barra <b>${cb}</b></div>
-        <div class="meta-pill">Cant. <b>${cant}</b></div>
+        <div class="meta-pill">SAP <b>${v[CI.SAP]||'—'}</b></div>
+        <div class="meta-pill">Cód.Barra <b>${v[CI.CB]||'—'}</b></div>
+        <div class="meta-pill">Cant. <b>${v[CI.CANT]||'—'}</b></div>
+        <div class="meta-pill">Formato <b>${v[CI.FORMATO]||'—'}</b></div>
       </div>
       <div class="card-actions">
-        <button class="btn-realizado" ${isDone?'disabled':''} onclick="marcarRealizado(${row.rowNum}, this)">
+        <button class="btn-realizado" ${isDone?'disabled':''} onclick="marcarRealizado(${row.rowNum},this)">
           ✔ Realizado
         </button>
-        <button class="btn-pendiente" ${isDone?'disabled':''} onclick="abrirModalPendiente(${row.rowNum}, '${desc.replace(/'/g,"\\'")}', this.closest('.task-card'))">
+        <button class="btn-pendiente" ${isDone?'disabled':''} onclick="abrirModal(${row.rowNum},'${(v[CI.DESC]||'').replace(/'/g,"\\'")}')">
           ⏳ Pendiente
         </button>
       </div>
@@ -732,131 +407,105 @@ function renderTareas() {
   });
 }
 
-// ─── MARCAR REALIZADO ─────────────────────────────────────────────
-async function marcarRealizado(rowNum, btn) {
+// ── MARCAR REALIZADO ──────────────────────────────────────────────────
+async function marcarRealizado(rowNum, btn){
   btn.disabled = true;
-  btn.closest('.card-actions').querySelector('.btn-pendiente').disabled = true;
-  setLoading(true, 'Guardando en Google Sheets…');
+  const card = btn.closest('.task-card');
+  card.querySelector('.btn-pendiente').disabled = true;
+  setLoading(true,'Guardando en Google Sheets…');
 
   const nombre = currentOp;
   const fecha  = hoy();
   const hora   = ahora();
 
-  // Actualizar en memoria
-  const row = allRows.find(r => r.rowNum === rowNum);
-  if (row) {
-    row.vals[COL.NOMBRE_K] = nombre;
-    row.vals[COL.FECHA_L]  = fecha;
-    row.vals[COL.HORA_M]   = hora;
-    row.vals[COL.ESTADO]   = 'Realizado';
+  // actualizar en memoria
+  const row = allRows.find(r=>r.rowNum===rowNum);
+  if(row){
+    row.vals[CI.NOMBRE_K] = nombre;
+    row.vals[CI.FECHA_L]  = fecha;
+    row.vals[CI.HORA_M]   = hora;
+    row.vals[CI.ESTADO]   = 'Realizado';
   }
 
-  // Escribir en Sheets
-  const res = await writeToSheet(rowNum, { K: nombre, L: fecha, M: hora });
+  try{
+    await writeRow(rowNum, {K:nombre, L:fecha, M:hora});
+    toast('✔ REALIZADO guardado correctamente');
+  } catch(e){
+    toast('⚠️ Error al guardar: '+e.message, 4000);
+  }
   setLoading(false);
-
-  if (res && res.ok === false) {
-    showToast('⚠️ Sin conexión a Apps Script – cambio guardado localmente', 3500);
-  } else {
-    showToast('✔ Tarea marcada como REALIZADO');
-  }
   renderTareas();
 }
 
-// ─── MODAL PENDIENTE ──────────────────────────────────────────────
-function abrirModalPendiente(rowNum, desc, cardEl) {
-  pendienteTarget = { rowNum, cardEl };
-  document.getElementById('modalDesc').textContent = `Cantidad pendiente para: ${desc}`;
-  document.getElementById('modalCantidad').value = '';
-  document.getElementById('modal').classList.add('open');
-  document.getElementById('modalCantidad').focus();
+// ── MODAL PENDIENTE ───────────────────────────────────────────────────
+function abrirModal(rowNum, desc){
+  pendTarget = {rowNum};
+  $('modalDesc').textContent = desc ? `Ítem: ${desc}` : 'Ingresa la cantidad pendiente.';
+  $('modalCantidad').value = '';
+  $('modal').classList.add('open');
+  setTimeout(()=>$('modalCantidad').focus(), 100);
 }
-
-function cerrarModal() {
-  document.getElementById('modal').classList.remove('open');
-  pendienteTarget = null;
+function cerrarModal(){
+  $('modal').classList.remove('open');
+  pendTarget = null;
 }
-
-async function confirmarPendiente() {
-  const cant = document.getElementById('modalCantidad').value.trim();
-  if (!cant || isNaN(cant)) {
-    showToast('⚠️ Ingresa una cantidad válida'); return;
-  }
+async function confirmarPendiente(){
+  const cant = $('modalCantidad').value.trim();
+  if(!cant || isNaN(cant)){toast('⚠️ Ingresa una cantidad válida'); return;}
   cerrarModal();
-  const { rowNum } = pendienteTarget;
-  setLoading(true, 'Guardando en Google Sheets…');
+  const {rowNum} = pendTarget;
+  setLoading(true,'Guardando en Google Sheets…');
 
-  // Actualizar en memoria
-  const row = allRows.find(r => r.rowNum === rowNum);
-  if (row) row.vals[COL.CANT_PEND_N] = cant;
+  const row = allRows.find(r=>r.rowNum===rowNum);
+  if(row) row.vals[CI.CANT_N] = cant;
 
-  const res = await writeToSheet(rowNum, { N: cant });
-  setLoading(false);
-
-  if (res && res.ok === false) {
-    showToast('⚠️ Sin conexión a Apps Script – cambio guardado localmente', 3500);
-  } else {
-    showToast('⏳ Cantidad pendiente guardada: ' + cant);
+  try{
+    await writeRow(rowNum, {N:cant});
+    toast('⏳ Cantidad pendiente guardada: '+cant);
+  } catch(e){
+    toast('⚠️ Error al guardar: '+e.message, 4000);
   }
+  setLoading(false);
   renderTareas();
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────
-async function init() {
-  setLoading(true, 'Cargando datos del warehouse…');
-  try {
-    await fetchSheet();
-    document.getElementById('statusDot').classList.add('ok');
-    showToast('✔ Datos cargados correctamente');
-  } catch(e) {
-    showToast('❌ ' + e.message, 4000);
+// ── RECARGAR ──────────────────────────────────────────────────────────
+async function recargar(){
+  setLoading(true,'Actualizando datos…');
+  try{
+    await fetchData();
+    setStatus(true);
+    toast('✔ Datos actualizados');
+    if(currentOp) renderTareas(); else renderOps();
+  } catch(e){
+    setStatus(false);
+    toast('❌ '+e.message, 4000);
+  }
+  setLoading(false);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────
+(async()=>{
+  setLoading(true,'Cargando datos del warehouse…');
+  try{
+    await fetchData();
+    setStatus(true);
+    toast('✔ Datos cargados');
+  } catch(e){
+    setStatus(false);
+    toast('❌ '+e.message, 4000);
   }
   renderOps();
   setLoading(false);
-
-  // Refresco automático cada 90s
-  setInterval(async () => {
-    try { await fetchSheet(); renderOps(); if (currentOp) renderTareas(); } catch {}
-  }, 90000);
-}
-
-init();
+  // auto-refresh cada 2 minutos
+  setInterval(async()=>{
+    try{
+      await fetchData();
+      setStatus(true);
+      if(currentOp) renderTareas(); else renderOps();
+    } catch{}
+  }, 120000);
+})();
 </script>
-
-<!--
-════════════════════════════════════════════════════════════════
-  APPS SCRIPT — PEGAR EN TOOLS > SCRIPT EDITOR DEL SHEET
-════════════════════════════════════════════════════════════════
-
-function doPost(e) {
-  try {
-    var data = JSON.parse(e.postData.contents);
-    var ss   = SpreadsheetApp.openById(data.sheetId);
-    var sh   = ss.getSheetByName(data.sheetName);
-    var row  = data.row;
-    var upd  = data.updates;
-    var colMap = { K:11, L:12, M:13, N:14 };  // 1-based
-    for (var col in upd) {
-      if (colMap[col]) sh.getRange(row, colMap[col]).setValue(upd[col]);
-    }
-    return ContentService.createTextOutput(
-      JSON.stringify({ ok: true })
-    ).setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    return ContentService.createTextOutput(
-      JSON.stringify({ ok: false, msg: err.toString() })
-    ).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-Pasos de deploy:
-1. Pegar el código anterior en Apps Script del mismo Google Sheet
-2. Hacer Deploy > New deployment > Web App
-3. Ejecutar como: "Yo (tu cuenta)"
-4. Acceso: "Cualquier persona"
-5. Copiar la URL generada y pegarla en const APPS_SCRIPT_URL del HTML
-
-════════════════════════════════════════════════════════════════
--->
 </body>
 </html>
