@@ -14,7 +14,6 @@
     *{box-sizing:border-box;margin:0;padding:0;}
     body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;}
 
-    /* HEADER */
     header{background:var(--surface);border-bottom:2px solid var(--accent);padding:12px 18px;
       display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
     .logo{display:flex;align-items:center;gap:10px;}
@@ -31,14 +30,12 @@
     #statusDot{width:9px;height:9px;border-radius:50%;background:var(--warn);}
     #statusDot.ok{background:var(--ok);}
 
-    /* TOAST */
     #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
       background:var(--surface);border:1px solid var(--accent);color:var(--text);
       padding:11px 20px;border-radius:10px;font-size:13px;z-index:999;
       transition:transform .3s ease;pointer-events:none;white-space:nowrap;}
     #toast.show{transform:translateX(-50%) translateY(0);}
 
-    /* LOADING */
     #loadingOverlay{position:fixed;inset:0;background:rgba(15,23,42,.88);
       display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;gap:14px;}
     .spinner{width:42px;height:42px;border:4px solid var(--border);border-top-color:var(--accent);
@@ -46,7 +43,6 @@
     @keyframes spin{to{transform:rotate(360deg);}}
     #loadingMsg{font-size:14px;color:var(--muted);}
 
-    /* MODAL */
     #modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;
       align-items:center;justify-content:center;}
     #modal.open{display:flex;}
@@ -64,7 +60,6 @@
     #btnModalOk{background:var(--warn);color:#000;}
     #btnModalCancel{background:var(--border);color:var(--text);}
 
-    /* PANTALLA OPERADORES */
     #screenOps{max-width:580px;margin:0 auto;padding:32px 18px;}
     #screenOps h2{font-size:20px;font-weight:700;color:var(--accent);margin-bottom:6px;}
     #screenOps p{color:var(--muted);font-size:13px;margin-bottom:24px;}
@@ -81,7 +76,6 @@
     .op-counter{font-size:11px;color:var(--muted);}
     .op-counter b{color:var(--accent2);}
 
-    /* PANTALLA TAREAS */
     #screenTareas{display:none;padding:18px;}
     .tareas-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
     .tareas-header h2{font-size:17px;font-weight:700;}
@@ -96,10 +90,8 @@
     .filter-tabs button.active{border-color:var(--accent);color:var(--accent);
       background:rgba(249,115,22,.1);}
 
-    /* CARDS */
     .cards-list{display:flex;flex-direction:column;gap:11px;}
-    .task-card{background:var(--surface);border:1px solid var(--border);
-      border-radius:12px;padding:15px;}
+    .task-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:15px;}
     .task-card.done{border-color:var(--ok);opacity:.6;}
     .task-card.pend-state{border-color:var(--warn);}
     .card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
@@ -110,8 +102,7 @@
       color:var(--accent2);display:inline-block;margin-bottom:7px;}
     .card-desc{font-size:14px;font-weight:600;margin-bottom:7px;line-height:1.4;}
     .card-meta{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
-    .meta-pill{background:var(--surface2);border-radius:5px;padding:3px 8px;
-      font-size:11px;color:var(--muted);}
+    .meta-pill{background:var(--surface2);border-radius:5px;padding:3px 8px;font-size:11px;color:var(--muted);}
     .meta-pill b{color:var(--text);font-family:var(--mono);}
     .card-actions{display:flex;gap:9px;}
     .btn-realizado,.btn-pendiente{flex:1;border:none;border-radius:8px;padding:10px 6px;
@@ -132,7 +123,6 @@
 
     @media(max-width:420px){
       .card-actions{flex-direction:column;}
-      .ops-grid{grid-template-columns:1fr 1fr;}
     }
   </style>
 </head>
@@ -150,12 +140,11 @@
   </div>
   <div class="hdr-right">
     <button id="btnRefresh" onclick="recargar()">⟳ Sync</button>
-    <button id="btnVolver" onclick="volverOps()">← Volver</button>
+    <button id="btnVolver"  onclick="volverOps()">← Volver</button>
     <div id="statusDot"></div>
   </div>
 </header>
 
-<!-- MODAL PENDIENTE -->
 <div id="modal">
   <div class="modal-box">
     <h3>⚠️ Marcar como Pendiente</h3>
@@ -163,19 +152,17 @@
     <input type="number" id="modalCantidad" placeholder="Ej: 5" min="0"/>
     <div class="modal-actions">
       <button id="btnModalCancel" onclick="cerrarModal()">Cancelar</button>
-      <button id="btnModalOk" onclick="confirmarPendiente()">Confirmar</button>
+      <button id="btnModalOk"     onclick="confirmarPendiente()">Confirmar</button>
     </div>
   </div>
 </div>
 
-<!-- PANTALLA OPERADORES -->
 <div id="screenOps">
   <h2>Selecciona tu Nombre</h2>
   <p>Elige tu operador para ver y gestionar tus tareas.</p>
   <div class="ops-grid" id="opsGrid"></div>
 </div>
 
-<!-- PANTALLA TAREAS -->
 <div id="screenTareas">
   <div class="tareas-header">
     <h2>Tareas · <span id="opNombre"></span></h2>
@@ -195,7 +182,6 @@
 <div id="toast"></div>
 
 <script>
-// ── CONFIG ──────────────────────────────────────────────────────────
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxnEv94Nt1rhn2KOQBuUw3HSZ1HCDviQQSuwa623cTwTbwLX_KSKuQVy7DmgNAbjN-tSA/exec';
 
 const OPERATORS = [
@@ -208,107 +194,93 @@ const OPERATORS = [
   {name:'Apoyo2',             ini:'A2', apoyo:true},
 ];
 
-// Índices 0-based en el array de cada fila
-// A=0 B=1 C=2 D=3 E=4 F=5 G=6 H=7 I=8 J=9 K=10 L=11 M=12 N=13
-const CI = {FECHA:0,OP:1,SEC:2,DESDE:3,SAP:4,DESC:5,CB:6,CANT:7,FORMATO:8,DESTINO:9,ESTADO:10,NOMBRE_K:10,FECHA_L:11,HORA_M:12,CANT_N:13};
+// índices 0-based: A=0 B=1 C=2 D=3 E=4 F=5 G=6 H=7 I=8 J=9 K=10 L=11 M=12 N=13
+const CI = {
+  FECHA:0, OP:1, SEC:2, DESDE:3, SAP:4, DESC:5, CB:6, CANT:7,
+  FORMATO:8, DESTINO:9, ESTADO:10, NOMBRE_K:10, FECHA_L:11, HORA_M:12, CANT_N:13
+};
 
-// ── ESTADO ───────────────────────────────────────────────────────────
-let allRows      = [];   // [{rowNum, vals:[]}]
+let allRows      = [];
 let currentOp    = null;
 let currentFilter= 'todas';
-let pendTarget   = null; // {rowNum}
+let pendTarget   = null;
 
-// ── UTILS ────────────────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
-
-function hoy(){
-  return new Date().toLocaleDateString('es-CL');
-}
-function ahora(){
-  return new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-}
+const $= id => document.getElementById(id);
+const hoy  = () => new Date().toLocaleDateString('es-CL');
+const ahora= () => new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 
 function toast(msg, dur=2800){
   const t=$('toast'); t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),dur);
+  setTimeout(()=>t.classList.remove('show'), dur);
 }
-
 function setLoading(show, msg=''){
-  $('loadingOverlay').style.display = show?'flex':'none';
-  if(msg) $('loadingMsg').textContent=msg;
+  $('loadingOverlay').style.display = show ? 'flex' : 'none';
+  if(msg) $('loadingMsg').textContent = msg;
 }
-
 function setStatus(ok){
-  const d=$('statusDot');
-  d.classList.toggle('ok',ok);
-  d.title = ok ? 'Conectado' : 'Sin conexión';
+  $('statusDot').classList.toggle('ok', ok);
 }
 
-// ── FETCH DATOS ──────────────────────────────────────────────────────
+// ── LECTURA vía GET ──────────────────────────────────────────────────
 async function fetchData(){
-  const resp = await fetch(APPS_SCRIPT_URL + '?v=' + Date.now());
-  if(!resp.ok) throw new Error('HTTP '+resp.status);
+  const url  = APPS_SCRIPT_URL + '?action=read&v=' + Date.now();
+  const resp = await fetch(url);
+  if(!resp.ok) throw new Error('HTTP ' + resp.status);
   const json = await resp.json();
   if(!json.ok) throw new Error(json.msg || 'Error en Apps Script');
-  // json.data = array 2D incluyendo fila de encabezados (fila 1)
-  // Filas reales empiezan en índice 1 del array → rowNum en sheet = índice+1
+  // fila 0 = encabezados → saltamos, rowNum empieza en 2
   allRows = json.data.slice(1).map((vals, i) => ({
-    rowNum: i + 2,   // fila 2 en adelante en el sheet
-    vals: vals.map(v => v === null || v === undefined ? '' : String(v))
+    rowNum: i + 2,
+    vals: vals.map(v => (v === null || v === undefined) ? '' : String(v))
   }));
 }
 
-// ── ESCRIBIR EN SHEET ─────────────────────────────────────────────────
+// ── ESCRITURA vía GET (evita CORS de OPTIONS preflight) ──────────────
 async function writeRow(rowNum, updates){
-  const body = JSON.stringify({row: rowNum, updates});
-  const resp = await fetch(APPS_SCRIPT_URL, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body
-  });
+  // updates: {K:'valor', L:'valor', ...}
+  let params = `action=write&row=${rowNum}`;
+  for(const col in updates){
+    params += `&${col}=${encodeURIComponent(updates[col])}`;
+  }
+  const url  = APPS_SCRIPT_URL + '?' + params;
+  const resp = await fetch(url);
+  if(!resp.ok) throw new Error('HTTP ' + resp.status);
   const json = await resp.json();
   if(!json.ok) throw new Error(json.msg || 'Error al escribir');
 }
 
-// ── RENDER OPERADORES ─────────────────────────────────────────────────
+// ── OPERADORES ───────────────────────────────────────────────────────
 function renderOps(){
   const grid = $('opsGrid');
   grid.innerHTML = '';
   OPERATORS.forEach(op => {
-    const mis = allRows.filter(r =>
-      r.vals[CI.OP].trim().toLowerCase() === op.name.toLowerCase()
-    );
+    const mis   = allRows.filter(r => r.vals[CI.OP].trim().toLowerCase() === op.name.toLowerCase());
     const total = mis.length;
-    const done  = mis.filter(r =>
-      r.vals[CI.ESTADO].trim().toLowerCase() === 'realizado'
-    ).length;
+    const done  = mis.filter(r => r.vals[CI.ESTADO].trim().toLowerCase() === 'realizado').length;
 
     const btn = document.createElement('button');
-    btn.className = 'op-btn' + (op.apoyo?' apoyo':'');
+    btn.className = 'op-btn' + (op.apoyo ? ' apoyo' : '');
     btn.innerHTML = `
       <div class="avatar">${op.ini}</div>
       <span class="op-name">${op.name}</span>
       <span class="op-counter">
-        ${total > 0
-          ? `<b>${done}</b>/${total} realizadas`
-          : 'Sin tareas'}
+        ${total > 0 ? `<b>${done}</b>/${total} realizadas` : 'Sin tareas'}
       </span>`;
     btn.onclick = () => abrirOp(op.name);
     grid.appendChild(btn);
   });
 }
 
-// ── ABRIR OPERADOR ────────────────────────────────────────────────────
 function abrirOp(nombre){
-  currentOp = nombre;
+  currentOp     = nombre;
   currentFilter = 'todas';
-  document.querySelectorAll('.filter-tabs button').forEach(b=>{
-    b.classList.toggle('active', b.dataset.f==='todas');
-  });
+  document.querySelectorAll('.filter-tabs button').forEach(b =>
+    b.classList.toggle('active', b.dataset.f === 'todas')
+  );
   $('screenOps').style.display    = 'none';
   $('screenTareas').style.display = 'block';
-  $('opNombre').textContent = nombre;
-  $('btnVolver').style.display = 'inline-block';
+  $('opNombre').textContent       = nombre;
+  $('btnVolver').style.display    = 'inline-block';
   renderTareas();
 }
 
@@ -320,53 +292,47 @@ function volverOps(){
   renderOps();
 }
 
-// ── FILTRO ────────────────────────────────────────────────────────────
+// ── FILTROS ──────────────────────────────────────────────────────────
 function filtrar(btn){
-  document.querySelectorAll('.filter-tabs button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.filter-tabs button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   currentFilter = btn.dataset.f;
   renderTareas();
 }
 
-// ── RENDER TAREAS ─────────────────────────────────────────────────────
+// ── TAREAS ───────────────────────────────────────────────────────────
 function renderTareas(){
-  const mis = allRows.filter(r =>
-    r.vals[CI.OP].trim().toLowerCase() === currentOp.toLowerCase()
-  );
-  const total  = mis.length;
-  const done   = mis.filter(r => r.vals[CI.ESTADO].trim().toLowerCase()==='realizado').length;
-  const pct    = total ? Math.round(done/total*100) : 0;
+  const mis   = allRows.filter(r => r.vals[CI.OP].trim().toLowerCase() === currentOp.toLowerCase());
+  const total = mis.length;
+  const done  = mis.filter(r => r.vals[CI.ESTADO].trim().toLowerCase() === 'realizado').length;
+  const pct   = total ? Math.round(done / total * 100) : 0;
 
-  $('progressFill').style.width  = pct+'%';
+  $('progressFill').style.width  = pct + '%';
   $('progressLabel').textContent = `${done} de ${total} tareas realizadas (${pct}%)`;
-  $('contadorLabel').textContent = `${total-done} por completar`;
+  $('contadorLabel').textContent = `${total - done} por completar`;
 
   let visible = mis;
-  if(currentFilter==='realizadas')
-    visible = mis.filter(r => r.vals[CI.ESTADO].trim().toLowerCase()==='realizado');
-  else if(currentFilter==='pendientes')
-    visible = mis.filter(r => r.vals[CI.CANT_N]!=='' && r.vals[CI.ESTADO].trim().toLowerCase()!=='realizado');
-  else if(currentFilter==='en-espera')
-    visible = mis.filter(r => r.vals[CI.ESTADO]==='' && r.vals[CI.CANT_N]==='');
+  if(currentFilter === 'realizadas')
+    visible = mis.filter(r => r.vals[CI.ESTADO].trim().toLowerCase() === 'realizado');
+  else if(currentFilter === 'pendientes')
+    visible = mis.filter(r => r.vals[CI.CANT_N] !== '' && r.vals[CI.ESTADO].trim().toLowerCase() !== 'realizado');
+  else if(currentFilter === 'en-espera')
+    visible = mis.filter(r => r.vals[CI.ESTADO] === '' && r.vals[CI.CANT_N] === '');
 
   const list = $('cardsList');
-  list.innerHTML='';
+  list.innerHTML = '';
 
   if(!visible.length){
-    list.innerHTML='<div class="empty-msg"><span>📭</span>No hay tareas en esta categoría.</div>';
+    list.innerHTML = '<div class="empty-msg"><span>📭</span>No hay tareas en esta categoría.</div>';
     return;
   }
 
   visible.forEach(row => {
-    const v       = row.vals;
-    const isDone  = v[CI.ESTADO].trim().toLowerCase() === 'realizado';
-    const cantN   = v[CI.CANT_N];
-    const isPend  = cantN !== '' && !isDone;
+    const v      = row.vals;
+    const isDone = v[CI.ESTADO].trim().toLowerCase() === 'realizado';
+    const cantN  = v[CI.CANT_N];
+    const isPend = cantN !== '' && !isDone;
 
-    const card = document.createElement('div');
-    card.className = 'task-card'+(isDone?' done':'')+(isPend?' pend-state':'');
-
-    // estado badge
     let statusHtml = '';
     if(isDone){
       statusHtml = `<div class="card-status">
@@ -380,6 +346,8 @@ function renderTareas(){
       </div>`;
     }
 
+    const card = document.createElement('div');
+    card.className = 'task-card' + (isDone ? ' done' : '') + (isPend ? ' pend-state' : '');
     card.innerHTML = `
       <div class="card-top">
         <span class="card-sec">SEC #${v[CI.SEC]||'—'}</span>
@@ -397,29 +365,26 @@ function renderTareas(){
         <button class="btn-realizado" ${isDone?'disabled':''} onclick="marcarRealizado(${row.rowNum},this)">
           ✔ Realizado
         </button>
-        <button class="btn-pendiente" ${isDone?'disabled':''} onclick="abrirModal(${row.rowNum},'${(v[CI.DESC]||'').replace(/'/g,"\\'")}')">
+        <button class="btn-pendiente" ${isDone?'disabled':''} onclick="abrirModal(${row.rowNum},'${(v[CI.DESC]||'').replace(/'/g,"\\'").replace(/\n/g,' ')}')">
           ⏳ Pendiente
         </button>
       </div>
       ${statusHtml}`;
-
     list.appendChild(card);
   });
 }
 
-// ── MARCAR REALIZADO ──────────────────────────────────────────────────
+// ── REALIZADO ────────────────────────────────────────────────────────
 async function marcarRealizado(rowNum, btn){
   btn.disabled = true;
-  const card = btn.closest('.task-card');
-  card.querySelector('.btn-pendiente').disabled = true;
-  setLoading(true,'Guardando en Google Sheets…');
+  btn.closest('.card-actions').querySelector('.btn-pendiente').disabled = true;
+  setLoading(true, 'Guardando en Google Sheets…');
 
   const nombre = currentOp;
   const fecha  = hoy();
   const hora   = ahora();
 
-  // actualizar en memoria
-  const row = allRows.find(r=>r.rowNum===rowNum);
+  const row = allRows.find(r => r.rowNum === rowNum);
   if(row){
     row.vals[CI.NOMBRE_K] = nombre;
     row.vals[CI.FECHA_L]  = fecha;
@@ -428,22 +393,22 @@ async function marcarRealizado(rowNum, btn){
   }
 
   try{
-    await writeRow(rowNum, {K:nombre, L:fecha, M:hora});
+    await writeRow(rowNum, {K: nombre, L: fecha, M: hora});
     toast('✔ REALIZADO guardado correctamente');
   } catch(e){
-    toast('⚠️ Error al guardar: '+e.message, 4000);
+    toast('❌ Error al guardar: ' + e.message, 4000);
   }
   setLoading(false);
   renderTareas();
 }
 
-// ── MODAL PENDIENTE ───────────────────────────────────────────────────
+// ── PENDIENTE ────────────────────────────────────────────────────────
 function abrirModal(rowNum, desc){
   pendTarget = {rowNum};
   $('modalDesc').textContent = desc ? `Ítem: ${desc}` : 'Ingresa la cantidad pendiente.';
-  $('modalCantidad').value = '';
+  $('modalCantidad').value   = '';
   $('modal').classList.add('open');
-  setTimeout(()=>$('modalCantidad').focus(), 100);
+  setTimeout(() => $('modalCantidad').focus(), 100);
 }
 function cerrarModal(){
   $('modal').classList.remove('open');
@@ -451,27 +416,27 @@ function cerrarModal(){
 }
 async function confirmarPendiente(){
   const cant = $('modalCantidad').value.trim();
-  if(!cant || isNaN(cant)){toast('⚠️ Ingresa una cantidad válida'); return;}
+  if(!cant || isNaN(cant)){ toast('⚠️ Ingresa una cantidad válida'); return; }
   cerrarModal();
   const {rowNum} = pendTarget;
-  setLoading(true,'Guardando en Google Sheets…');
+  setLoading(true, 'Guardando en Google Sheets…');
 
-  const row = allRows.find(r=>r.rowNum===rowNum);
+  const row = allRows.find(r => r.rowNum === rowNum);
   if(row) row.vals[CI.CANT_N] = cant;
 
   try{
-    await writeRow(rowNum, {N:cant});
-    toast('⏳ Cantidad pendiente guardada: '+cant);
+    await writeRow(rowNum, {N: cant});
+    toast('⏳ Cantidad pendiente guardada: ' + cant);
   } catch(e){
-    toast('⚠️ Error al guardar: '+e.message, 4000);
+    toast('❌ Error al guardar: ' + e.message, 4000);
   }
   setLoading(false);
   renderTareas();
 }
 
-// ── RECARGAR ──────────────────────────────────────────────────────────
+// ── RECARGAR ─────────────────────────────────────────────────────────
 async function recargar(){
-  setLoading(true,'Actualizando datos…');
+  setLoading(true, 'Actualizando datos…');
   try{
     await fetchData();
     setStatus(true);
@@ -479,26 +444,26 @@ async function recargar(){
     if(currentOp) renderTareas(); else renderOps();
   } catch(e){
     setStatus(false);
-    toast('❌ '+e.message, 4000);
+    toast('❌ ' + e.message, 4000);
   }
   setLoading(false);
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────
-(async()=>{
-  setLoading(true,'Cargando datos del warehouse…');
+// ── INIT ─────────────────────────────────────────────────────────────
+(async () => {
+  setLoading(true, 'Cargando datos del warehouse…');
   try{
     await fetchData();
     setStatus(true);
     toast('✔ Datos cargados');
   } catch(e){
     setStatus(false);
-    toast('❌ '+e.message, 4000);
+    toast('❌ ' + e.message, 4000);
   }
   renderOps();
   setLoading(false);
   // auto-refresh cada 2 minutos
-  setInterval(async()=>{
+  setInterval(async () => {
     try{
       await fetchData();
       setStatus(true);
