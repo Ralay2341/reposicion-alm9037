@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALM9037 · Pick System</title>
+  <style>
+    :root {
+      --bg:        #0f172a;
+      --surface:   #1e293b;
+      --surface2:  #273449;
+      --border:    #334155;
+      --accent:    #f97316;
+      --accent2:   #fb923c;
+      --ok:        #22c55e;
+      --warn:      #eab308;
+      --text:      #f1f5f9;
+      --muted:     #94a3b8;
+      --mono:      'Courier New', monospace;
+      --sans:      'Segoe UI', system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--surface);
+      border-bottom: 2px solid var(--accent);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    header .logo span.badge {
+      background: var(--accent);
+      color: #000;
+      font-weight: 800;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 1px;
+    }
+    header h1 {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: .5px;
+    }
+    header .right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #btnVolver {
+      display: none;
+      background: var(--border);
+      border: none;
+      color: var(--text);
+      padding: 7px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: var(--sans);
+    }
+    #btnVolver:hover { background: var(--surface2); }
+    #statusDot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--warn);
+      transition: background .4s;
+    }
+    #statusDot.ok { background: var(--ok); }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1e293b;
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 14px;
+      z-index: 999;
+      transition: transform .35s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── PANTALLA OPERADORES ── */
+    #screenOps {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 36px 20px;
+    }
+    #screenOps h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+    #screenOps p {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+    .ops-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .op-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 16px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      transition: border-color .2s, transform .15s;
+      color: var(--text);
+      font-family: var(--sans);
+    }
+    .op-btn:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .op-btn .avatar {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #000;
+      font-size: 20px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .op-btn.apoyo .avatar {
+      background: var(--border);
+      color: var(--muted);
+    }
+    .op-btn span.name {
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .op-btn span.counter {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .op-btn span.counter b { color: var(--accent2); }
+
+    /* ── PANTALLA TAREAS ── */
+    #screenTareas { display: none; padding: 20px; }
+
+    .tareas-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .tareas-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .tareas-header h2 span { color: var(--accent); }
+
+    .progress-bar-wrap {
+      background: var(--border);
+      border-radius: 6px;
+      height: 6px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 6px;
+      transition: width .4s ease;
+    }
+    .progress-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+      margin-bottom: 20px;
+    }
+
+    /* filter tabs */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .filter-tabs button {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: var(--sans);
+      transition: all .2s;
+    }
+    .filter-tabs button.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(249,115,22,.1);
+    }
+
+    /* cards */
+    .cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .task-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      transition: border-color .2s;
+    }
+    .task-card.done {
+      border-color: var(--ok);
+      opacity: .65;
+    }
+    .task-card.pending-state {
+      border-color: var(--warn);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .card-sec {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    .card-fecha {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .card-origin {
+      background: rgba(249,115,22,.12);
+      border: 1px solid rgba(249,115,22,.25);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--accent2);
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+
+    .card-desc {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .meta-pill {
+      background: var(--surface2);
+      border-radius: 6px;
+      padding: 3px 9px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .meta-pill b { color: var(--text); font-family: var(--mono); }
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-realizado, .btn-pendiente {
+      flex: 1;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--sans);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn-realizado {
+      background: var(--ok);
+      color: #000;
+    }
+    .btn-pendiente {
+      background: var(--warn);
+      color: #000;
+    }
+    .btn-realizado:hover, .btn-pendiente:hover { opacity: .85; }
+    .btn-realizado:active, .btn-pendiente:active { transform: scale(.97); }
+    .btn-realizado:disabled, .btn-pendiente:disabled {
+      opacity: .35;
+      cursor: not-allowed;
+    }
+
+    .card-status {
+      margin-top: 10px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .chip-done {
+      background: rgba(34,197,94,.15);
+      border: 1px solid var(--ok);
+      color: var(--ok);
+      border-radius: 5px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .chip-pend {
+      background: rgba(234,179,8,.15);
+      border: 1px solid var(--warn);
+      color: var(--warn);
+      border-radius: 5px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* empty */
+    .empty-msg {
+      text-align: center;
+      color: var(--muted);
+      padding: 50px 20px;
+      font-size: 15px;
+    }
+    .empty-msg span { font-size: 40px; display: block; margin-bottom: 12px; }
+
+    /* loading */
+    #loadingOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      gap: 16px;
+    }
+    .spinner {
+      width: 44px; height: 44px;
+      border: 4px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loadingMsg { font-size: 14px; color: var(--muted); }
+
+    /* modal pendiente */
+    #modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+    }
+    #modal.open { display: flex; }
+    .modal-box {
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      border-radius: 14px;
+      padding: 28px 24px;
+      width: 320px;
+      max-width: 90vw;
+    }
+    .modal-box h3 { font-size: 16px; margin-bottom: 6px; }
+    .modal-box p { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+    .modal-box input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 18px;
+      font-family: var(--mono);
+      padding: 10px 14px;
+      outline: none;
+      margin-bottom: 18px;
+    }
+    .modal-box input:focus { border-color: var(--accent); }
+    .modal-actions { display: flex; gap: 10px; }
+    .modal-actions button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--sans);
+    }
+    #btnModalOk { background: var(--warn); color: #000; }
+    #btnModalCancel { background: var(--border); color: var(--text); }
+
+    @media (max-width: 480px) {
+      .ops-grid { grid-template-columns: 1fr 1fr; }
+      .card-actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <div id="loadingMsg">Conectando con Google Sheets…</div>
+</div>
+
+<header>
+  <div class="logo">
+    <span class="badge">ALM9037</span>
+    <h1>Pick System</h1>
+  </div>
+  <div class="right">
+    <button id="btnVolver" onclick="volverOps()">← Operadores</button>
+    <div id="statusDot" title="Estado conexión"></div>
+  </div>
+</header>
+
+<!-- MODAL PENDIENTE -->
+<div id="modal">
+  <div class="modal-box">
+    <h3>⚠️ Marcar como Pendiente</h3>
+    <p id="modalDesc">Ingresa la cantidad pendiente para este ítem.</p>
+    <input type="number" id="modalCantidad" placeholder="Ej: 5" min="0" />
+    <div class="modal-actions">
+      <button id="btnModalCancel" onclick="cerrarModal()">Cancelar</button>
+      <button id="btnModalOk" onclick="confirmarPendiente()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- PANTALLA OPERADORES -->
+<div id="screenOps">
+  <h2>Selecciona tu Operador</h2>
+  <p>Elige tu nombre para ver y gestionar tus tareas de hoy.</p>
+  <div class="ops-grid" id="opsGrid"></div>
+</div>
+
+<!-- PANTALLA TAREAS -->
+<div id="screenTareas">
+  <div class="tareas-header">
+    <h2>Tareas · <span id="opNombre"></span></h2>
+    <div id="contadorChip" style="font-size:13px;color:var(--muted)"></div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <div class="progress-label" id="progressLabel"></div>
+  <div class="filter-tabs">
+    <button class="active" data-f="todas" onclick="filtrar(this)">Todas</button>
+    <button data-f="pendientes" onclick="filtrar(this)">Pendientes</button>
+    <button data-f="realizadas" onclick="filtrar(this)">Realizadas</button>
+    <button data-f="en-espera" onclick="filtrar(this)">En espera</button>
+  </div>
+  <div class="cards-list" id="cardsList"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── CONFIGURACIÓN ────────────────────────────────────────────────
+const SHEET_ID   = '13XldwYyihycsUGy5DVU7ZK5-tyHLBpe8eDgj0lrM5UQ';
+const SHEET_NAME = 'CONSOLIDADO';
+const OPERATORS  = [
+  { name: 'Diego Nahuelcheo',   initials: 'DN' },
+  { name: 'Gonzalo Diaz',       initials: 'GD' },
+  { name: 'Jorge Gonzalez',     initials: 'JG' },
+  { name: 'Francisco Vigueras', initials: 'FV' },
+  { name: 'Jim San Martin',     initials: 'JS' },
+  { name: 'Apoyo1',             initials: 'A1', apoyo: true },
+  { name: 'Apoyo2',             initials: 'A2', apoyo: true },
+];
+
+// Columnas (índice 0-based en el array de valores de la fila)
+// A=0 B=1 C=2 D=3 E=4 F=5 G=6 H=7 I=8 J=9 K=10 L=11 M=12 N=13
+const COL = { SEC:2, DESDE:3, SAP:4, DESC:5, CB:6, CANT:7, ESTADO:10, NOMBRE_K:10, FECHA_L:11, HORA_M:12, CANT_PEND_N:13 };
+
+// ─── ESTADO ───────────────────────────────────────────────────────
+let allRows      = [];  // array de objetos {rowNum, vals}
+let currentOp    = null;
+let currentFilter = 'todas';
+let pendienteTarget = null; // {rowNum, cardEl}
+
+// ─── HELPERS DE FECHA/HORA ────────────────────────────────────────
+function hoy() {
+  return new Date().toLocaleDateString('es-CL');
+}
+function ahora() {
+  return new Date().toLocaleTimeString('es-CL', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+function formatFecha(s) {
+  if (!s) return '';
+  return String(s).slice(0,10);
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────
+function showToast(msg, dur=2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ─── LOADING ──────────────────────────────────────────────────────
+function setLoading(show, msg='') {
+  const ov = document.getElementById('loadingOverlay');
+  ov.style.display = show ? 'flex' : 'none';
+  if (msg) document.getElementById('loadingMsg').textContent = msg;
+}
+
+// ─── GOOGLE SHEETS API (JSON feed público) ────────────────────────
+// Para leer sin auth usamos el endpoint gviz/tq
+async function fetchSheet() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error('Error al conectar con Google Sheets');
+  const text = await resp.text();
+  // Strip the JSONP wrapper
+  const json = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}')+1));
+  const rows = json.table.rows;
+  // row 0 is headers; filas reales desde índice 1
+  // rowNum en sheet = índice+2 (1-based + header)
+  allRows = rows.slice(1).map((r, i) => ({
+    rowNum: i + 2,
+    vals: r.c ? r.c.map(cell => cell ? (cell.v ?? cell.f ?? '') : '') : []
+  }));
+}
+
+// ─── GOOGLE APPS SCRIPT WEB APP (para escritura) ──────────────────
+// Necesitarás deployar el Apps Script incluido al final como comentario
+// y pegar la URL aquí:
+const APPS_SCRIPT_URL = 'TU_WEBAPP_URL_AQUÍ';
+
+async function writeToSheet(rowNum, updates) {
+  // updates: { K: valor, L: valor, M: valor, N: valor }
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'TU_WEBAPP_URL_AQUÍ') {
+    console.warn('Apps Script URL no configurada. Solo modo lectura.');
+    return { ok: false, msg: 'Apps Script URL no configurada' };
+  }
+  const body = { sheetId: SHEET_ID, sheetName: SHEET_NAME, row: rowNum, updates };
+  try {
+    const r = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    return await r.json();
+  } catch(e) {
+    return { ok: false, msg: e.message };
+  }
+}
+
+// ─── RENDER PANTALLA OPERADORES ───────────────────────────────────
+function renderOps() {
+  const grid = document.getElementById('opsGrid');
+  grid.innerHTML = '';
+  OPERATORS.forEach(op => {
+    // contar tareas del operador
+    const total = allRows.filter(r => String(r.vals[1]||'').trim().toLowerCase() === op.name.toLowerCase()).length;
+    const done  = allRows.filter(r =>
+      String(r.vals[1]||'').trim().toLowerCase() === op.name.toLowerCase() &&
+      String(r.vals[COL.ESTADO]||'').trim().toLowerCase() === 'realizado'
+    ).length;
+    const btn = document.createElement('button');
+    btn.className = 'op-btn' + (op.apoyo ? ' apoyo' : '');
+    btn.innerHTML = `
+      <div class="avatar">${op.initials}</div>
+      <span class="name">${op.name}</span>
+      <span class="counter">
+        ${total > 0 ? `<b>${done}</b>/${total} completadas` : 'Sin tareas asignadas'}
+      </span>`;
+    btn.onclick = () => abrirOperador(op.name);
+    grid.appendChild(btn);
+  });
+}
+
+// ─── ABRIR OPERADOR ───────────────────────────────────────────────
+function abrirOperador(nombre) {
+  currentOp = nombre;
+  document.getElementById('screenOps').style.display   = 'none';
+  document.getElementById('screenTareas').style.display = 'block';
+  document.getElementById('opNombre').textContent = nombre;
+  document.getElementById('btnVolver').style.display   = 'inline-block';
+  renderTareas();
+}
+
+function volverOps() {
+  document.getElementById('screenOps').style.display   = 'block';
+  document.getElementById('screenTareas').style.display = 'none';
+  document.getElementById('btnVolver').style.display   = 'none';
+  renderOps();
+}
+
+// ─── FILTRO ───────────────────────────────────────────────────────
+function filtrar(btn) {
+  document.querySelectorAll('.filter-tabs button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = btn.dataset.f;
+  renderTareas();
+}
+
+// ─── RENDER TAREAS ────────────────────────────────────────────────
+function renderTareas() {
+  const misTareas = allRows.filter(r =>
+    String(r.vals[1]||'').trim().toLowerCase() === currentOp.toLowerCase()
+  );
+
+  const total    = misTareas.length;
+  const done     = misTareas.filter(r => String(r.vals[COL.ESTADO]||'').toLowerCase() === 'realizado').length;
+  const pct      = total ? Math.round(done/total*100) : 0;
+
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${done} de ${total} tareas completadas (${pct}%)`;
+  document.getElementById('contadorChip').textContent  = `${total - done} pendientes`;
+
+  // filtro
+  let visible = misTareas;
+  if (currentFilter === 'realizadas') visible = misTareas.filter(r => String(r.vals[COL.ESTADO]||'').toLowerCase() === 'realizado');
+  else if (currentFilter === 'pendientes') visible = misTareas.filter(r => String(r.vals[COL.CANT_PEND_N]||'') !== '' && String(r.vals[COL.ESTADO]||'').toLowerCase() !== 'realizado');
+  else if (currentFilter === 'en-espera')  visible = misTareas.filter(r => String(r.vals[COL.ESTADO]||'') === '' && String(r.vals[COL.CANT_PEND_N]||'') === '');
+
+  const list = document.getElementById('cardsList');
+  list.innerHTML = '';
+
+  if (!visible.length) {
+    list.innerHTML = `<div class="empty-msg"><span>📭</span>No hay tareas en esta categoría.</div>`;
+    return;
+  }
+
+  visible.forEach(row => {
+    const v     = row.vals;
+    const sec   = v[COL.SEC]   || '—';
+    const desde = v[COL.DESDE] || '—';
+    const sap   = v[COL.SAP]   || '—';
+    const desc  = v[COL.DESC]  || '—';
+    const cb    = v[COL.CB]    || '—';
+    const cant  = v[COL.CANT]  || '—';
+    const fecha = formatFecha(v[0]);
+    const estado = String(v[COL.ESTADO]||'').toLowerCase();
+    const cantPend = v[COL.CANT_PEND_N] || '';
+    const isDone   = estado === 'realizado';
+    const isPend   = cantPend !== '' && !isDone;
+
+    const card = document.createElement('div');
+    card.className = 'task-card' + (isDone ? ' done' : '') + (isPend ? ' pending-state' : '');
+    card.dataset.row = row.rowNum;
+
+    let statusHtml = '';
+    if (isDone) {
+      const k = v[COL.NOMBRE_K] || '';
+      const l = v[COL.FECHA_L]  || '';
+      const m = v[COL.HORA_M]   || '';
+      statusHtml = `<div class="card-status"><span class="chip-done">✔ REALIZADO</span> <span style="color:var(--muted);font-size:11px">${k} · ${l} ${m}</span></div>`;
+    } else if (isPend) {
+      statusHtml = `<div class="card-status"><span class="chip-pend">⏳ PENDIENTE</span> <span style="color:var(--muted);font-size:11px">Cant. pendiente: ${cantPend}</span></div>`;
+    }
+
+    card.innerHTML = `
+      <div class="card-top">
+        <span class="card-sec">SEC #${sec}</span>
+        <span class="card-fecha">${fecha}</span>
+      </div>
+      <div class="card-origin">📍 ${desde}</div>
+      <div class="card-desc">${desc}</div>
+      <div class="card-meta">
+        <div class="meta-pill">SAP <b>${sap}</b></div>
+        <div class="meta-pill">C.Barra <b>${cb}</b></div>
+        <div class="meta-pill">Cant. <b>${cant}</b></div>
+      </div>
+      <div class="card-actions">
+        <button class="btn-realizado" ${isDone?'disabled':''} onclick="marcarRealizado(${row.rowNum}, this)">
+          ✔ Realizado
+        </button>
+        <button class="btn-pendiente" ${isDone?'disabled':''} onclick="abrirModalPendiente(${row.rowNum}, '${desc.replace(/'/g,"\\'")}', this.closest('.task-card'))">
+          ⏳ Pendiente
+        </button>
+      </div>
+      ${statusHtml}`;
+
+    list.appendChild(card);
+  });
+}
+
+// ─── MARCAR REALIZADO ─────────────────────────────────────────────
+async function marcarRealizado(rowNum, btn) {
+  btn.disabled = true;
+  btn.closest('.card-actions').querySelector('.btn-pendiente').disabled = true;
+  setLoading(true, 'Guardando en Google Sheets…');
+
+  const nombre = currentOp;
+  const fecha  = hoy();
+  const hora   = ahora();
+
+  // Actualizar en memoria
+  const row = allRows.find(r => r.rowNum === rowNum);
+  if (row) {
+    row.vals[COL.NOMBRE_K] = nombre;
+    row.vals[COL.FECHA_L]  = fecha;
+    row.vals[COL.HORA_M]   = hora;
+    row.vals[COL.ESTADO]   = 'Realizado';
+  }
+
+  // Escribir en Sheets
+  const res = await writeToSheet(rowNum, { K: nombre, L: fecha, M: hora });
+  setLoading(false);
+
+  if (res && res.ok === false) {
+    showToast('⚠️ Sin conexión a Apps Script – cambio guardado localmente', 3500);
+  } else {
+    showToast('✔ Tarea marcada como REALIZADO');
+  }
+  renderTareas();
+}
+
+// ─── MODAL PENDIENTE ──────────────────────────────────────────────
+function abrirModalPendiente(rowNum, desc, cardEl) {
+  pendienteTarget = { rowNum, cardEl };
+  document.getElementById('modalDesc').textContent = `Cantidad pendiente para: ${desc}`;
+  document.getElementById('modalCantidad').value = '';
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('modalCantidad').focus();
+}
+
+function cerrarModal() {
+  document.getElementById('modal').classList.remove('open');
+  pendienteTarget = null;
+}
+
+async function confirmarPendiente() {
+  const cant = document.getElementById('modalCantidad').value.trim();
+  if (!cant || isNaN(cant)) {
+    showToast('⚠️ Ingresa una cantidad válida'); return;
+  }
+  cerrarModal();
+  const { rowNum } = pendienteTarget;
+  setLoading(true, 'Guardando en Google Sheets…');
+
+  // Actualizar en memoria
+  const row = allRows.find(r => r.rowNum === rowNum);
+  if (row) row.vals[COL.CANT_PEND_N] = cant;
+
+  const res = await writeToSheet(rowNum, { N: cant });
+  setLoading(false);
+
+  if (res && res.ok === false) {
+    showToast('⚠️ Sin conexión a Apps Script – cambio guardado localmente', 3500);
+  } else {
+    showToast('⏳ Cantidad pendiente guardada: ' + cant);
+  }
+  renderTareas();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────
+async function init() {
+  setLoading(true, 'Cargando datos del warehouse…');
+  try {
+    await fetchSheet();
+    document.getElementById('statusDot').classList.add('ok');
+    showToast('✔ Datos cargados correctamente');
+  } catch(e) {
+    showToast('❌ ' + e.message, 4000);
+  }
+  renderOps();
+  setLoading(false);
+
+  // Refresco automático cada 90s
+  setInterval(async () => {
+    try { await fetchSheet(); renderOps(); if (currentOp) renderTareas(); } catch {}
+  }, 90000);
+}
+
+init();
+</script>
+
+<!--
+════════════════════════════════════════════════════════════════
+  APPS SCRIPT — PEGAR EN TOOLS > SCRIPT EDITOR DEL SHEET
+════════════════════════════════════════════════════════════════
+
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var ss   = SpreadsheetApp.openById(data.sheetId);
+    var sh   = ss.getSheetByName(data.sheetName);
+    var row  = data.row;
+    var upd  = data.updates;
+    var colMap = { K:11, L:12, M:13, N:14 };  // 1-based
+    for (var col in upd) {
+      if (colMap[col]) sh.getRange(row, colMap[col]).setValue(upd[col]);
+    }
+    return ContentService.createTextOutput(
+      JSON.stringify({ ok: true })
+    ).setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(
+      JSON.stringify({ ok: false, msg: err.toString() })
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+Pasos de deploy:
+1. Pegar el código anterior en Apps Script del mismo Google Sheet
+2. Hacer Deploy > New deployment > Web App
+3. Ejecutar como: "Yo (tu cuenta)"
+4. Acceso: "Cualquier persona"
+5. Copiar la URL generada y pegarla en const APPS_SCRIPT_URL del HTML
+
+════════════════════════════════════════════════════════════════
+-->
+</body>
+</html>
