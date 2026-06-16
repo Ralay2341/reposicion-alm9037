@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ALM9037 · Ralay</title>
+  <title>ALM9037 · Pick System</title>
   <style>
     :root {
       --bg:#0f172a; --surface:#1e293b; --surface2:#273449; --border:#334155;
@@ -160,7 +160,7 @@
 
 <header id="mainHeader">
   <div class="logo">
-    <span class="badge">Ralay</span>
+    <span class="badge">ALM9037</span>
     <div class="logo-text">
       <h1>PICKING CONSOLIDADO <span class="propietario">· Propiedad de: Raúl Layseca Beas</span></h1>
     </div>
@@ -214,13 +214,14 @@
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxnEv94Nt1rhn2KOQBuUw3HSZ1HCDviQQSuwa623cTwTbwLX_KSKuQVy7DmgNAbjN-tSA/exec';
 
 const OPERATORS = [
-  {name:'Diego Nahuelcheo',   ini:'DN'},
-  {name:'Francisco Vigueras', ini:'FV'},
-  {name:'Gonzalo Diaz',       ini:'GD'},
-  {name:'Jorge Gonzalez',     ini:'JG'},
-  {name:'Jim San Martin',     ini:'JS'},
-  {name:'Apoyo1',             ini:'A1', apoyo:true},
-  {name:'Apoyo2',             ini:'A2', apoyo:true},
+  {name:'Diego Nahuelcheo',    ini:'DN'},
+  {name:'Francisco Vigueras',  ini:'FV'},
+  {name:'Gonzalo Diaz',        ini:'GD'},
+  {name:'Jorge Gonzalez',      ini:'JG'},
+  {name:'Ignacio Salvatierra', ini:'IS'},
+  {name:'Jim San Martin',      ini:'JS'},
+  {name:'Apoyo1',              ini:'A1', apoyo:true},
+  {name:'Apoyo2',              ini:'A2', apoyo:true},
 ];
 
 // índices 0-based: A=0 B=1 C=2 D=3 E=4 F=5 G=6 H=7 I=8 J=9 K=10 L=11 M=12 N=13
@@ -360,8 +361,27 @@ function renderTareas(){
     return;
   }
 
+  // Ordenar Mayor → Menor por formato (columna I = FORMATO), agrupando formatos iguales
+  visible = visible.slice().sort((a, b) => {
+    const pa = pesoFormato(a.vals[CI.FORMATO]);
+    const pb = pesoFormato(b.vals[CI.FORMATO]);
+    if(pb !== pa) return pb - pa; // Mayor primero
+    // mismo formato → mantener orden original (SEC)
+    return parseInt(a.vals[CI.SEC]||0) - parseInt(b.vals[CI.SEC]||0);
+  });
+
+  let lastFormato = null;
+
   visible.forEach(row => {
     const v      = row.vals;
+    const fmtActual = (v[CI.FORMATO]||'').toString().trim().toUpperCase();
+    if(fmtActual !== lastFormato){
+      lastFormato = fmtActual;
+      const sep = document.createElement('div');
+      sep.style.cssText = 'font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;padding:6px 2px 2px;border-top:1px solid var(--border);margin-top:4px;';
+      sep.textContent = '📦 ' + (fmtActual || 'SIN FORMATO');
+      list.appendChild(sep);
+    }
     // Realizado: columna K tiene nombre (operador quien ejecutó)
     // Pendiente: columna N tiene cantidad Y columna K vacía
     const isDone = v[CI.NOMBRE_K].trim() !== '';
@@ -486,6 +506,23 @@ async function recargar(){
     toast('❌ ' + e.message, 4000);
   }
   setLoading(false);
+}
+
+// ── ORDENAMIENTO POR FORMATO MAYOR → MENOR ───────────────────────────
+// Formatos en col I son solo números: 12, 3, 7, 800, etc. o texto: UN, Rack15, MINI-RACKS
+function pesoFormato(fmt){
+  if(!fmt) return 0;
+  const s = fmt.toString().trim().toUpperCase().replace(',','.');
+  // Número puro (el caso más común: 12, 3, 7, 800, 1.5, etc.)
+  const num = parseFloat(s);
+  if(!isNaN(num)) return num;
+  // Rack15 → 15
+  const rack = s.match(/RACK\s*(\d+)/);
+  if(rack) return parseFloat(rack[1]);
+  // UN / UND → 1
+  if(s === 'UN' || s === 'UND') return 1;
+  // Texto sin número (MINI-RACKS, CONTENEDOR, MUESTRAS, LATAS) → 0.5
+  return 0.5;
 }
 
 // ── AJUSTE STICKY DINÁMICO ───────────────────────────────────────────
