@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ALM9037 · Layseca</title>
+  <title>ALM9037 · Pick System</title>
   <style>
     :root {
       --bg:#0f172a; --surface:#1e293b; --surface2:#273449; --border:#334155;
@@ -29,6 +29,9 @@
     #btnRefresh{background:transparent;border:1px solid var(--border);color:var(--muted);
       padding:6px 10px;border-radius:6px;cursor:pointer;font-size:13px;font-family:var(--sans);}
     #btnRefresh:hover{border-color:var(--accent);color:var(--accent);}
+    #reloj{font-family:var(--mono);font-size:13px;color:var(--accent2);
+      background:var(--surface2);padding:5px 10px;border-radius:6px;
+      border:1px solid var(--border);letter-spacing:.5px;white-space:nowrap;}
     #statusDot{width:9px;height:9px;border-radius:50%;background:var(--warn);}
     #statusDot.ok{background:var(--ok);}
 
@@ -79,9 +82,12 @@
     .op-counter b{color:var(--accent2);}
 
     #screenTareas{display:none;padding:18px;}
-    .tareas-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+    .tareas-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-direction:column;gap:4px;}
     .tareas-header h2{font-size:17px;font-weight:700;}
     .tareas-header h2 span{color:var(--accent);}
+    #consolidadoTag{font-size:12px;font-weight:700;color:var(--ok);
+      background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);
+      border-radius:5px;padding:2px 10px;display:inline-block;letter-spacing:.5px;}
     .progress-sticky{
       position:sticky;
       top:0px;
@@ -160,12 +166,13 @@
 
 <header id="mainHeader">
   <div class="logo">
-    <span class="badge">Ralay</span>
+    <span class="badge">ALM9037</span>
     <div class="logo-text">
       <h1>PICKING CONSOLIDADO <span class="propietario">· Propiedad de: Raúl Layseca Beas</span></h1>
     </div>
   </div>
   <div class="hdr-right">
+    <span id="reloj">--:--:--</span>
     <button id="btnRefresh" onclick="recargar()">⟳ Sync</button>
     <button id="btnVolver"  onclick="volverOps()">← Volver</button>
     <div id="statusDot"></div>
@@ -186,22 +193,25 @@
 
 <div id="screenOps">
   <h2>Selecciona tu Nombre</h2>
-  <p>para ver y gestionar tus tareas.</p>
+  <p>Elige tu operador para ver y gestionar tus tareas.</p>
   <div class="ops-grid" id="opsGrid"></div>
 </div>
 
 <div id="screenTareas">
   <div class="tareas-header">
-    <h2>Tareas · <span id="opNombre"></span></h2>
-    <div id="contadorLabel" style="font-size:12px;color:var(--muted);"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+      <h2>Tareas · <span id="opNombre"></span></h2>
+      <div id="contadorLabel" style="font-size:12px;color:var(--muted);"></div>
+    </div>
+    <span id="consolidadoTag"></span>
   </div>
   <div class="progress-sticky">
     <div class="progress-wrap"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
     <div class="progress-label" id="progressLabel"></div>
   </div>
   <div class="filter-tabs">
-    <button class="active" data-f="todas"     onclick="filtrar(this)">Todas</button>
-    <button               data-f="en-espera"  onclick="filtrar(this)">En espera</button>
+    <button               data-f="todas"      onclick="filtrar(this)">Todas</button>
+    <button class="active" data-f="en-proceso" onclick="filtrar(this)">En Proceso</button>
     <button               data-f="pendientes" onclick="filtrar(this)">Pendientes</button>
     <button               data-f="realizadas" onclick="filtrar(this)">Realizadas</button>
   </div>
@@ -218,7 +228,7 @@ const OPERATORS = [
   {name:'Francisco Vigueras',  ini:'FV'},
   {name:'Gonzalo Diaz',        ini:'GD'},
   {name:'Jorge Gonzalez',      ini:'JG'},
-  {name:'Ignacio Contreras',   ini:'IC'},
+  {name:'Ignacio Salvatierra', ini:'IS'},
   {name:'Jim San Martin',      ini:'JS'},
   {name:'Apoyo1',              ini:'A1', apoyo:true},
   {name:'Apoyo2',              ini:'A2', apoyo:true},
@@ -228,16 +238,25 @@ const OPERATORS = [
 // Columna K(10)=Nombre operador quien realizó, L(11)=Fecha, M(12)=Hora, N(13)=Cant.Pendiente
 // El "Estado" se deduce: si K tiene nombre → Realizado; si N tiene valor → Pendiente
 const CI = {
-  FECHA:0, OP:1, SEC:2, DESDE:3, SAP:4, DESC:5, CB:6, CANT:7,
+  FECHA:0, OP:1, SEC_C:2, DESDE:3, SAP:4, DESC:5, CB:6, CANT:7,
   FORMATO:8, DESTINO:9, ESTADO:10, NOMBRE_K:10, FECHA_L:11, HORA_M:12, CANT_N:13
 };
 
 let allRows      = [];
 let currentOp    = null;
-let currentFilter= 'todas';
+let currentFilter= 'en-proceso';  // defecto: En Proceso
 let pendTarget   = null;
 
 const $= id => document.getElementById(id);
+
+// Fecha de hoy en formato DD/MM/AAAA para comparar con col A
+function fechaHoy(){
+  const d = new Date();
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const aa = d.getFullYear();
+  return `${dd}/${mm}/${aa}`;
+}
 const hoy  = () => new Date().toLocaleDateString('es-CL');
 const ahora= () => new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 
@@ -286,9 +305,13 @@ async function writeRow(rowNum, updates){
 // ── OPERADORES ───────────────────────────────────────────────────────
 function renderOps(){
   const grid = $('opsGrid');
+  const hd   = fechaHoy();
   grid.innerHTML = '';
   OPERATORS.forEach(op => {
-    const mis   = allRows.filter(r => r.vals[CI.OP].trim().toLowerCase() === op.name.toLowerCase());
+    const mis   = allRows.filter(r =>
+      r.vals[CI.OP].trim().toLowerCase() === op.name.toLowerCase() &&
+      r.vals[CI.FECHA].trim() === hd
+    );
     const total = mis.length;
     const done  = mis.filter(r => r.vals[CI.NOMBRE_K].trim() !== '').length;
 
@@ -307,14 +330,30 @@ function renderOps(){
 
 function abrirOp(nombre){
   currentOp     = nombre;
-  currentFilter = 'todas';
+  currentFilter = 'en-proceso';
   document.querySelectorAll('.filter-tabs button').forEach(b =>
-    b.classList.toggle('active', b.dataset.f === 'todas')
+    b.classList.toggle('active', b.dataset.f === 'en-proceso')
   );
   $('screenOps').style.display    = 'none';
   $('screenTareas').style.display = 'block';
   $('opNombre').textContent       = nombre;
   $('btnVolver').style.display    = 'inline-block';
+
+  // Detectar números de Consolidado de las tareas del operador (hoy, K vacía)
+  const hd = fechaHoy();
+  const misHoy = allRows.filter(r =>
+    r.vals[CI.OP].trim().toLowerCase() === nombre.toLowerCase() &&
+    r.vals[CI.FECHA].trim() === hd &&
+    r.vals[CI.NOMBRE_K].trim() === ''
+  );
+  const consols = [...new Set(misHoy.map(r => r.vals[CI.SEC_C]).filter(v => v !== ''))].sort();
+  if(consols.length > 0){
+    $('consolidadoTag').textContent = consols.map(c => 'Consolidado ' + c).join(' · ');
+    $('consolidadoTag').style.display = 'inline-block';
+  } else {
+    $('consolidadoTag').style.display = 'none';
+  }
+
   renderTareas();
 }
 
@@ -336,7 +375,14 @@ function filtrar(btn){
 
 // ── TAREAS ───────────────────────────────────────────────────────────
 function renderTareas(){
-  const mis   = allRows.filter(r => r.vals[CI.OP].trim().toLowerCase() === currentOp.toLowerCase());
+  const hd  = fechaHoy();
+
+  // Base: solo filas del operador + fecha hoy
+  const mis = allRows.filter(r =>
+    r.vals[CI.OP].trim().toLowerCase() === currentOp.toLowerCase() &&
+    r.vals[CI.FECHA].trim() === hd
+  );
+
   const total = mis.length;
   const done  = mis.filter(r => r.vals[CI.NOMBRE_K].trim() !== '').length;
   const pct   = total ? Math.round(done / total * 100) : 0;
@@ -350,7 +396,8 @@ function renderTareas(){
     visible = mis.filter(r => r.vals[CI.NOMBRE_K].trim() !== '');
   else if(currentFilter === 'pendientes')
     visible = mis.filter(r => r.vals[CI.CANT_N] !== '' && r.vals[CI.NOMBRE_K].trim() === '');
-  else if(currentFilter === 'en-espera')
+  else if(currentFilter === 'en-proceso')
+    // En Proceso = fecha hoy + K vacía (sin realizar ni pendiente confirmado)
     visible = mis.filter(r => r.vals[CI.NOMBRE_K].trim() === '' && r.vals[CI.CANT_N] === '');
 
   const list = $('cardsList');
@@ -365,9 +412,8 @@ function renderTareas(){
   visible = visible.slice().sort((a, b) => {
     const pa = pesoFormato(a.vals[CI.FORMATO]);
     const pb = pesoFormato(b.vals[CI.FORMATO]);
-    if(pb !== pa) return pb - pa; // Mayor primero
-    // mismo formato → mantener orden original (SEC)
-    return parseInt(a.vals[CI.SEC]||0) - parseInt(b.vals[CI.SEC]||0);
+    if(pb !== pa) return pb - pa;
+    return parseInt(a.vals[CI.SEC_C]||0) - parseInt(b.vals[CI.SEC_C]||0);
   });
 
   let lastFormato = null;
@@ -405,8 +451,8 @@ function renderTareas(){
     card.className = 'task-card' + (isDone ? ' done' : '') + (isPend ? ' pend-state' : '');
     card.innerHTML = `
       <div class="card-top">
-        <span class="card-sec">SEC #${v[CI.SEC]||'—'}</span>
-        <span class="card-fecha">${String(v[CI.FECHA]).slice(0,10)||''}</span>
+        <span class="card-sec">📋 Consolidado ${v[CI.SEC_C]||'—'}</span>
+        <span class="card-fecha">${v[CI.FECHA]||''}</span>
       </div>
       <div class="card-origin">📍 ${v[CI.DESDE]||'—'}</div>
       <div class="card-desc">${v[CI.DESC]||'—'}</div>
@@ -525,6 +571,15 @@ function pesoFormato(fmt){
   return 0.5;
 }
 
+// ── RELOJ EN TIEMPO REAL ─────────────────────────────────────────────
+function iniciarReloj(){
+  function tick(){
+    $('reloj').textContent = new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
 // ── AJUSTE STICKY DINÁMICO ───────────────────────────────────────────
 function ajustarSticky(){
   const hdrH = document.getElementById('mainHeader').offsetHeight;
@@ -535,6 +590,7 @@ function ajustarSticky(){
 
 // ── INIT ─────────────────────────────────────────────────────────────
 (async () => {
+  iniciarReloj();
   ajustarSticky();
   window.addEventListener('resize', ajustarSticky);
   setLoading(true, 'Cargando datos del warehouse…');
