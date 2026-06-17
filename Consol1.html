@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ALM9037 · RALAY</title>
+  <title>ALM9037 · Pick System</title>
   <style>
     :root {
       --bg:#0f172a; --surface:#1e293b; --surface2:#273449; --border:#334155;
@@ -14,25 +14,28 @@
     *{box-sizing:border-box;margin:0;padding:0;}
     body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;}
 
-    header{background:var(--surface);border-bottom:2px solid var(--accent);padding:12px 18px;
-      display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-    .logo{display:flex;align-items:center;gap:10px;}
+    header{background:var(--surface);border-bottom:2px solid var(--accent);padding:10px 14px;
+      display:flex;flex-direction:column;gap:6px;position:sticky;top:0;z-index:100;}
+    .hdr-top{display:flex;align-items:center;justify-content:space-between;width:100%;}
+    .hdr-bottom{display:flex;align-items:center;justify-content:flex-end;gap:8px;width:100%;}
+    .logo{display:flex;align-items:center;gap:8px;}
     .badge{background:var(--accent);color:#000;font-weight:800;font-size:11px;
       padding:3px 8px;border-radius:4px;letter-spacing:1px;white-space:nowrap;}
     .logo-text{display:flex;flex-direction:column;gap:1px;}
-    header h1{font-size:14px;font-weight:700;line-height:1.2;}
-    header h1 .propietario{font-size:10px;font-weight:400;color:var(--muted);letter-spacing:.3px;}
-    .hdr-right{display:flex;align-items:center;gap:10px;}
-    #btnVolver{display:none;background:var(--border);border:none;color:var(--text);
-      padding:7px 13px;border-radius:6px;cursor:pointer;font-size:13px;font-family:var(--sans);}
-    #btnVolver:hover{background:var(--surface2);}
+    header h1{font-size:13px;font-weight:700;line-height:1.2;}
+    header h1 .propietario{font-size:9px;font-weight:400;color:var(--muted);letter-spacing:.3px;}
+    .hdr-right{display:flex;align-items:center;gap:8px;}
+    #btnVolver{display:none;background:var(--accent);border:none;color:#000;
+      padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px;
+      font-weight:700;font-family:var(--sans);white-space:nowrap;}
+    #btnVolver:hover{opacity:.85;}
     #btnRefresh{background:transparent;border:1px solid var(--border);color:var(--muted);
-      padding:6px 10px;border-radius:6px;cursor:pointer;font-size:13px;font-family:var(--sans);}
+      padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-family:var(--sans);}
     #btnRefresh:hover{border-color:var(--accent);color:var(--accent);}
     #reloj{font-family:var(--mono);font-size:13px;color:var(--accent2);
       background:var(--surface2);padding:5px 10px;border-radius:6px;
       border:1px solid var(--border);letter-spacing:.5px;white-space:nowrap;}
-    #statusDot{width:9px;height:9px;border-radius:50%;background:var(--warn);}
+    #statusDot{width:9px;height:9px;border-radius:50%;background:var(--warn);flex-shrink:0;}
     #statusDot.ok{background:var(--ok);}
 
     #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
@@ -165,17 +168,19 @@
 </div>
 
 <header id="mainHeader">
-  <div class="logo">
-    <span class="badge">RALAY</span>
-    <div class="logo-text">
-      <h1>PICKING CONSOLIDADO <span class="propietario">· Propiedad de: Raúl Layseca Beas</span></h1>
+  <div class="hdr-top">
+    <div class="logo">
+      <span class="badge">ALM9037</span>
+      <div class="logo-text">
+        <h1>PICKING CONSOLIDADO <span class="propietario">· Propiedad de: Raúl Layseca Beas</span></h1>
+      </div>
     </div>
+    <div id="statusDot"></div>
   </div>
-  <div class="hdr-right">
+  <div class="hdr-bottom">
     <span id="reloj">--:--:--</span>
     <button id="btnRefresh" onclick="recargar()">⟳ Sync</button>
     <button id="btnVolver"  onclick="volverOps()">← Volver</button>
-    <div id="statusDot"></div>
   </div>
 </header>
 
@@ -193,7 +198,7 @@
 
 <div id="screenOps">
   <h2>Selecciona tu Nombre</h2>
-  <p>para ver y gestionar tus tareas.</p>
+  <p>Elige tu operador para ver y gestionar tus tareas.</p>
   <div class="ops-grid" id="opsGrid"></div>
 </div>
 
@@ -228,7 +233,7 @@ const OPERATORS = [
   {name:'Francisco Vigueras',  ini:'FV'},
   {name:'Gonzalo Diaz',        ini:'GD'},
   {name:'Jorge Gonzalez',      ini:'JG'},
-  {name:'Ignacio Contreras',   ini:'IC'},
+  {name:'Ignacio Salvatierra', ini:'IS'},
   {name:'Jim San Martin',      ini:'JS'},
   {name:'Apoyo1',              ini:'A1', apoyo:true},
   {name:'Apoyo2',              ini:'A2', apoyo:true},
