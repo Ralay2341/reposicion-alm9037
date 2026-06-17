@@ -29,9 +29,6 @@
     #btnRefresh{background:transparent;border:1px solid var(--border);color:var(--muted);
       padding:6px 10px;border-radius:6px;cursor:pointer;font-size:13px;font-family:var(--sans);}
     #btnRefresh:hover{border-color:var(--accent);color:var(--accent);}
-    #reloj{font-family:var(--mono);font-size:13px;color:var(--accent2);
-      background:var(--surface2);padding:5px 10px;border-radius:6px;
-      border:1px solid var(--border);letter-spacing:.5px;white-space:nowrap;}
     #statusDot{width:9px;height:9px;border-radius:50%;background:var(--warn);}
     #statusDot.ok{background:var(--ok);}
 
@@ -82,12 +79,9 @@
     .op-counter b{color:var(--accent2);}
 
     #screenTareas{display:none;padding:18px;}
-    .tareas-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-direction:column;gap:4px;}
+    .tareas-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
     .tareas-header h2{font-size:17px;font-weight:700;}
     .tareas-header h2 span{color:var(--accent);}
-    #consolidadoTag{font-size:12px;font-weight:700;color:var(--ok);
-      background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);
-      border-radius:5px;padding:2px 10px;display:inline-block;letter-spacing:.5px;}
     .progress-sticky{
       position:sticky;
       top:0px;
@@ -172,7 +166,6 @@
     </div>
   </div>
   <div class="hdr-right">
-    <span id="reloj">--:--:--</span>
     <button id="btnRefresh" onclick="recargar()">⟳ Sync</button>
     <button id="btnVolver"  onclick="volverOps()">← Volver</button>
     <div id="statusDot"></div>
@@ -199,19 +192,16 @@
 
 <div id="screenTareas">
   <div class="tareas-header">
-    <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
-      <h2>Tareas · <span id="opNombre"></span></h2>
-      <div id="contadorLabel" style="font-size:12px;color:var(--muted);"></div>
-    </div>
-    <span id="consolidadoTag"></span>
+    <h2>Tareas · <span id="opNombre"></span></h2>
+    <div id="contadorLabel" style="font-size:12px;color:var(--muted);"></div>
   </div>
   <div class="progress-sticky">
     <div class="progress-wrap"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
     <div class="progress-label" id="progressLabel"></div>
   </div>
   <div class="filter-tabs">
-    <button               data-f="todas"      onclick="filtrar(this)">Todas</button>
-    <button class="active" data-f="en-proceso" onclick="filtrar(this)">En Proceso</button>
+    <button class="active" data-f="todas"     onclick="filtrar(this)">Todas</button>
+    <button               data-f="en-espera"  onclick="filtrar(this)">En espera</button>
     <button               data-f="pendientes" onclick="filtrar(this)">Pendientes</button>
     <button               data-f="realizadas" onclick="filtrar(this)">Realizadas</button>
   </div>
@@ -238,25 +228,16 @@ const OPERATORS = [
 // Columna K(10)=Nombre operador quien realizó, L(11)=Fecha, M(12)=Hora, N(13)=Cant.Pendiente
 // El "Estado" se deduce: si K tiene nombre → Realizado; si N tiene valor → Pendiente
 const CI = {
-  FECHA:0, OP:1, SEC_C:2, DESDE:3, SAP:4, DESC:5, CB:6, CANT:7,
+  FECHA:0, OP:1, SEC:2, DESDE:3, SAP:4, DESC:5, CB:6, CANT:7,
   FORMATO:8, DESTINO:9, ESTADO:10, NOMBRE_K:10, FECHA_L:11, HORA_M:12, CANT_N:13
 };
 
 let allRows      = [];
 let currentOp    = null;
-let currentFilter= 'en-proceso';  // defecto: En Proceso
+let currentFilter= 'todas';
 let pendTarget   = null;
 
 const $= id => document.getElementById(id);
-
-// Fecha de hoy en formato DD/MM/AAAA para comparar con col A
-function fechaHoy(){
-  const d = new Date();
-  const dd = String(d.getDate()).padStart(2,'0');
-  const mm = String(d.getMonth()+1).padStart(2,'0');
-  const aa = d.getFullYear();
-  return `${dd}/${mm}/${aa}`;
-}
 const hoy  = () => new Date().toLocaleDateString('es-CL');
 const ahora= () => new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 
@@ -279,33 +260,10 @@ async function fetchData(){
   if(!resp.ok) throw new Error('HTTP ' + resp.status);
   const json = await resp.json();
   if(!json.ok) throw new Error(json.msg || 'Error en Apps Script');
+  // fila 0 = encabezados → saltamos, rowNum empieza en 2
   allRows = json.data.slice(1).map((vals, i) => ({
     rowNum: i + 2,
-    vals: vals.map((v, ci) => {
-      if(v === null || v === undefined) return '';
-      // col A (índice 0): normalizar fecha a DD/MM/AAAA
-      if(ci === 0){
-        const s = String(v).trim();
-        // ya tiene formato DD/MM/AAAA
-        if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
-        // formato AAAA-MM-DD (ISO)
-        if(/^\d{4}-\d{2}-\d{2}/.test(s)){
-          const p = s.slice(0,10).split('-');
-          return `${p[2]}/${p[1]}/${p[0]}`;
-        }
-        // número serial de Google Sheets (días desde 30/12/1899)
-        const n = parseFloat(s);
-        if(!isNaN(n) && n > 40000){
-          const d = new Date(Math.round((n - 25569) * 86400 * 1000));
-          const dd = String(d.getUTCDate()).padStart(2,'0');
-          const mm = String(d.getUTCMonth()+1).padStart(2,'0');
-          const aa = d.getUTCFullYear();
-          return `${dd}/${mm}/${aa}`;
-        }
-        return s;
-      }
-      return String(v);
-    })
+    vals: vals.map(v => (v === null || v === undefined) ? '' : String(v))
   }));
 }
 
@@ -328,15 +286,11 @@ async function writeRow(rowNum, updates){
 // ── OPERADORES ───────────────────────────────────────────────────────
 function renderOps(){
   const grid = $('opsGrid');
-  const hd   = fechaHoy();
   grid.innerHTML = '';
   OPERATORS.forEach(op => {
-    const hoy_filas = allRows.filter(r =>
-      r.vals[CI.OP].trim().toLowerCase() === op.name.toLowerCase() &&
-      r.vals[CI.FECHA].trim() === hd
-    );
-    const total = hoy_filas.length;
-    const done  = hoy_filas.filter(r => r.vals[CI.NOMBRE_K].trim() !== '').length;
+    const mis   = allRows.filter(r => r.vals[CI.OP].trim().toLowerCase() === op.name.toLowerCase());
+    const total = mis.length;
+    const done  = mis.filter(r => r.vals[CI.NOMBRE_K].trim() !== '').length;
 
     const btn = document.createElement('button');
     btn.className = 'op-btn' + (op.apoyo ? ' apoyo' : '');
@@ -353,30 +307,14 @@ function renderOps(){
 
 function abrirOp(nombre){
   currentOp     = nombre;
-  currentFilter = 'en-proceso';
+  currentFilter = 'todas';
   document.querySelectorAll('.filter-tabs button').forEach(b =>
-    b.classList.toggle('active', b.dataset.f === 'en-proceso')
+    b.classList.toggle('active', b.dataset.f === 'todas')
   );
   $('screenOps').style.display    = 'none';
   $('screenTareas').style.display = 'block';
   $('opNombre').textContent       = nombre;
   $('btnVolver').style.display    = 'inline-block';
-
-  // Detectar números de Consolidado de las tareas del operador (hoy, K vacía)
-  const hd = fechaHoy();
-  const misHoy = allRows.filter(r =>
-    r.vals[CI.OP].trim().toLowerCase() === nombre.toLowerCase() &&
-    r.vals[CI.FECHA].trim() === hd &&
-    r.vals[CI.NOMBRE_K].trim() === ''
-  );
-  const consols = [...new Set(misHoy.map(r => r.vals[CI.SEC_C]).filter(v => v !== ''))].sort();
-  if(consols.length > 0){
-    $('consolidadoTag').textContent = consols.map(c => 'Consolidado ' + c).join(' · ');
-    $('consolidadoTag').style.display = 'inline-block';
-  } else {
-    $('consolidadoTag').style.display = 'none';
-  }
-
   renderTareas();
 }
 
@@ -398,33 +336,22 @@ function filtrar(btn){
 
 // ── TAREAS ───────────────────────────────────────────────────────────
 function renderTareas(){
-  const hd = fechaHoy();
-
-  // Todas las filas del operador de HOY
-  const todasHoy = allRows.filter(r =>
-    r.vals[CI.OP].trim().toLowerCase() === currentOp.toLowerCase() &&
-    r.vals[CI.FECHA].trim() === hd
-  );
-
-  const realizadas  = todasHoy.filter(r => r.vals[CI.NOMBRE_K].trim() !== '');
-  const sinRealizar = todasHoy.filter(r => r.vals[CI.NOMBRE_K].trim() === '');
-  const total = todasHoy.length;
-  const done  = realizadas.length;
+  const mis   = allRows.filter(r => r.vals[CI.OP].trim().toLowerCase() === currentOp.toLowerCase());
+  const total = mis.length;
+  const done  = mis.filter(r => r.vals[CI.NOMBRE_K].trim() !== '').length;
   const pct   = total ? Math.round(done / total * 100) : 0;
 
   $('progressFill').style.width  = pct + '%';
   $('progressLabel').textContent = `${done} de ${total} tareas realizadas (${pct}%)`;
-  $('contadorLabel').textContent = `${sinRealizar.length} por completar`;
+  $('contadorLabel').textContent = `${total - done} por completar`;
 
-  let visible;
+  let visible = mis;
   if(currentFilter === 'realizadas')
-    visible = realizadas;
+    visible = mis.filter(r => r.vals[CI.NOMBRE_K].trim() !== '');
   else if(currentFilter === 'pendientes')
-    visible = sinRealizar.filter(r => r.vals[CI.CANT_N] !== '');
-  else if(currentFilter === 'en-proceso')
-    visible = sinRealizar;   // K vacía = aún no realizadas
-  else
-    visible = todasHoy;     // todas
+    visible = mis.filter(r => r.vals[CI.CANT_N] !== '' && r.vals[CI.NOMBRE_K].trim() === '');
+  else if(currentFilter === 'en-espera')
+    visible = mis.filter(r => r.vals[CI.NOMBRE_K].trim() === '' && r.vals[CI.CANT_N] === '');
 
   const list = $('cardsList');
   list.innerHTML = '';
@@ -438,8 +365,9 @@ function renderTareas(){
   visible = visible.slice().sort((a, b) => {
     const pa = pesoFormato(a.vals[CI.FORMATO]);
     const pb = pesoFormato(b.vals[CI.FORMATO]);
-    if(pb !== pa) return pb - pa;
-    return parseInt(a.vals[CI.SEC_C]||0) - parseInt(b.vals[CI.SEC_C]||0);
+    if(pb !== pa) return pb - pa; // Mayor primero
+    // mismo formato → mantener orden original (SEC)
+    return parseInt(a.vals[CI.SEC]||0) - parseInt(b.vals[CI.SEC]||0);
   });
 
   let lastFormato = null;
@@ -477,8 +405,8 @@ function renderTareas(){
     card.className = 'task-card' + (isDone ? ' done' : '') + (isPend ? ' pend-state' : '');
     card.innerHTML = `
       <div class="card-top">
-        <span class="card-sec">📋 Consolidado ${v[CI.SEC_C]||'—'}</span>
-        <span class="card-fecha">${v[CI.FECHA]||''}</span>
+        <span class="card-sec">SEC #${v[CI.SEC]||'—'}</span>
+        <span class="card-fecha">${String(v[CI.FECHA]).slice(0,10)||''}</span>
       </div>
       <div class="card-origin">📍 ${v[CI.DESDE]||'—'}</div>
       <div class="card-desc">${v[CI.DESC]||'—'}</div>
@@ -597,15 +525,6 @@ function pesoFormato(fmt){
   return 0.5;
 }
 
-// ── RELOJ EN TIEMPO REAL ─────────────────────────────────────────────
-function iniciarReloj(){
-  function tick(){
-    $('reloj').textContent = new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  }
-  tick();
-  setInterval(tick, 1000);
-}
-
 // ── AJUSTE STICKY DINÁMICO ───────────────────────────────────────────
 function ajustarSticky(){
   const hdrH = document.getElementById('mainHeader').offsetHeight;
@@ -616,7 +535,6 @@ function ajustarSticky(){
 
 // ── INIT ─────────────────────────────────────────────────────────────
 (async () => {
-  iniciarReloj();
   ajustarSticky();
   window.addEventListener('resize', ajustarSticky);
   setLoading(true, 'Cargando datos del warehouse…');
