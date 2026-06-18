@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ALM9037 · RALAY</title>
+  <title>ALM9037 · Pick System</title>
   <style>
     :root {
       --bg:#0f172a; --surface:#1e293b; --surface2:#273449; --border:#334155;
@@ -170,9 +170,9 @@
 <header id="mainHeader">
   <div class="hdr-top">
     <div class="logo">
-      <span class="badge">RALAY</span>
+      <span class="badge">ALM9037</span>
       <div class="logo-text">
-        <h1>CONSOLIDADO <span class="propietario">· Propiedad de: Raúl Layseca Beas</span></h1>
+        <h1>PICKING CONSOLIDADO <span class="propietario">· Propiedad de: Raúl Layseca Beas</span></h1>
       </div>
     </div>
     <div id="statusDot"></div>
@@ -198,7 +198,7 @@
 
 <div id="screenOps">
   <h2>Selecciona tu Nombre</h2>
-  <p> Para ver y gestionar tus tareas.</p>
+  <p>Elige tu operador para ver y gestionar tus tareas.</p>
   <div class="ops-grid" id="opsGrid"></div>
 </div>
 
@@ -233,7 +233,7 @@ const OPERATORS = [
   {name:'Francisco Vigueras',  ini:'FV'},
   {name:'Gonzalo Diaz',        ini:'GD'},
   {name:'Jorge Gonzalez',      ini:'JG'},
-  {name:'Ignacio Contreras',   ini:'IC'},
+  {name:'Ignacio Salvatierra', ini:'IS'},
   {name:'Jim San Martin',      ini:'JS'},
   {name:'Apoyo1',              ini:'A1', apoyo:true},
   {name:'Apoyo2',              ini:'A2', apoyo:true},
@@ -336,12 +336,22 @@ function renderOps(){
   const hd   = fechaHoy();
   grid.innerHTML = '';
   OPERATORS.forEach(op => {
-    const hoy_filas = allRows.filter(r =>
+    // Solo filas de hoy con K vacía (pendientes de pickear)
+    const sinK = allRows.filter(r =>
       r.vals[CI.OP].trim().toLowerCase() === op.name.toLowerCase() &&
-      r.vals[CI.FECHA].trim() === hd
+      r.vals[CI.FECHA].trim() === hd &&
+      r.vals[CI.NOMBRE_K].trim() === ''
     );
-    const total = hoy_filas.length;
-    const done  = hoy_filas.filter(r => r.vals[CI.NOMBRE_K].trim() !== '').length;
+    const total = sinK.length;
+
+    // Agrupar por consolidado (col C)
+    const grupos = {};
+    sinK.forEach(r => {
+      const c = r.vals[CI.SEC_C] || '?';
+      grupos[c] = (grupos[c] || 0) + 1;
+    });
+    const claves = Object.keys(grupos).sort();
+    const consText = claves.map(c => `Cons.${c}: <b>${grupos[c]}</b>`).join(' · ');
 
     const btn = document.createElement('button');
     btn.className = 'op-btn' + (op.apoyo ? ' apoyo' : '');
@@ -349,7 +359,9 @@ function renderOps(){
       <div class="avatar">${op.ini}</div>
       <span class="op-name">${op.name}</span>
       <span class="op-counter">
-        ${total > 0 ? `<b>${done}</b>/${total} realizadas` : 'Sin tareas'}
+        ${total > 0
+          ? `Por pickear: <b>${total}</b><br><span style="font-size:10px;color:var(--muted)">${consText}</span>`
+          : '<span style="color:var(--ok)">✔ Al día</span>'}
       </span>`;
     btn.onclick = () => abrirOp(op.name);
     grid.appendChild(btn);
