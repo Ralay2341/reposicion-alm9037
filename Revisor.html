@@ -39,7 +39,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 16px;
+      padding: 10px;
     }
 
     .app {
@@ -51,11 +51,11 @@
     .header {
       background: var(--navy);
       border-radius: var(--radius-lg);
-      padding: 14px 18px;
-      margin-bottom: 14px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
     .header-icon {
       width: 44px; height: 44px;
@@ -88,8 +88,8 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 16px;
-      margin-bottom: 12px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
     }
     .section-label {
       font-size: 10px;
@@ -255,27 +255,27 @@
 
     /* ── Numpad ── */
     .cantidad-display {
-      font-size: 52px;
+      font-size: 38px;
       font-weight: 700;
       text-align: center;
       color: var(--text);
-      padding: 16px;
+      padding: 10px 12px;
       background: var(--surface2);
       border-radius: var(--radius-md);
-      margin-bottom: 14px;
+      margin-bottom: 10px;
       letter-spacing: -1px;
     }
     .numpad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      gap: 6px;
     }
     .num-btn {
       border: 1px solid var(--border);
       background: var(--surface2);
-      border-radius: var(--radius-md);
-      padding: 16px;
-      font-size: 20px;
+      border-radius: var(--radius-sm);
+      padding: 10px 4px;
+      font-size: 17px;
       font-weight: 600;
       cursor: pointer;
       text-align: center;
@@ -284,22 +284,22 @@
       -webkit-tap-highlight-color: transparent;
     }
     .num-btn:active { background: var(--border); transform: scale(0.96); }
-    .num-btn.del { font-size: 14px; color: var(--text2); }
+    .num-btn.del { font-size: 13px; color: var(--text2); }
     .num-btn.cero { grid-column: span 2; }
 
     /* ── Slide to confirm (estilo iOS) ── */
-    .slide-container { margin-top: 6px; }
+    .slide-container { margin-top: 4px; }
     .slide-label-top {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text3);
       text-align: center;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .slide-wrap {
       position: relative;
-      height: 58px;
+      height: 48px;
       background: var(--surface2);
-      border-radius: 29px;
+      border-radius: 24px;
       border: 1px solid var(--border);
       overflow: hidden;
       cursor: pointer;
@@ -311,13 +311,13 @@
       left: 0; top: 0; bottom: 0;
       width: 0%;
       background: var(--green-mid);
-      border-radius: 29px;
+      border-radius: 24px;
       transition: width 0.04s linear;
     }
     .slide-thumb {
       position: absolute;
-      left: 4px; top: 4px;
-      width: 50px; height: 50px;
+      left: 3px; top: 3px;
+      width: 42px; height: 42px;
       background: #fff;
       border-radius: 50%;
       display: flex;
@@ -327,7 +327,7 @@
       transition: left 0.04s linear;
       z-index: 2;
     }
-    .slide-thumb i { font-size: 20px; color: var(--navy); }
+    .slide-thumb i { font-size: 18px; color: var(--navy); }
     .slide-text {
       position: absolute;
       left: 0; right: 0; top: 0; bottom: 0;
@@ -342,7 +342,7 @@
       letter-spacing: 0.02em;
     }
     .slide-text.confirmed { color: #fff; }
-    .slide-wrap.done .slide-thumb { left: calc(100% - 54px); background: var(--green-mid); }
+    .slide-wrap.done .slide-thumb { left: calc(100% - 45px); background: var(--green-mid); }
     .slide-wrap.done .slide-track { width: 100%; }
     .slide-wrap.done .slide-thumb i { color: #fff; }
 
@@ -540,7 +540,7 @@
     <div id="productoCard"></div>
 
     <div class="card">
-      <div class="section-label"><i class="ti ti-calculator" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Paso 4 — Ingresa la cantidad contabilizada</div>
+      <div class="section-label"><i class="ti ti-calculator" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Paso 4 — Cantidad contabilizada</div>
       <div class="status-row" id="statusBadges"></div>
       <div class="cantidad-display" id="cantDisplay">0</div>
       <div class="numpad">
@@ -554,14 +554,11 @@
         <button class="num-btn" onclick="numPad('2')">2</button>
         <button class="num-btn" onclick="numPad('3')">3</button>
         <button class="num-btn cero" onclick="numPad('0')">0</button>
-        <button class="num-btn del" onclick="numPad('del')"><i class="ti ti-backspace" style="font-size:20px"></i></button>
+        <button class="num-btn del" onclick="numPad('del')"><i class="ti ti-backspace" style="font-size:18px"></i></button>
       </div>
-    </div>
-
-    <div class="card">
-      <div class="section-label"><i class="ti ti-check" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Desliza para confirmar y grabar</div>
+      <div style="border-top:1px solid var(--border);margin:10px 0 8px;"></div>
       <div class="slide-container">
-        <div class="slide-label-top" id="slideHint">Desliza el botón hacia la derecha para grabar</div>
+        <div class="slide-label-top" id="slideHint">Desliza para confirmar y grabar</div>
         <div class="slide-wrap" id="slideWrap">
           <div class="slide-track" id="slideTrack"></div>
           <div class="slide-thumb" id="slideThumb">
@@ -743,7 +740,7 @@
     var wrap = document.getElementById('slideWrap');
     if (wrap.classList.contains('done')) return;
     slideActive = true;
-    slideMaxX   = wrap.offsetWidth - 58;
+    slideMaxX   = wrap.offsetWidth - 48;
     slideStartX = e.touches ? e.touches[0].clientX : e.clientX;
     document.addEventListener('mousemove', onSlideMove);
     document.addEventListener('mouseup',   onSlideEnd);
@@ -791,7 +788,7 @@
 
     var wrap = document.getElementById('slideWrap');
     wrap.classList.add('done');
-    document.getElementById('slideThumb').style.left  = 'calc(100% - 54px)';
+    document.getElementById('slideThumb').style.left  = 'calc(100% - 45px)';
     document.getElementById('slideText').textContent  = 'Grabando…';
     document.getElementById('slideText').className    = 'slide-text confirmed';
     document.getElementById('slideIcon').className    = 'ti ti-check';
