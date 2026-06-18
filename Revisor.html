@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Revisión de Consolidado — ALM9037</title>
+  <title>Revisión de Inventario — ALM9037</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -404,49 +404,87 @@
     .btn-outline { border: 1px solid var(--border2); background: #fff; color: var(--text); }
     .btn-primary { border: none; background: var(--navy); color: #fff; }
 
-    /* ── Config modal ── */
-    .config-overlay {
+
+
+    /* ── Modal alerta diferencia ── */
+    .alerta-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.55);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 100;
+      z-index: 200;
       padding: 16px;
     }
-    .config-modal {
+    .alerta-modal {
       background: var(--surface);
       border-radius: var(--radius-lg);
-      padding: 22px;
+      padding: 22px 20px 18px;
       width: 100%;
-      max-width: 400px;
+      max-width: 360px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.22);
     }
-    .config-modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-    .config-modal p  { font-size: 12px; color: var(--text2); margin-bottom: 16px; }
-    .config-modal input {
-      width: 100%;
-      border: 1px solid var(--border);
+    .alerta-icon {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: #fff4e0;
+      border: 2px solid #f0a500;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px;
+    }
+    .alerta-icon i { font-size: 26px; color: #c97a00; }
+    .alerta-titulo {
+      font-size: 16px; font-weight: 700;
+      text-align: center; color: var(--text);
+      margin-bottom: 6px;
+    }
+    .alerta-sub {
+      font-size: 13px; text-align: center;
+      color: var(--text2); margin-bottom: 16px; line-height: 1.5;
+    }
+    .alerta-comparacion {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 18px;
+    }
+    .alerta-col {
+      border-radius: var(--radius-md);
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .alerta-col.sistema { background: var(--navy-light); }
+    .alerta-col.revisor { background: #fff4e0; }
+    .alerta-col-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+    .alerta-col.sistema .alerta-col-label { color: var(--navy); }
+    .alerta-col.revisor .alerta-col-label { color: #c97a00; }
+    .alerta-col-val { font-size: 26px; font-weight: 700; }
+    .alerta-col.sistema .alerta-col-val { color: var(--navy); }
+    .alerta-col.revisor .alerta-col-val  { color: #c97a00; }
+    .alerta-dif {
+      font-size: 11px; margin-top: 3px;
+      color: var(--red); font-weight: 600;
+    }
+    .alerta-btns { display: flex; flex-direction: column; gap: 8px; }
+    .btn-alerta-corregir {
+      padding: 11px;
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-md);
       background: var(--surface2);
-      border-radius: var(--radius-sm);
-      padding: 10px 12px;
-      font-size: 13px;
-      font-family: 'Courier New', monospace;
-      outline: none;
-      margin-bottom: 14px;
+      font-size: 14px; font-weight: 600;
+      color: var(--text); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
     }
-    .config-modal input:focus { border-color: var(--navy); }
-    .btn-save {
-      width: 100%;
-      padding: 12px;
+    .btn-alerta-confirmar {
+      padding: 11px;
       border: none;
       border-radius: var(--radius-md);
-      background: var(--navy);
-      color: #fff;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
+      background: #c97a00;
+      font-size: 14px; font-weight: 600;
+      color: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
     }
+    .btn-alerta-corregir:hover  { background: var(--border); }
+    .btn-alerta-confirmar:hover { background: #b36c00; }
 
     @media (max-width: 360px) {
       .revisor-grid { grid-template-columns: repeat(3, 1fr); }
@@ -455,19 +493,6 @@
   </style>
 </head>
 <body>
-
-<!-- ══════════ CONFIG MODAL ══════════ -->
-<div class="config-overlay" id="configOverlay">
-  <div class="config-modal">
-    <h3><i class="ti ti-settings" style="font-size:18px;vertical-align:-3px;margin-right:6px;color:var(--navy)"></i>Configuración inicial</h3>
-    <p>Pega la URL de tu Apps Script (Web App). Solo se hace una vez; queda guardada en este dispositivo.</p>
-    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">URL del Apps Script</label>
-    <input type="text" id="configUrl" placeholder="https://script.google.com/macros/s/…/exec" />
-    <button class="btn-save" onclick="guardarConfig()">
-      <i class="ti ti-check" style="font-size:15px;vertical-align:-2px;margin-right:5px"></i>Guardar y continuar
-    </button>
-  </div>
-</div>
 
 <!-- ══════════ APP ══════════ -->
 <div class="app">
@@ -583,27 +608,15 @@
 
 <script>
   /* ── Configuración ── */
-  var APPS_SCRIPT_URL = localStorage.getItem('alm9037_url') || '';
+  var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyIeRhUh9qSHaPTeTHlzRn8mMnUcz_U2A2eB5TIBFMvAHK7A0YZYmmyAu0mOWD7K-piww/exec';
 
-  function guardarConfig() {
-    var url = document.getElementById('configUrl').value.trim();
-    if (!url || !url.startsWith('https://script.google.com')) {
-      alert('Pega una URL válida de Apps Script (empieza con https://script.google.com)');
-      return;
-    }
-    APPS_SCRIPT_URL = url;
-    localStorage.setItem('alm9037_url', url);
-    document.getElementById('configOverlay').style.display = 'none';
-  }
+  function guardarConfig() {} // no utilizado
 
   window.addEventListener('DOMContentLoaded', function () {
-    if (APPS_SCRIPT_URL) {
-      document.getElementById('configOverlay').style.display = 'none';
-    }
     // Fecha de hoy por defecto
-    var hoy = new Date();
-    var dd = String(hoy.getDate()).padStart(2, '0');
-    var mm = String(hoy.getMonth() + 1).padStart(2, '0');
+    var hoy  = new Date();
+    var dd   = String(hoy.getDate()).padStart(2, '0');
+    var mm   = String(hoy.getMonth() + 1).padStart(2, '0');
     var yyyy = hoy.getFullYear();
     document.getElementById('fechaInput').value = yyyy + '-' + mm + '-' + dd;
     checkReady();
@@ -696,6 +709,10 @@
       '<span><i class="ti ti-barcode" style="font-size:13px"></i>' + rowData.ean + '</span>' +
       '<span><i class="ti ti-calendar" style="font-size:13px"></i>' + rowData.fecha + '</span>' +
       '<span><i class="ti ti-list-numbers" style="font-size:13px"></i>Consol. ' + rowData.consolidado + '</span>' +
+      '<span style="background:#e6f0fb;color:#1a3a5c;font-weight:700;padding:2px 8px;border-radius:20px;">' +
+      '<i class="ti ti-database" style="font-size:12px;vertical-align:-1px"></i> Sistema: ' +
+      (rowData.cantSistema !== null && rowData.cantSistema !== '' ? parseInt(rowData.cantSistema).toLocaleString('es-CL') + ' uds.' : 'Sin dato') +
+      '</span>' +
       '</div></div>';
 
     document.getElementById('statusBadges').innerHTML =
@@ -786,6 +803,37 @@
       return;
     }
 
+    // ── Comparar contra Col. H (cantSistema) ──
+    var cantSistema = parseInt(rowData.cantSistema, 10);
+    var haySistema  = !isNaN(cantSistema) && cantSistema >= 0;
+
+    if (haySistema && cant !== cantSistema) {
+      // Mostrar modal de advertencia
+      initSlide(); // resetear slide antes del modal
+      var dif = cant - cantSistema;
+      document.getElementById('alertaCantSistema').textContent = cantSistema.toLocaleString('es-CL');
+      document.getElementById('alertaCantRevisor').textContent = cant.toLocaleString('es-CL');
+      document.getElementById('alertaDif').textContent =
+        (dif > 0 ? '+' : '') + dif.toLocaleString('es-CL') + ' unidades';
+      document.getElementById('alertaOverlay').style.display = 'flex';
+      return;
+    }
+
+    // Sin diferencia → grabar directo
+    ejecutarGrabado(cant);
+  }
+
+  function cerrarAlerta() {
+    document.getElementById('alertaOverlay').style.display = 'none';
+  }
+
+  function grabarDeFuerza() {
+    document.getElementById('alertaOverlay').style.display = 'none';
+    var cant = parseInt(cantStr, 10);
+    ejecutarGrabado(cant);
+  }
+
+  function ejecutarGrabado(cant) {
     var wrap = document.getElementById('slideWrap');
     wrap.classList.add('done');
     document.getElementById('slideThumb').style.left  = 'calc(100% - 45px)';
@@ -825,6 +873,16 @@
 
   /* ── Pantalla de éxito ── */
   function mostrarExito(cant) {
+    var cantSistema = parseInt(rowData.cantSistema, 10);
+    var hayDif = !isNaN(cantSistema) && cant !== cantSistema;
+    var difTexto = hayDif
+      ? '<div style="background:#fff4e0;border:1px solid #f0a500;border-radius:var(--radius-md);padding:8px 12px;margin:0 0 12px;font-size:12px;color:#c97a00;text-align:center;">' +
+        '<i class="ti ti-alert-triangle" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>' +
+        'Diferencia grabada: Sistema ' + cantSistema.toLocaleString('es-CL') + ' vs. Revisado ' + cant.toLocaleString('es-CL') +
+        ' (' + (cant - cantSistema > 0 ? '+' : '') + (cant - cantSistema).toLocaleString('es-CL') + ' uds.)' +
+        '</div>'
+      : '';
+
     document.getElementById('step2').style.display = 'none';
     document.getElementById('step3').style.display = '';
     document.getElementById('step3').innerHTML =
@@ -838,6 +896,7 @@
       '<div class="det-item"><div class="det-val">Fila ' + rowData.fila + '</div><div class="det-label">Fila en Google Sheets</div></div>' +
       '<div class="det-item"><div class="det-val">Consol. ' + consolidado + '</div><div class="det-label">Consolidado</div></div>' +
       '</div>' +
+      difTexto +
       '<div>' +
       '<button class="btn-action btn-outline" onclick="otroEAN()"><i class="ti ti-barcode" style="font-size:15px"></i>Otro EAN</button>' +
       '<button class="btn-action btn-primary" onclick="resetApp()"><i class="ti ti-refresh" style="font-size:15px"></i>Nueva revisión</button>' +
@@ -887,5 +946,33 @@
     checkReady();
   }
 </script>
+<!-- ══════════ MODAL ALERTA DIFERENCIA ══════════ -->
+<div class="alerta-overlay" id="alertaOverlay" style="display:none;">
+  <div class="alerta-modal">
+    <div class="alerta-icon"><i class="ti ti-alert-triangle"></i></div>
+    <div class="alerta-titulo">⚠ Verificar Cantidad…</div>
+    <div class="alerta-sub">La cantidad ingresada no coincide con la cantidad registrada en el sistema.</div>
+    <div class="alerta-comparacion">
+      <div class="alerta-col sistema">
+        <div class="alerta-col-label"><i class="ti ti-database" style="font-size:10px;vertical-align:-1px"></i> Sistema (Col. H)</div>
+        <div class="alerta-col-val" id="alertaCantSistema">—</div>
+      </div>
+      <div class="alerta-col revisor">
+        <div class="alerta-col-label"><i class="ti ti-user" style="font-size:10px;vertical-align:-1px"></i> Ingresada</div>
+        <div class="alerta-col-val" id="alertaCantRevisor">—</div>
+        <div class="alerta-dif" id="alertaDif"></div>
+      </div>
+    </div>
+    <div class="alerta-btns">
+      <button class="btn-alerta-corregir" onclick="cerrarAlerta()">
+        <i class="ti ti-edit" style="font-size:16px"></i>Corregir cantidad
+      </button>
+      <button class="btn-alerta-confirmar" onclick="grabarDeFuerza()">
+        <i class="ti ti-check" style="font-size:16px"></i>Confirmar igual (grabar diferencia)
+      </button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
