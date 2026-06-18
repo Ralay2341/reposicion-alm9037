@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Revisión de Inventario — ALM9037</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #f4f6f9;
+      --surface:     #ffffff;
+      --surface2:    #f1f3f7;
+      --border:      #dde1e9;
+      --border2:     #c8cdd8;
+      --text:        #1a1f2e;
+      --text2:       #5a6278;
+      --text3:       #8c93a8;
+      --navy:        #1a3a5c;
+      --navy-light:  #e6f0fb;
+      --green:       #0f6e56;
+      --green-light: #e1f5ee;
+      --green-mid:   #1d9e75;
+      --amber:       #854f0b;
+      --amber-light: #faeeda;
+      --red:         #a32d2d;
+      --red-light:   #fcebeb;
+      --radius-sm:   6px;
+      --radius-md:   10px;
+      --radius-lg:   14px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: var(--navy);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .header-icon {
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,0.12);
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .header-icon i { font-size: 22px; color: #7ec8e3; }
+    .header-title { font-size: 15px; font-weight: 600; color: #fff; }
+    .header-sub   { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+
+    /* ── Config notice ── */
+    .config-notice {
+      background: var(--amber-light);
+      border: 1px solid #e9b96e;
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--amber);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .config-notice i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text3);
+      margin-bottom: 12px;
+    }
+
+    /* ── Revisor grid ── */
+    .revisor-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+    }
+    .rev-btn {
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      border-radius: var(--radius-md);
+      padding: 10px 4px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text2);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .rev-btn i { font-size: 16px; display: block; margin-bottom: 4px; }
+    .rev-btn:hover { border-color: var(--navy); color: var(--navy); }
+    .rev-btn.active {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+    }
+
+    /* ── Grid 2 ── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 12px; color: var(--text2); font-weight: 500; }
+
+    /* ── Inputs ── */
+    input[type="date"],
+    input[type="tel"],
+    input[type="number"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border 0.15s;
+      -webkit-appearance: none;
+    }
+    input:focus { border-color: var(--navy); background: #fff; }
+
+    /* ── Consolidado ── */
+    .consol-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .con-btn {
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text2);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .con-btn:hover { border-color: var(--green); color: var(--green); }
+    .con-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+
+    /* ── EAN row ── */
+    .ean-row { display: flex; gap: 10px; align-items: flex-end; }
+    .ean-input-wrap { flex: 1; position: relative; }
+    .ean-input-wrap input {
+      font-size: 22px;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.15em;
+      text-align: center;
+      padding: 10px 12px;
+    }
+    .ean-hint { font-size: 11px; color: var(--text3); text-align: center; margin-top: 5px; }
+
+    .btn-buscar {
+      padding: 0 20px;
+      height: 42px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: var(--navy);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+    .btn-buscar:disabled { opacity: 0.4; cursor: default; }
+    .btn-buscar:not(:disabled):hover { opacity: 0.88; }
+
+    /* ── Producto encontrado ── */
+    .producto-card {
+      background: var(--green-light);
+      border: 1px solid #9fe1cb;
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .producto-eyebrow { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--green-mid); margin-bottom: 6px; }
+    .producto-nombre  { font-size: 16px; font-weight: 600; color: #085041; line-height: 1.3; }
+    .producto-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--green);
+    }
+    .producto-meta span { display: flex; align-items: center; gap: 4px; }
+
+    /* ── Error ── */
+    .error-card {
+      background: var(--red-light);
+      border: 1px solid #f7c1c1;
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--red);
+    }
+
+    /* ── Status badges ── */
+    .status-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .badge-rev   { background: var(--navy-light); color: var(--navy); }
+    .badge-con   { background: var(--green-light); color: var(--green); }
+    .badge-fila  { background: var(--amber-light); color: var(--amber); }
+
+    /* ── Numpad ── */
+    .cantidad-display {
+      font-size: 52px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--text);
+      padding: 16px;
+      background: var(--surface2);
+      border-radius: var(--radius-md);
+      margin-bottom: 14px;
+      letter-spacing: -1px;
+    }
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .num-btn {
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      font-size: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      color: var(--text);
+      transition: background 0.1s, transform 0.08s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .num-btn:active { background: var(--border); transform: scale(0.96); }
+    .num-btn.del { font-size: 14px; color: var(--text2); }
+    .num-btn.cero { grid-column: span 2; }
+
+    /* ── Slide to confirm (estilo iOS) ── */
+    .slide-container { margin-top: 6px; }
+    .slide-label-top {
+      font-size: 12px;
+      color: var(--text3);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .slide-wrap {
+      position: relative;
+      height: 58px;
+      background: var(--surface2);
+      border-radius: 29px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .slide-track {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 0%;
+      background: var(--green-mid);
+      border-radius: 29px;
+      transition: width 0.04s linear;
+    }
+    .slide-thumb {
+      position: absolute;
+      left: 4px; top: 4px;
+      width: 50px; height: 50px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+      transition: left 0.04s linear;
+      z-index: 2;
+    }
+    .slide-thumb i { font-size: 20px; color: var(--navy); }
+    .slide-text {
+      position: absolute;
+      left: 0; right: 0; top: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text2);
+      pointer-events: none;
+      z-index: 1;
+      letter-spacing: 0.02em;
+    }
+    .slide-text.confirmed { color: #fff; }
+    .slide-wrap.done .slide-thumb { left: calc(100% - 54px); background: var(--green-mid); }
+    .slide-wrap.done .slide-track { width: 100%; }
+    .slide-wrap.done .slide-thumb i { color: #fff; }
+
+    /* ── Loading ── */
+    .loading-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      font-size: 13px;
+      color: var(--text2);
+    }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid var(--border2);
+      border-top-color: var(--navy);
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Éxito ── */
+    .success-card {
+      background: var(--green-light);
+      border: 1px solid #9fe1cb;
+      border-radius: var(--radius-lg);
+      padding: 28px 20px;
+      text-align: center;
+    }
+    .success-card i.big { font-size: 48px; color: var(--green-mid); display: block; margin-bottom: 10px; }
+    .success-title { font-size: 18px; font-weight: 700; color: #085041; }
+    .success-sub   { font-size: 13px; color: var(--green); margin-top: 6px; line-height: 1.5; }
+    .success-detail {
+      background: rgba(255,255,255,0.6);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin: 14px 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .det-item { text-align: center; }
+    .det-val   { font-size: 22px; font-weight: 700; color: #085041; }
+    .det-label { font-size: 11px; color: var(--green); margin-top: 2px; }
+    .btn-action {
+      padding: 11px 22px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: opacity 0.15s;
+      margin: 4px;
+    }
+    .btn-action:hover { opacity: 0.85; }
+    .btn-outline { border: 1px solid var(--border2); background: #fff; color: var(--text); }
+    .btn-primary { border: none; background: var(--navy); color: #fff; }
+
+    /* ── Config modal ── */
+    .config-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .config-modal {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .config-modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .config-modal p  { font-size: 12px; color: var(--text2); margin-bottom: 16px; }
+    .config-modal input {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: 'Courier New', monospace;
+      outline: none;
+      margin-bottom: 14px;
+    }
+    .config-modal input:focus { border-color: var(--navy); }
+    .btn-save {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: var(--navy);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    @media (max-width: 360px) {
+      .revisor-grid { grid-template-columns: repeat(3, 1fr); }
+      .cantidad-display { font-size: 40px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ CONFIG MODAL ══════════ -->
+<div class="config-overlay" id="configOverlay">
+  <div class="config-modal">
+    <h3><i class="ti ti-settings" style="font-size:18px;vertical-align:-3px;margin-right:6px;color:var(--navy)"></i>Configuración inicial</h3>
+    <p>Pega la URL de tu Apps Script (Web App). Solo se hace una vez; queda guardada en este dispositivo.</p>
+    <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">URL del Apps Script</label>
+    <input type="text" id="configUrl" placeholder="https://script.google.com/macros/s/…/exec" />
+    <button class="btn-save" onclick="guardarConfig()">
+      <i class="ti ti-check" style="font-size:15px;vertical-align:-2px;margin-right:5px"></i>Guardar y continuar
+    </button>
+  </div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div class="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-icon"><i class="ti ti-clipboard-check"></i></div>
+    <div>
+      <div class="header-title">Revisión de Inventario — ALM9037</div>
+      <div class="header-sub">Conteo y verificación por consolidado</div>
+    </div>
+  </div>
+
+  <!-- PASO 1: Configuración (revisor, fecha, consolidado, EAN) -->
+  <div id="step1">
+
+    <!-- Revisor -->
+    <div class="card">
+      <div class="section-label"><i class="ti ti-user" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Paso 1 — Selecciona tu número de revisor</div>
+      <div class="revisor-grid">
+        <button class="rev-btn" onclick="selRev(1)"><i class="ti ti-user"></i>Rev. 1</button>
+        <button class="rev-btn" onclick="selRev(2)"><i class="ti ti-user"></i>Rev. 2</button>
+        <button class="rev-btn" onclick="selRev(3)"><i class="ti ti-user"></i>Rev. 3</button>
+        <button class="rev-btn" onclick="selRev(4)"><i class="ti ti-user"></i>Rev. 4</button>
+        <button class="rev-btn" onclick="selRev(5)"><i class="ti ti-user"></i>Rev. 5</button>
+        <button class="rev-btn" onclick="selRev(6)"><i class="ti ti-user"></i>Rev. 6</button>
+      </div>
+    </div>
+
+    <!-- Fecha + Consolidado -->
+    <div class="card">
+      <div class="section-label"><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Paso 2 — Fecha y consolidado a revisar</div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Fecha a procesar</label>
+          <input type="date" id="fechaInput" oninput="checkReady()" />
+        </div>
+        <div class="field">
+          <label>Consolidado</label>
+          <div class="consol-grid">
+            <button class="con-btn" onclick="selCon(1)">1</button>
+            <button class="con-btn" onclick="selCon(2)">2</button>
+            <button class="con-btn" onclick="selCon(3)">3</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EAN -->
+    <div class="card">
+      <div class="section-label"><i class="ti ti-barcode" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Paso 3 — Últimos 5 dígitos del EAN</div>
+      <div class="ean-row">
+        <div class="ean-input-wrap">
+          <input type="tel" id="eanInput" maxlength="5" placeholder="_ _ _ _ _"
+            oninput="this.value=this.value.replace(/\D/g,''); checkReady()" />
+          <div class="ean-hint">Solo los últimos 5 dígitos</div>
+        </div>
+        <button class="btn-buscar" id="btnBuscar" onclick="buscarEAN()" disabled>
+          <i class="ti ti-search" style="font-size:16px"></i>Buscar
+        </button>
+      </div>
+      <div id="buscarStatus"></div>
+    </div>
+
+  </div><!-- /step1 -->
+
+  <!-- PASO 2: Cantidad + Slide -->
+  <div id="step2" style="display:none;">
+
+    <div id="productoCard"></div>
+
+    <div class="card">
+      <div class="section-label"><i class="ti ti-calculator" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Paso 4 — Ingresa la cantidad contabilizada</div>
+      <div class="status-row" id="statusBadges"></div>
+      <div class="cantidad-display" id="cantDisplay">0</div>
+      <div class="numpad">
+        <button class="num-btn" onclick="numPad('7')">7</button>
+        <button class="num-btn" onclick="numPad('8')">8</button>
+        <button class="num-btn" onclick="numPad('9')">9</button>
+        <button class="num-btn" onclick="numPad('4')">4</button>
+        <button class="num-btn" onclick="numPad('5')">5</button>
+        <button class="num-btn" onclick="numPad('6')">6</button>
+        <button class="num-btn" onclick="numPad('1')">1</button>
+        <button class="num-btn" onclick="numPad('2')">2</button>
+        <button class="num-btn" onclick="numPad('3')">3</button>
+        <button class="num-btn cero" onclick="numPad('0')">0</button>
+        <button class="num-btn del" onclick="numPad('del')"><i class="ti ti-backspace" style="font-size:20px"></i></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label"><i class="ti ti-check" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Desliza para confirmar y grabar</div>
+      <div class="slide-container">
+        <div class="slide-label-top" id="slideHint">Desliza el botón hacia la derecha para grabar</div>
+        <div class="slide-wrap" id="slideWrap">
+          <div class="slide-track" id="slideTrack"></div>
+          <div class="slide-thumb" id="slideThumb">
+            <i class="ti ti-chevrons-right" id="slideIcon"></i>
+          </div>
+          <div class="slide-text" id="slideText">Desliza para grabar →</div>
+        </div>
+      </div>
+      <div id="grabarStatus"></div>
+    </div>
+
+    <button onclick="volverBuscar()" style="background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:5px;margin-bottom:8px;">
+      <i class="ti ti-arrow-left" style="font-size:14px"></i>Buscar otro EAN
+    </button>
+
+  </div><!-- /step2 -->
+
+  <!-- PASO 3: Éxito -->
+  <div id="step3" style="display:none;"></div>
+
+</div><!-- /app -->
+
+<script>
+  /* ── Configuración ── */
+  var APPS_SCRIPT_URL = localStorage.getItem('alm9037_url') || '';
+
+  function guardarConfig() {
+    var url = document.getElementById('configUrl').value.trim();
+    if (!url || !url.startsWith('https://script.google.com')) {
+      alert('Pega una URL válida de Apps Script (empieza con https://script.google.com)');
+      return;
+    }
+    APPS_SCRIPT_URL = url;
+    localStorage.setItem('alm9037_url', url);
+    document.getElementById('configOverlay').style.display = 'none';
+  }
+
+  window.addEventListener('DOMContentLoaded', function () {
+    if (APPS_SCRIPT_URL) {
+      document.getElementById('configOverlay').style.display = 'none';
+    }
+    // Fecha de hoy por defecto
+    var hoy = new Date();
+    var dd = String(hoy.getDate()).padStart(2, '0');
+    var mm = String(hoy.getMonth() + 1).padStart(2, '0');
+    var yyyy = hoy.getFullYear();
+    document.getElementById('fechaInput').value = yyyy + '-' + mm + '-' + dd;
+    checkReady();
+  });
+
+  /* ── Estado ── */
+  var revisor = null, consolidado = null, rowData = null, cantStr = '0';
+
+  /* ── Selección revisor / consolidado ── */
+  function selRev(n) {
+    revisor = n;
+    document.querySelectorAll('.rev-btn').forEach(function (b, i) {
+      b.classList.toggle('active', i + 1 === n);
+    });
+    checkReady();
+  }
+
+  function selCon(n) {
+    consolidado = n;
+    document.querySelectorAll('.con-btn').forEach(function (b, i) {
+      b.classList.toggle('active', i + 1 === n);
+    });
+    checkReady();
+  }
+
+  function checkReady() {
+    var fecha = document.getElementById('fechaInput').value;
+    var ean   = document.getElementById('eanInput').value;
+    var ok    = revisor && consolidado && fecha && ean.length === 5;
+    document.getElementById('btnBuscar').disabled = !ok;
+  }
+
+  /* ── Formato fecha: YYYY-MM-DD → DD/MM/YYYY ── */
+  function fmt(dateStr) {
+    var p = dateStr.split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+
+  /* ── Buscar EAN ── */
+  function buscarEAN() {
+    var fecha = document.getElementById('fechaInput').value;
+    var ean5  = document.getElementById('eanInput').value.trim();
+    var st    = document.getElementById('buscarStatus');
+    st.innerHTML = '<div class="loading-row"><div class="spinner"></div>Consultando hoja CONSOLIDADO…</div>';
+    document.getElementById('btnBuscar').disabled = true;
+
+    var url = APPS_SCRIPT_URL
+      + '?accion=buscar'
+      + '&fecha='       + encodeURIComponent(fmt(fecha))
+      + '&consolidado=' + consolidado
+      + '&ean5='        + encodeURIComponent(ean5);
+
+    fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (result) {
+        document.getElementById('btnBuscar').disabled = false;
+        if (!result.encontrado) {
+          st.innerHTML =
+            '<div class="error-card">' +
+            '<i class="ti ti-alert-circle" style="font-size:18px;flex-shrink:0"></i>' +
+            '<span>Producto no encontrado. Verifica la fecha, consolidado y los últimos 5 dígitos del EAN.</span></div>';
+          return;
+        }
+        rowData = result;
+        st.innerHTML = '';
+        mostrarPaso2();
+      })
+      .catch(function (e) {
+        document.getElementById('btnBuscar').disabled = false;
+        st.innerHTML =
+          '<div class="error-card">' +
+          '<i class="ti ti-wifi-off" style="font-size:18px;flex-shrink:0"></i>' +
+          '<span>Error de conexión. Verifica la URL del Apps Script y tu acceso a internet.</span></div>';
+        console.error(e);
+      });
+  }
+
+  /* ── Mostrar paso 2 ── */
+  function mostrarPaso2() {
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = '';
+    cantStr = '0';
+    document.getElementById('cantDisplay').textContent = '0';
+
+    document.getElementById('productoCard').innerHTML =
+      '<div class="producto-card">' +
+      '<div class="producto-eyebrow"><i class="ti ti-circle-check" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Producto encontrado</div>' +
+      '<div class="producto-nombre">' + rowData.producto + '</div>' +
+      '<div class="producto-meta">' +
+      '<span><i class="ti ti-barcode" style="font-size:13px"></i>' + rowData.ean + '</span>' +
+      '<span><i class="ti ti-calendar" style="font-size:13px"></i>' + rowData.fecha + '</span>' +
+      '<span><i class="ti ti-list-numbers" style="font-size:13px"></i>Consol. ' + rowData.consolidado + '</span>' +
+      '</div></div>';
+
+    document.getElementById('statusBadges').innerHTML =
+      '<span class="badge badge-rev"><i class="ti ti-user" style="font-size:11px"></i>Revisor ' + revisor + '</span>' +
+      '<span class="badge badge-con"><i class="ti ti-list-numbers" style="font-size:11px"></i>Consolidado ' + consolidado + '</span>' +
+      '<span class="badge badge-fila"><i class="ti ti-row-insert-bottom" style="font-size:11px"></i>Fila ' + rowData.fila + '</span>';
+
+    initSlide();
+  }
+
+  /* ── Numpad ── */
+  function numPad(v) {
+    if (v === 'del') {
+      cantStr = cantStr.length > 1 ? cantStr.slice(0, -1) : '0';
+    } else {
+      if (cantStr === '0') cantStr = v;
+      else if (cantStr.length < 7) cantStr += v;
+    }
+    document.getElementById('cantDisplay').textContent =
+      parseInt(cantStr, 10).toLocaleString('es-CL');
+  }
+
+  /* ── Slide ── */
+  var slideActive = false, slideStartX = 0, slideMaxX = 0;
+
+  function initSlide() {
+    var wrap = document.getElementById('slideWrap');
+    wrap.classList.remove('done');
+    document.getElementById('slideTrack').style.width = '0%';
+    document.getElementById('slideThumb').style.left  = '4px';
+    document.getElementById('slideText').textContent  = 'Desliza para grabar →';
+    document.getElementById('slideText').className    = 'slide-text';
+    document.getElementById('slideIcon').className    = 'ti ti-chevrons-right';
+    document.getElementById('slideIcon').style.color  = 'var(--navy)';
+    document.getElementById('grabarStatus').innerHTML = '';
+
+    wrap.addEventListener('mousedown',  onSlideStart);
+    wrap.addEventListener('touchstart', onSlideStart, { passive: true });
+  }
+
+  function onSlideStart(e) {
+    var wrap = document.getElementById('slideWrap');
+    if (wrap.classList.contains('done')) return;
+    slideActive = true;
+    slideMaxX   = wrap.offsetWidth - 58;
+    slideStartX = e.touches ? e.touches[0].clientX : e.clientX;
+    document.addEventListener('mousemove', onSlideMove);
+    document.addEventListener('mouseup',   onSlideEnd);
+    document.addEventListener('touchmove', onSlideMove, { passive: true });
+    document.addEventListener('touchend',  onSlideEnd);
+  }
+
+  function onSlideMove(e) {
+    if (!slideActive) return;
+    var cx   = e.touches ? e.touches[0].clientX : e.clientX;
+    var dist = Math.max(0, Math.min(cx - slideStartX, slideMaxX));
+    var pct  = (dist / slideMaxX) * 100;
+    document.getElementById('slideTrack').style.width = pct + '%';
+    document.getElementById('slideThumb').style.left  = (4 + dist) + 'px';
+    document.getElementById('slideText').textContent  =
+      pct > 70 ? '¡Suelta para grabar!' : 'Desliza para grabar →';
+    if (pct >= 99) onSlideEnd(e);
+  }
+
+  function onSlideEnd(e) {
+    if (!slideActive) return;
+    slideActive = false;
+    document.removeEventListener('mousemove', onSlideMove);
+    document.removeEventListener('mouseup',   onSlideEnd);
+    document.removeEventListener('touchmove', onSlideMove);
+    document.removeEventListener('touchend',  onSlideEnd);
+    var pct = parseFloat(document.getElementById('slideTrack').style.width) || 0;
+    if (pct >= 88) {
+      confirmarGrabado();
+    } else {
+      document.getElementById('slideTrack').style.width = '0%';
+      document.getElementById('slideThumb').style.left  = '4px';
+      document.getElementById('slideText').textContent  = 'Desliza para grabar →';
+    }
+  }
+
+  /* ── Grabar en Sheets ── */
+  function confirmarGrabado() {
+    var cant = parseInt(cantStr, 10);
+    if (cant === 0) {
+      alert('Ingresa una cantidad mayor a cero antes de grabar.');
+      initSlide();
+      return;
+    }
+
+    var wrap = document.getElementById('slideWrap');
+    wrap.classList.add('done');
+    document.getElementById('slideThumb').style.left  = 'calc(100% - 54px)';
+    document.getElementById('slideText').textContent  = 'Grabando…';
+    document.getElementById('slideText').className    = 'slide-text confirmed';
+    document.getElementById('slideIcon').className    = 'ti ti-check';
+    document.getElementById('slideIcon').style.color  = '#fff';
+
+    var st = document.getElementById('grabarStatus');
+    st.innerHTML = '<div class="loading-row"><div class="spinner"></div>Guardando en Google Sheets…</div>';
+
+    var url = APPS_SCRIPT_URL
+      + '?accion=grabar'
+      + '&fila='     + rowData.fila
+      + '&cantidad=' + cant
+      + '&revisor='  + revisor;
+
+    fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        st.innerHTML = '';
+        if (res.ok) {
+          mostrarExito(cant);
+        } else {
+          st.innerHTML = '<div class="error-card"><i class="ti ti-alert-circle" style="font-size:18px;flex-shrink:0"></i><span>Error al grabar: ' + (res.error || 'desconocido') + '</span></div>';
+          wrap.classList.remove('done');
+          initSlide();
+        }
+      })
+      .catch(function (err) {
+        st.innerHTML = '<div class="error-card"><i class="ti ti-wifi-off" style="font-size:18px;flex-shrink:0"></i><span>Error de conexión al grabar. Intenta nuevamente.</span></div>';
+        console.error(err);
+        wrap.classList.remove('done');
+        initSlide();
+      });
+  }
+
+  /* ── Pantalla de éxito ── */
+  function mostrarExito(cant) {
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = '';
+    document.getElementById('step3').innerHTML =
+      '<div class="success-card">' +
+      '<i class="ti ti-circle-check big"></i>' +
+      '<div class="success-title">¡Cantidad grabada!</div>' +
+      '<div class="success-sub">Datos guardados correctamente en la hoja CONSOLIDADO.</div>' +
+      '<div class="success-detail">' +
+      '<div class="det-item"><div class="det-val">' + cant.toLocaleString('es-CL') + '</div><div class="det-label">Unidades contabilizadas</div></div>' +
+      '<div class="det-item"><div class="det-val">Rev. ' + revisor + '</div><div class="det-label">Número de revisor</div></div>' +
+      '<div class="det-item"><div class="det-val">Fila ' + rowData.fila + '</div><div class="det-label">Fila en Google Sheets</div></div>' +
+      '<div class="det-item"><div class="det-val">Consol. ' + consolidado + '</div><div class="det-label">Consolidado</div></div>' +
+      '</div>' +
+      '<div>' +
+      '<button class="btn-action btn-outline" onclick="otroEAN()"><i class="ti ti-barcode" style="font-size:15px"></i>Otro EAN</button>' +
+      '<button class="btn-action btn-primary" onclick="resetApp()"><i class="ti ti-refresh" style="font-size:15px"></i>Nueva revisión</button>' +
+      '</div></div>';
+  }
+
+  /* ── Volver a buscar (mismo revisor/fecha/consolidado) ── */
+  function volverBuscar() {
+    rowData = null;
+    cantStr = '0';
+    document.getElementById('eanInput').value  = '';
+    document.getElementById('buscarStatus').innerHTML = '';
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step1').style.display = '';
+    checkReady();
+  }
+
+  /* ── Otro EAN (mismo revisor/fecha/consolidado) ── */
+  function otroEAN() {
+    rowData = null;
+    cantStr = '0';
+    document.getElementById('eanInput').value  = '';
+    document.getElementById('buscarStatus').innerHTML = '';
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('step1').style.display = '';
+    checkReady();
+  }
+
+  /* ── Reset completo ── */
+  function resetApp() {
+    revisor = null; consolidado = null; rowData = null; cantStr = '0';
+    document.querySelectorAll('.rev-btn').forEach(function (b) { b.classList.remove('active'); });
+    document.querySelectorAll('.con-btn').forEach(function (b) { b.classList.remove('active'); });
+    document.getElementById('fechaInput').value       = '';
+    document.getElementById('eanInput').value         = '';
+    document.getElementById('buscarStatus').innerHTML = '';
+    document.getElementById('btnBuscar').disabled     = true;
+    document.getElementById('step1').style.display    = '';
+    document.getElementById('step2').style.display    = 'none';
+    document.getElementById('step3').style.display    = 'none';
+    // Fecha de hoy por defecto
+    var hoy = new Date();
+    var dd = String(hoy.getDate()).padStart(2,'0');
+    var mm = String(hoy.getMonth()+1).padStart(2,'0');
+    var yyyy = hoy.getFullYear();
+    document.getElementById('fechaInput').value = yyyy+'-'+mm+'-'+dd;
+    checkReady();
+  }
+</script>
+</body>
+</html>
