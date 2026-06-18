@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Revisión de Consolidado — ALM9037</title>
+  <title>Revisión de Inventario — ALM9037</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -443,27 +443,6 @@
       font-size: 13px; text-align: center;
       color: var(--text2); margin-bottom: 16px; line-height: 1.5;
     }
-    .alerta-comparacion {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 10px; margin-bottom: 18px;
-    }
-    .alerta-col {
-      border-radius: var(--radius-md);
-      padding: 12px 8px;
-      text-align: center;
-    }
-    .alerta-col.sistema { background: var(--navy-light); }
-    .alerta-col.revisor { background: #fff4e0; }
-    .alerta-col-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
-    .alerta-col.sistema .alerta-col-label { color: var(--navy); }
-    .alerta-col.revisor .alerta-col-label { color: #c97a00; }
-    .alerta-col-val { font-size: 26px; font-weight: 700; }
-    .alerta-col.sistema .alerta-col-val { color: var(--navy); }
-    .alerta-col.revisor .alerta-col-val  { color: #c97a00; }
-    .alerta-dif {
-      font-size: 11px; margin-top: 3px;
-      color: var(--red); font-weight: 600;
-    }
     .alerta-btns { display: flex; flex-direction: column; gap: 8px; }
     .btn-alerta-corregir {
       padding: 11px;
@@ -709,10 +688,6 @@
       '<span><i class="ti ti-barcode" style="font-size:13px"></i>' + rowData.ean + '</span>' +
       '<span><i class="ti ti-calendar" style="font-size:13px"></i>' + rowData.fecha + '</span>' +
       '<span><i class="ti ti-list-numbers" style="font-size:13px"></i>Consol. ' + rowData.consolidado + '</span>' +
-      '<span style="background:#e6f0fb;color:#1a3a5c;font-weight:700;padding:2px 8px;border-radius:20px;">' +
-      '<i class="ti ti-database" style="font-size:12px;vertical-align:-1px"></i> Sistema: ' +
-      (rowData.cantSistema !== null && rowData.cantSistema !== '' ? parseInt(rowData.cantSistema).toLocaleString('es-CL') + ' uds.' : 'Sin dato') +
-      '</span>' +
       '</div></div>';
 
     document.getElementById('statusBadges').innerHTML =
@@ -808,13 +783,8 @@
     var haySistema  = !isNaN(cantSistema) && cantSistema >= 0;
 
     if (haySistema && cant !== cantSistema) {
-      // Mostrar modal de advertencia
-      initSlide(); // resetear slide antes del modal
-      var dif = cant - cantSistema;
-      document.getElementById('alertaCantSistema').textContent = cantSistema.toLocaleString('es-CL');
-      document.getElementById('alertaCantRevisor').textContent = cant.toLocaleString('es-CL');
-      document.getElementById('alertaDif').textContent =
-        (dif > 0 ? '+' : '') + dif.toLocaleString('es-CL') + ' unidades';
+      // Mostrar modal de advertencia (sin revelar cantidad del sistema)
+      initSlide();
       document.getElementById('alertaOverlay').style.display = 'flex';
       return;
     }
@@ -878,8 +848,7 @@
     var difTexto = hayDif
       ? '<div style="background:#fff4e0;border:1px solid #f0a500;border-radius:var(--radius-md);padding:8px 12px;margin:0 0 12px;font-size:12px;color:#c97a00;text-align:center;">' +
         '<i class="ti ti-alert-triangle" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>' +
-        'Diferencia grabada: Sistema ' + cantSistema.toLocaleString('es-CL') + ' vs. Revisado ' + cant.toLocaleString('es-CL') +
-        ' (' + (cant - cantSistema > 0 ? '+' : '') + (cant - cantSistema).toLocaleString('es-CL') + ' uds.)' +
+        'Grabado con diferencia respecto al sistema.' +
         '</div>'
       : '';
 
@@ -951,24 +920,13 @@
   <div class="alerta-modal">
     <div class="alerta-icon"><i class="ti ti-alert-triangle"></i></div>
     <div class="alerta-titulo">⚠ Verificar Cantidad…</div>
-    <div class="alerta-sub">La cantidad ingresada no coincide con la cantidad registrada en el sistema.</div>
-    <div class="alerta-comparacion">
-      <div class="alerta-col sistema">
-        <div class="alerta-col-label"><i class="ti ti-database" style="font-size:10px;vertical-align:-1px"></i> Sistema (Col. H)</div>
-        <div class="alerta-col-val" id="alertaCantSistema">—</div>
-      </div>
-      <div class="alerta-col revisor">
-        <div class="alerta-col-label"><i class="ti ti-user" style="font-size:10px;vertical-align:-1px"></i> Ingresada</div>
-        <div class="alerta-col-val" id="alertaCantRevisor">—</div>
-        <div class="alerta-dif" id="alertaDif"></div>
-      </div>
-    </div>
+    <div class="alerta-sub">La cantidad ingresada <strong>no coincide</strong> con lo registrado en el sistema.<br>Por favor verifica tu conteo antes de confirmar.</div>
     <div class="alerta-btns">
       <button class="btn-alerta-corregir" onclick="cerrarAlerta()">
         <i class="ti ti-edit" style="font-size:16px"></i>Corregir cantidad
       </button>
       <button class="btn-alerta-confirmar" onclick="grabarDeFuerza()">
-        <i class="ti ti-check" style="font-size:16px"></i>Confirmar igual (grabar diferencia)
+        <i class="ti ti-check" style="font-size:16px"></i>Confirmar y grabar igual
       </button>
     </div>
   </div>
