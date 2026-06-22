@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Revisión de Consolidado — ALM9037</title>
+  <title>Revisión de Inventario — ALM9037</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -465,6 +465,30 @@
     .btn-alerta-corregir:hover  { background: var(--border); }
     .btn-alerta-confirmar:hover { background: #b36c00; }
 
+    .rev-btn.bloqueado {
+      opacity: 0.35;
+      cursor: not-allowed;
+      border-style: dashed;
+    }
+    .rev-btn.bloqueado:hover { border-color: var(--border); color: var(--text2); }
+    .rev-aviso {
+      font-size: 11px; color: var(--amber); margin-top: 8px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    /* Lote input */
+    .lote-row { display: flex; gap: 10px; align-items: flex-end; }
+    .lote-input-wrap { flex: 1; }
+    .lote-input-wrap input {
+      font-size: 20px;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.15em;
+      text-align: center;
+      padding: 10px 12px;
+      text-transform: uppercase;
+    }
+    .lote-hint { font-size: 11px; color: var(--text3); text-align: center; margin-top: 5px; }
+    .badge-lote { background: #f0eafb; color: #5b21b6; }
+
     @media (max-width: 360px) {
       .revisor-grid { grid-template-columns: repeat(3, 1fr); }
       .cantidad-display { font-size: 40px; }
@@ -480,24 +504,26 @@
   <div class="header">
     <div class="header-icon"><i class="ti ti-clipboard-check"></i></div>
     <div>
-      <div class="header-title">Revisión de Consolidado — ALM9037</div>
-      <div class="header-sub">Conteo y verificación de consolidado</div>
+      <div class="header-title">Revisión de Inventario — ALM9037</div>
+      <div class="header-sub">Conteo y verificación por consolidado</div>
     </div>
   </div>
 
-  <!-- PASO 1: Configuración (revisor, fecha, consolidado, EAN) -->
+  <!-- PASO 1: Revisor -->
   <div id="step1">
 
-    <!-- Revisor -->
     <div class="card">
       <div class="section-label"><i class="ti ti-user" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Paso 1 — Selecciona tu número de revisor</div>
-      <div class="revisor-grid">
-        <button class="rev-btn" onclick="selRev(1)"><i class="ti ti-user"></i>Rev. 1</button>
-        <button class="rev-btn" onclick="selRev(2)"><i class="ti ti-user"></i>Rev. 2</button>
-        <button class="rev-btn" onclick="selRev(3)"><i class="ti ti-user"></i>Rev. 3</button>
-        <button class="rev-btn" onclick="selRev(4)"><i class="ti ti-user"></i>Rev. 4</button>
-        <button class="rev-btn" onclick="selRev(5)"><i class="ti ti-user"></i>Rev. 5</button>
-        <button class="rev-btn" onclick="selRev(6)"><i class="ti ti-user"></i>Rev. 6</button>
+      <div class="revisor-grid" id="revisorGrid">
+        <button class="rev-btn" id="rbtn1" onclick="selRev(1)"><i class="ti ti-user"></i>Rev. 1</button>
+        <button class="rev-btn" id="rbtn2" onclick="selRev(2)"><i class="ti ti-user"></i>Rev. 2</button>
+        <button class="rev-btn" id="rbtn3" onclick="selRev(3)"><i class="ti ti-user"></i>Rev. 3</button>
+        <button class="rev-btn" id="rbtn4" onclick="selRev(4)"><i class="ti ti-user"></i>Rev. 4</button>
+        <button class="rev-btn" id="rbtn5" onclick="selRev(5)"><i class="ti ti-user"></i>Rev. 5</button>
+        <button class="rev-btn" id="rbtn6" onclick="selRev(6)"><i class="ti ti-user"></i>Rev. 6</button>
+      </div>
+      <div class="rev-aviso" id="revAviso" style="display:none;">
+        <i class="ti ti-lock" style="font-size:13px"></i><span id="revAvisoTxt"></span>
       </div>
     </div>
 
@@ -520,14 +546,26 @@
       </div>
     </div>
 
-    <!-- EAN -->
+    <!-- Paso 3: Lote (opcional) -->
     <div class="card">
-      <div class="section-label"><i class="ti ti-barcode" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Paso 3 — Últimos 5 dígitos del EAN</div>
+      <div class="section-label"><i class="ti ti-tag" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Paso 3 — Últimos 5 caracteres del LOTE <span style="font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0;">(opcional)</span></div>
+      <div class="lote-row">
+        <div class="lote-input-wrap">
+          <input type="text" id="loteInput" maxlength="5" placeholder="_ _ _ _ _"
+            oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" />
+          <div class="lote-hint">Alfanumérico — déjalo vacío si no aplica</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paso 4: EAN -->
+    <div class="card">
+      <div class="section-label"><i class="ti ti-barcode" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Paso 4 — Últimos 5 dígitos del EAN</div>
       <div class="ean-row">
         <div class="ean-input-wrap">
           <input type="tel" id="eanInput" maxlength="5" placeholder="_ _ _ _ _"
             oninput="this.value=this.value.replace(/\D/g,''); checkReady()" />
-          <div class="ean-hint">Solo los últimos 5 dígitos</div>
+          <div class="ean-hint">Solo los últimos 5 dígitos numéricos</div>
         </div>
         <button class="btn-buscar" id="btnBuscar" onclick="buscarEAN()" disabled>
           <i class="ti ti-search" style="font-size:16px"></i>Buscar
@@ -586,33 +624,136 @@
 </div><!-- /app -->
 
 <script>
-  /* ── Configuración ── */
+  /* ── URL Apps Script ── */
   var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyIeRhUh9qSHaPTeTHlzRn8mMnUcz_U2A2eB5TIBFMvAHK7A0YZYmmyAu0mOWD7K-piww/exec';
 
-  function guardarConfig() {} // no utilizado
+  /* ── Estado ── */
+  var revisor = null, consolidado = null, rowData = null, cantStr = '0';
+  var revisoresOcupados = []; // array con los números bloqueados en Sheets
 
+  /* ══════════════════════════════════════════
+     BLOQUEO DE REVISOR — compartido via Sheets
+     Cada dispositivo guarda su revisor en
+     localStorage SOLO para recordar cuál tomó.
+     La lista de bloqueados viene del servidor.
+  ══════════════════════════════════════════ */
+  var LLAVE_REV = 'alm9037_mi_revisor';
+
+  function getMiRevisor() {
+    var v = localStorage.getItem(LLAVE_REV);
+    return v ? parseInt(v) : null;
+  }
+
+  function guardarMiRevisor(n) {
+    localStorage.setItem(LLAVE_REV, n.toString());
+  }
+
+  function olvidarMiRevisor() {
+    localStorage.removeItem(LLAVE_REV);
+  }
+
+  /* Pinta los botones según lista de bloqueados recibida del servidor */
+  function pintarBotonesRevisor(ocupados, miRev) {
+    for (var i = 1; i <= 6; i++) {
+      var btn = document.getElementById('rbtn' + i);
+      btn.classList.remove('active', 'bloqueado');
+      var esMio    = (miRev === i);
+      var ocupado  = (ocupados.indexOf(i) !== -1);
+      if (esMio) {
+        btn.classList.add('active');
+        btn.disabled = false;
+      } else if (ocupado) {
+        btn.classList.add('bloqueado');
+        btn.disabled = true;
+      } else {
+        btn.disabled = false;
+      }
+    }
+    var aviso = document.getElementById('revAviso');
+    if (miRev) {
+      aviso.style.display = 'flex';
+      document.getElementById('revAvisoTxt').textContent =
+        'Eres Revisor ' + miRev + '. Se libera al hacer "Nueva revisión".';
+    } else {
+      aviso.style.display = 'none';
+    }
+  }
+
+  /* Consulta al servidor qué revisores están ocupados */
+  function cargarEstadoRevisores(callback) {
+    fetch(APPS_SCRIPT_URL + '?accion=estadoRevisores')
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        revisoresOcupados = res.ocupados || [];
+        callback(revisoresOcupados);
+      })
+      .catch(function() {
+        revisoresOcupados = [];
+        callback([]);
+      });
+  }
+
+  /* ── Init ── */
   window.addEventListener('DOMContentLoaded', function () {
-    // Fecha de hoy por defecto
     var hoy  = new Date();
     var dd   = String(hoy.getDate()).padStart(2, '0');
     var mm   = String(hoy.getMonth() + 1).padStart(2, '0');
     var yyyy = hoy.getFullYear();
     document.getElementById('fechaInput').value = yyyy + '-' + mm + '-' + dd;
-    checkReady();
+
+    var miRev = getMiRevisor();
+    if (miRev) revisor = miRev;
+
+    // Mostrar estado mientras carga
+    for (var i = 1; i <= 6; i++) document.getElementById('rbtn' + i).disabled = true;
+    document.getElementById('revAviso').style.display = 'flex';
+    document.getElementById('revAvisoTxt').textContent = 'Consultando disponibilidad…';
+
+    cargarEstadoRevisores(function(ocupados) {
+      // Si mi revisor fue liberado por otro (edge case), lo olvido
+      if (miRev && ocupados.indexOf(miRev) === -1) {
+        // Mi revisor ya no está registrado en server — lo re-registro
+        // (puede pasar si hubo un reset general). No liberar.
+      }
+      pintarBotonesRevisor(ocupados, miRev);
+      checkReady();
+    });
   });
 
-  /* ── Estado ── */
-  var revisor = null, consolidado = null, rowData = null, cantStr = '0';
-
-  /* ── Selección revisor / consolidado ── */
+  /* ── Selección revisor ── */
   function selRev(n) {
-    revisor = n;
-    document.querySelectorAll('.rev-btn').forEach(function (b, i) {
-      b.classList.toggle('active', i + 1 === n);
-    });
-    checkReady();
+    // Si ya tengo revisor asignado y es diferente, ignorar
+    var miRev = getMiRevisor();
+    if (miRev && miRev !== n) return;
+    // Si ya está ocupado por otro, ignorar
+    if (revisoresOcupados.indexOf(n) !== -1 && miRev !== n) return;
+
+    // Bloquear visualmente mientras se registra
+    for (var i = 1; i <= 6; i++) document.getElementById('rbtn' + i).disabled = true;
+
+    fetch(APPS_SCRIPT_URL + '?accion=bloquearRev&revisor=' + n)
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (res.ok) {
+          revisor = n;
+          guardarMiRevisor(n);
+          revisoresOcupados = res.ocupados || [];
+          pintarBotonesRevisor(revisoresOcupados, n);
+          checkReady();
+        } else {
+          // Ya fue tomado por otro en ese instante
+          revisoresOcupados = res.ocupados || [];
+          pintarBotonesRevisor(revisoresOcupados, getMiRevisor());
+          alert('El Revisor ' + n + ' acaba de ser tomado por otra persona. Elige otro.');
+        }
+      })
+      .catch(function() {
+        for (var i = 1; i <= 6; i++) document.getElementById('rbtn' + i).disabled = false;
+        alert('Error de conexión. Intenta nuevamente.');
+      });
   }
 
+  /* ── Selección consolidado ── */
   function selCon(n) {
     consolidado = n;
     document.querySelectorAll('.con-btn').forEach(function (b, i) {
@@ -621,6 +762,7 @@
     checkReady();
   }
 
+  /* ── Habilitar botón buscar ── */
   function checkReady() {
     var fecha = document.getElementById('fechaInput').value;
     var ean   = document.getElementById('eanInput').value;
@@ -668,17 +810,19 @@
         st.innerHTML =
           '<div class="error-card">' +
           '<i class="ti ti-wifi-off" style="font-size:18px;flex-shrink:0"></i>' +
-          '<span>Error de conexión. Verifica la URL del Apps Script y tu acceso a internet.</span></div>';
+          '<span>Error de conexión. Verifica tu acceso a internet.</span></div>';
         console.error(e);
       });
   }
 
-  /* ── Mostrar paso 2 ── */
+  /* ── Mostrar paso 2 (cantidad) ── */
   function mostrarPaso2() {
     document.getElementById('step1').style.display = 'none';
     document.getElementById('step2').style.display = '';
     cantStr = '0';
     document.getElementById('cantDisplay').textContent = '0';
+
+    var lote = document.getElementById('loteInput').value.trim();
 
     document.getElementById('productoCard').innerHTML =
       '<div class="producto-card">' +
@@ -688,6 +832,7 @@
       '<span><i class="ti ti-barcode" style="font-size:13px"></i>' + rowData.ean + '</span>' +
       '<span><i class="ti ti-calendar" style="font-size:13px"></i>' + rowData.fecha + '</span>' +
       '<span><i class="ti ti-list-numbers" style="font-size:13px"></i>Consol. ' + rowData.consolidado + '</span>' +
+      (lote ? '<span style="background:#f0eafb;color:#5b21b6;font-weight:600;padding:2px 8px;border-radius:20px;"><i class="ti ti-tag" style="font-size:11px;vertical-align:-1px"></i> Lote: ' + lote + '</span>' : '') +
       '</div></div>';
 
     document.getElementById('statusBadges').innerHTML =
@@ -716,8 +861,13 @@
   function initSlide() {
     var wrap = document.getElementById('slideWrap');
     wrap.classList.remove('done');
+    // Remover listeners anteriores clonando el nodo
+    var nuevoWrap = wrap.cloneNode(true);
+    wrap.parentNode.replaceChild(nuevoWrap, nuevoWrap);
+    wrap = document.getElementById('slideWrap');
+
     document.getElementById('slideTrack').style.width = '0%';
-    document.getElementById('slideThumb').style.left  = '4px';
+    document.getElementById('slideThumb').style.left  = '3px';
     document.getElementById('slideText').textContent  = 'Desliza para grabar →';
     document.getElementById('slideText').className    = 'slide-text';
     document.getElementById('slideIcon').className    = 'ti ti-chevrons-right';
@@ -746,7 +896,7 @@
     var dist = Math.max(0, Math.min(cx - slideStartX, slideMaxX));
     var pct  = (dist / slideMaxX) * 100;
     document.getElementById('slideTrack').style.width = pct + '%';
-    document.getElementById('slideThumb').style.left  = (4 + dist) + 'px';
+    document.getElementById('slideThumb').style.left  = (3 + dist) + 'px';
     document.getElementById('slideText').textContent  =
       pct > 70 ? '¡Suelta para grabar!' : 'Desliza para grabar →';
     if (pct >= 99) onSlideEnd(e);
@@ -764,12 +914,12 @@
       confirmarGrabado();
     } else {
       document.getElementById('slideTrack').style.width = '0%';
-      document.getElementById('slideThumb').style.left  = '4px';
+      document.getElementById('slideThumb').style.left  = '3px';
       document.getElementById('slideText').textContent  = 'Desliza para grabar →';
     }
   }
 
-  /* ── Grabar en Sheets ── */
+  /* ── Confirmar (compara col H) ── */
   function confirmarGrabado() {
     var cant = parseInt(cantStr, 10);
     if (cant === 0) {
@@ -777,19 +927,13 @@
       initSlide();
       return;
     }
-
-    // ── Comparar contra Col. H (cantSistema) ──
     var cantSistema = parseInt(rowData.cantSistema, 10);
     var haySistema  = !isNaN(cantSistema) && cantSistema >= 0;
-
     if (haySistema && cant !== cantSistema) {
-      // Mostrar modal de advertencia (sin revelar cantidad del sistema)
       initSlide();
       document.getElementById('alertaOverlay').style.display = 'flex';
       return;
     }
-
-    // Sin diferencia → grabar directo
     ejecutarGrabado(cant);
   }
 
@@ -799,8 +943,7 @@
 
   function grabarDeFuerza() {
     document.getElementById('alertaOverlay').style.display = 'none';
-    var cant = parseInt(cantStr, 10);
-    ejecutarGrabado(cant);
+    ejecutarGrabado(parseInt(cantStr, 10));
   }
 
   function ejecutarGrabado(cant) {
@@ -812,21 +955,23 @@
     document.getElementById('slideIcon').className    = 'ti ti-check';
     document.getElementById('slideIcon').style.color  = '#fff';
 
-    var st = document.getElementById('grabarStatus');
+    var lote = document.getElementById('loteInput').value.trim();
+    var st   = document.getElementById('grabarStatus');
     st.innerHTML = '<div class="loading-row"><div class="spinner"></div>Guardando en Google Sheets…</div>';
 
     var url = APPS_SCRIPT_URL
       + '?accion=grabar'
       + '&fila='     + rowData.fila
       + '&cantidad=' + cant
-      + '&revisor='  + revisor;
+      + '&revisor='  + revisor
+      + '&lote='     + encodeURIComponent(lote);
 
     fetch(url)
       .then(function (r) { return r.json(); })
       .then(function (res) {
         st.innerHTML = '';
         if (res.ok) {
-          mostrarExito(cant);
+          mostrarExito(cant, lote);
         } else {
           st.innerHTML = '<div class="error-card"><i class="ti ti-alert-circle" style="font-size:18px;flex-shrink:0"></i><span>Error al grabar: ' + (res.error || 'desconocido') + '</span></div>';
           wrap.classList.remove('done');
@@ -834,7 +979,7 @@
         }
       })
       .catch(function (err) {
-        st.innerHTML = '<div class="error-card"><i class="ti ti-wifi-off" style="font-size:18px;flex-shrink:0"></i><span>Error de conexión al grabar. Intenta nuevamente.</span></div>';
+        st.innerHTML = '<div class="error-card"><i class="ti ti-wifi-off" style="font-size:18px;flex-shrink:0"></i><span>Error de conexión al grabar.</span></div>';
         console.error(err);
         wrap.classList.remove('done');
         initSlide();
@@ -842,7 +987,7 @@
   }
 
   /* ── Pantalla de éxito ── */
-  function mostrarExito(cant) {
+  function mostrarExito(cant, lote) {
     var cantSistema = parseInt(rowData.cantSistema, 10);
     var hayDif = !isNaN(cantSistema) && cant !== cantSistema;
     var difTexto = hayDif
@@ -851,6 +996,10 @@
         'Grabado con diferencia respecto al sistema.' +
         '</div>'
       : '';
+    var loteTexto = lote
+      ? '<div style="background:#f0eafb;border:1px solid #c4b5fd;border-radius:var(--radius-md);padding:8px 12px;margin:0 0 12px;font-size:12px;color:#5b21b6;text-align:center;">' +
+        '<i class="ti ti-tag" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>Lote grabado: <strong>' + lote + '</strong></div>'
+      : '';
 
     document.getElementById('step2').style.display = 'none';
     document.getElementById('step3').style.display = '';
@@ -858,61 +1007,83 @@
       '<div class="success-card">' +
       '<i class="ti ti-circle-check big"></i>' +
       '<div class="success-title">¡Cantidad grabada!</div>' +
-      '<div class="success-sub">Datos guardados correctamente en la hoja CONSOLIDADO.</div>' +
+      '<div class="success-sub">Datos guardados en la hoja CONSOLIDADO.</div>' +
       '<div class="success-detail">' +
       '<div class="det-item"><div class="det-val">' + cant.toLocaleString('es-CL') + '</div><div class="det-label">Unidades contabilizadas</div></div>' +
       '<div class="det-item"><div class="det-val">Rev. ' + revisor + '</div><div class="det-label">Número de revisor</div></div>' +
-      '<div class="det-item"><div class="det-val">Fila ' + rowData.fila + '</div><div class="det-label">Fila en Google Sheets</div></div>' +
+      '<div class="det-item"><div class="det-val">Fila ' + rowData.fila + '</div><div class="det-label">Fila en Sheets</div></div>' +
       '<div class="det-item"><div class="det-val">Consol. ' + consolidado + '</div><div class="det-label">Consolidado</div></div>' +
       '</div>' +
-      difTexto +
+      loteTexto + difTexto +
       '<div>' +
       '<button class="btn-action btn-outline" onclick="otroEAN()"><i class="ti ti-barcode" style="font-size:15px"></i>Otro EAN</button>' +
       '<button class="btn-action btn-primary" onclick="resetApp()"><i class="ti ti-refresh" style="font-size:15px"></i>Nueva revisión</button>' +
       '</div></div>';
   }
 
-  /* ── Volver a buscar (mismo revisor/fecha/consolidado) ── */
+  /* ── Volver a buscar (mantiene revisor/fecha/consolidado/lote) ── */
   function volverBuscar() {
-    rowData = null;
-    cantStr = '0';
-    document.getElementById('eanInput').value  = '';
+    rowData = null; cantStr = '0';
+    document.getElementById('eanInput').value         = '';
     document.getElementById('buscarStatus').innerHTML = '';
-    document.getElementById('step2').style.display = 'none';
-    document.getElementById('step1').style.display = '';
+    document.getElementById('step2').style.display    = 'none';
+    document.getElementById('step1').style.display    = '';
     checkReady();
   }
 
-  /* ── Otro EAN (mismo revisor/fecha/consolidado) ── */
+  /* ── Otro EAN (mantiene revisor/fecha/consolidado, limpia lote y EAN) ── */
   function otroEAN() {
-    rowData = null;
-    cantStr = '0';
-    document.getElementById('eanInput').value  = '';
+    rowData = null; cantStr = '0';
+    document.getElementById('eanInput').value         = '';
+    document.getElementById('loteInput').value        = '';
     document.getElementById('buscarStatus').innerHTML = '';
-    document.getElementById('step3').style.display = 'none';
-    document.getElementById('step1').style.display = '';
+    document.getElementById('step3').style.display    = 'none';
+    document.getElementById('step1').style.display    = '';
     checkReady();
   }
 
-  /* ── Reset completo ── */
+  /* ── Reset completo → libera revisor en servidor ── */
   function resetApp() {
+    var miRev = getMiRevisor();
+    olvidarMiRevisor();
     revisor = null; consolidado = null; rowData = null; cantStr = '0';
-    document.querySelectorAll('.rev-btn').forEach(function (b) { b.classList.remove('active'); });
     document.querySelectorAll('.con-btn').forEach(function (b) { b.classList.remove('active'); });
     document.getElementById('fechaInput').value       = '';
     document.getElementById('eanInput').value         = '';
+    document.getElementById('loteInput').value        = '';
     document.getElementById('buscarStatus').innerHTML = '';
     document.getElementById('btnBuscar').disabled     = true;
     document.getElementById('step1').style.display    = '';
     document.getElementById('step2').style.display    = 'none';
     document.getElementById('step3').style.display    = 'none';
-    // Fecha de hoy por defecto
     var hoy = new Date();
-    var dd = String(hoy.getDate()).padStart(2,'0');
-    var mm = String(hoy.getMonth()+1).padStart(2,'0');
-    var yyyy = hoy.getFullYear();
-    document.getElementById('fechaInput').value = yyyy+'-'+mm+'-'+dd;
-    checkReady();
+    document.getElementById('fechaInput').value =
+      hoy.getFullYear() + '-' +
+      String(hoy.getMonth()+1).padStart(2,'0') + '-' +
+      String(hoy.getDate()).padStart(2,'0');
+
+    // Liberar en servidor si tenía uno asignado
+    if (miRev) {
+      for (var i = 1; i <= 6; i++) document.getElementById('rbtn' + i).disabled = true;
+      document.getElementById('revAviso').style.display = 'flex';
+      document.getElementById('revAvisoTxt').textContent = 'Liberando revisor…';
+      fetch(APPS_SCRIPT_URL + '?accion=liberarRev&revisor=' + miRev)
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          revisoresOcupados = res.ocupados || [];
+          pintarBotonesRevisor(revisoresOcupados, null);
+          checkReady();
+        })
+        .catch(function() {
+          pintarBotonesRevisor([], null);
+          checkReady();
+        });
+    } else {
+      cargarEstadoRevisores(function(ocupados) {
+        pintarBotonesRevisor(ocupados, null);
+        checkReady();
+      });
+    }
   }
 </script>
 <!-- ══════════ MODAL ALERTA DIFERENCIA ══════════ -->
