@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Revision Consolidado</title>
+  <title>Revisión de Inventario — ALM9037</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -504,7 +504,7 @@
   <div class="header">
     <div class="header-icon"><i class="ti ti-clipboard-check"></i></div>
     <div>
-      <div class="header-title">Revisión de Consolidado</div>
+      <div class="header-title">Revisión de Inventario — ALM9037</div>
       <div class="header-sub">Conteo y verificación por consolidado</div>
     </div>
   </div>
@@ -709,15 +709,26 @@
     document.getElementById('revAviso').style.display = 'flex';
     document.getElementById('revAvisoTxt').textContent = 'Consultando disponibilidad…';
 
-    cargarEstadoRevisores(function(ocupados) {
-      // Si mi revisor fue liberado por otro (edge case), lo olvido
-      if (miRev && ocupados.indexOf(miRev) === -1) {
-        // Mi revisor ya no está registrado en server — lo re-registro
-        // (puede pasar si hubo un reset general). No liberar.
-      }
-      pintarBotonesRevisor(ocupados, miRev);
-      checkReady();
-    });
+    if (!miRev) {
+      // Sin sesión local → limpiar todos los bloqueos del servidor (inicio o recarga limpia)
+      fetch(APPS_SCRIPT_URL + '?accion=resetRevisores')
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          revisoresOcupados = [];
+          pintarBotonesRevisor([], null);
+          checkReady();
+        })
+        .catch(function() {
+          pintarBotonesRevisor([], null);
+          checkReady();
+        });
+    } else {
+      // Tengo sesión → solo consultar estado actual
+      cargarEstadoRevisores(function(ocupados) {
+        pintarBotonesRevisor(ocupados, miRev);
+        checkReady();
+      });
+    }
   });
 
   /* ── Selección revisor ── */
