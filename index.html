@@ -381,7 +381,7 @@
             const data = await resp.json();
             if (data.tareas) {
                 todasLasTareas = data.tareas;
-                ['Francisco','Diego','Gonzalo','Jorge','Jim','Grúa'].forEach(op => {
+                ['Francisco','Disponible','Gonzalo','Jorge','Jim','Grúa'].forEach(op => {
                     const cant  = todasLasTareas.filter(t =>
                         t.operador.toLowerCase().includes(op.toLowerCase()) && !t.resultado
                     ).length;
