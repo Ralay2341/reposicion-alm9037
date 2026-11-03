@@ -439,13 +439,18 @@
                     && !t.resultado
                 );
                 // Realizadas HOY — filtra por operador + REALIZADO + fecha_ejec == hoy (dd/mm/yyyy)
-                const hoy = new Date().toLocaleDateString('es-CL');
-                realizadasHoy = todasLasTareas.filter(t =>
-                    t.operador.toLowerCase().includes(nombreOperador.split(' ')[0].toLowerCase())
-                    && String(t.resultado).toUpperCase().trim() === 'REALIZADO'
-                    && String(t.fecha_ejec).replace(/\//g, '-') === hoy.replace(/\//g, '-')
-                );
- 
+                //const hoy = new Date().toLocaleDateString('es-CL');
+                //realizadasHoy = todasLasTareas.filter(t =>
+                //    t.operador.toLowerCase().includes(nombreOperador.split(' ')[0].toLowerCase())
+                //    && String(t.resultado).toUpperCase().trim() === 'REALIZADO'
+                //    && String(t.fecha_ejec).replace(/\//g, '-') === hoy.replace(/\//g, '-')
+                //);
+                // Realizadas HOY — filtra por operador y resultado REALIZADO
+                    const hoy = new Date().toLocaleDateString('es-CL');
+                    realizadasHoy = todasLasTareas.filter(t =>
+                        t.operador.toLowerCase().includes(nombreOperador.toLowerCase())
+                        && String(t.resultado).toUpperCase().trim() === 'REALIZADO'
+                  ); 
                 if (tareasFiltradas.length > 0) {
                     indexActual = 0;
                     mostrarTarea();
