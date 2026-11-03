@@ -44,9 +44,9 @@
             font-size: 22px;
         }
         header span { color: var(--linde-red); }
- 
+
         .content { padding: 10px; max-width: 900px; margin: 0 auto; flex: 1; width: 100%; }
-        
+
         .grid-operadores {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -65,7 +65,7 @@
             position: relative;
         }
         .op-card:active { transform: scale(0.95); background: #1a2234; }
-        
+
         .badge-tareas {
             position: absolute;
             top: -5px;
@@ -85,7 +85,7 @@
             border: 2px solid var(--bg);
         }
         .badge-tareas.zero { display: none; }
- 
+
         .op-img-container {
             width: 100%;
             height: 80px;
@@ -107,7 +107,7 @@
         }
         .op-name { font-weight: bold; font-size: 11px; display: block; color: var(--txt); line-height: 1.1; }
         .op-sub { font-size: 9px; color: var(--linde-red); text-transform: uppercase; font-weight: bold; margin-bottom: 2px; display: block; }
- 
+
         .card {
             background: var(--card);
             border-radius: 12px;
@@ -118,7 +118,7 @@
         .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
         .info-label { color: var(--linde-red); font-size: 10px; font-weight: bold; text-transform: uppercase; }
         .info-value { font-weight: 600; font-size: 14px; text-align: right; }
-        
+
         .btn {
             width: 100%;
             padding: 16px;
@@ -140,8 +140,7 @@
         .btn-red    { background: var(--red);    color: white; }
         .btn-orange { background: var(--orange); color: white; }
         .btn:disabled { opacity: 0.8; cursor: not-allowed; }
- 
-        /* ── NO CORRESPONDE achicado ── */
+
         .btn-nc {
             background: var(--orange);
             color: white;
@@ -151,8 +150,7 @@
             border-radius: 6px;
             letter-spacing: .5px;
         }
- 
-        /* ── VISUAL-REPOS ── */
+
         .btn-visual {
             background: linear-gradient(135deg, #1e3a5f, #2d5986);
             color: #7ec8e3;
@@ -163,7 +161,7 @@
             letter-spacing: .5px;
         }
         .btn-visual:active { opacity: .85; }
- 
+
         /* ── PANTALLA VISUAL-REPOS ── */
         #secVisualRepos { display: none; }
         .vr-header {
@@ -179,11 +177,24 @@
             color: #7ec8e3;
             font-family: 'Barlow Condensed', sans-serif;
             font-size: 22px;
-            font-weight: 900;
+            font-weight: 700;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
         .vr-header p { margin: 4px 0 0; color: #4a7fa5; font-size: 12px; }
+        .vr-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .vr-tab {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--txt-dim);
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .vr-tab.activo { background: #1e3a5f; border-color: #2d5986; color: #7ec8e3; }
         .vr-count {
             background: #1a2f1a;
             border: 1px solid #2e7d32;
@@ -229,9 +240,10 @@
         .vr-meta { font-size: 11px; color: var(--txt-dim); margin-top: 2px; }
         .vr-empty { text-align: center; padding: 40px 20px; color: var(--txt-dim); }
         .vr-empty .ei { font-size: 40px; margin-bottom: 8px; }
- 
+        .vr-loading { text-align: center; font-size: 11px; color: var(--txt-dim); padding: 6px 0; }
+
         .fa-gear.spinning { animation: fa-spin 2s infinite linear; font-size: 18px; }
- 
+
         .firma-autor {
             text-align: center;
             margin-top: 15px;
@@ -241,7 +253,7 @@
             padding: 10px 0;
         }
         .firma-autor strong { color: var(--linde-red); font-weight: 600; }
- 
+
         .status-msg {
             position: fixed;
             bottom: 20px;
@@ -258,13 +270,13 @@
     </style>
 </head>
 <body>
- 
+
 <header>
     <h1>REPO<span>SYSTEM</span> APILADORES</h1>
 </header>
- 
+
 <div class="content">
- 
+
     <!-- ══ SELECCIÓN OPERADOR ══ -->
     <div id="secSeleccion">
         <h3 style="text-align:center;color:var(--txt-dim);margin-top:10px;font-size:13px;letter-spacing:1px;">¿Seleccione su Nombre..?</h3>
@@ -306,7 +318,7 @@
         </button>
         <div class="firma-autor">Propiedad de: <strong>Raul Layseca Beas</strong></div>
     </div>
- 
+
     <!-- ══ TAREAS ══ -->
     <div id="secTareas" class="hidden">
         <div class="card">
@@ -319,53 +331,153 @@
             </div>
             <button class="btn" style="background:transparent;border:1px solid var(--border);color:var(--txt-dim);padding:10px;font-size:12px;" onclick="volverASeleccion()">← Volver al Menú</button>
         </div>
- 
+
         <div id="controlesApilador" class="hidden">
             <div class="card" style="text-align:center;padding:10px;">
-                <!-- Botones REALIZADO y VACÍA — tamaño normal -->
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                    <button class="btn btn-green" style="margin-top:0;" onclick="enviarResultado('REALIZADO')">✅ REALIZADO</button>
-                    <button class="btn btn-red"   style="margin-top:0;" onclick="enviarResultado('UBIC. VACÍA')">📭 VACÍA</button>
+                    <button id="btnRealizado" class="btn btn-green" style="margin-top:0;" onclick="enviarResultado('REALIZADO')">✅ REALIZADO</button>
+                    <button id="btnVacia" class="btn btn-red" style="margin-top:0;" onclick="enviarResultado('UBIC. VACÍA')">📭 VACÍA</button>
                 </div>
-                <!-- NO CORRESPONDE — achicado -->
-                <button class="btn btn-nc" onclick="enviarResultado('CÓD. NO CORRESPONDE')">🔄 Cód. No Corresponde</button>
-                <!-- VISUAL-REPOS — nuevo -->
+                <button id="btnNC" class="btn btn-nc" onclick="enviarResultado('CÓD. NO CORRESPONDE')">🔄 Cód. No Corresponde</button>
                 <button class="btn btn-visual" onclick="mostrarVisualRepos()">📋 Visual-Repos</button>
                 <div class="firma-autor">Diseñado por: <strong>Raul Layseca</strong></div>
             </div>
         </div>
     </div>
- 
+
     <!-- ══ VISUAL-REPOS ══ -->
     <div id="secVisualRepos">
         <div class="vr-header">
             <h3>📋 Visual-Repos</h3>
-            <p id="vr-subtitulo">Reposiciones REALIZADAS hoy</p>
+            <p id="vr-subtitulo">Reposiciones REALIZADAS</p>
+        </div>
+        <div class="vr-tabs">
+            <button id="vr-tab-hoy"   class="vr-tab activo" onclick="cambiarModoVR('hoy')">Hoy</button>
+            <button id="vr-tab-todas" class="vr-tab"        onclick="cambiarModoVR('todas')">Todas</button>
         </div>
         <div class="vr-count">
             <span id="vr-total">0 ubicaciones</span>
             <small id="vr-fecha"></small>
         </div>
+        <div id="vr-estado" class="vr-loading"></div>
         <div id="vr-lista"></div>
         <button class="btn" style="background:transparent;border:1px solid var(--border);color:var(--txt-dim);padding:10px;font-size:12px;" onclick="cerrarVisualRepos()">← Volver a mis tareas</button>
     </div>
- 
+
 </div>
- 
+
 <div id="mensajeGlobal" class="status-msg"></div>
- 
+
 <script>
     // ══ CONFIGURACIÓN ══
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTU_4vSFf0MOoQrfceGnYTkkIxLd2ewbUWR9rIOHoZ_nXfeWN8Uti5Nu-Za3sEDLlpRQ/exec";
- 
+    const LS_KEY = 'reposystem_realizadas_v2';
+
     let todasLasTareas = [];
     let tareasFiltradas = [];
-    let realizadasHoy   = [];   // cache para Visual-Repos
-    let indexActual     = 0;
-    let nombreOperador  = "";
- 
+    let indexActual    = 0;
+    let nombreOperador = "";
+    let vrModo         = 'hoy';   // 'hoy' | 'todas'
+    let enviando       = false;
+
     window.onload = obtenerContadores;
- 
+
+    // ══ UTILIDADES ══
+    const pad2 = n => String(n).padStart(2, '0');
+
+    function normalizar(s) {
+        return String(s == null ? '' : s)
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .toUpperCase().trim();
+    }
+
+    function claveDesdeDate(d) {
+        return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+    }
+
+    function claveHoy() { return claveDesdeDate(new Date()); }
+
+    // Convierte cualquier formato de fecha (ISO, dd/mm/yyyy, d-m-yyyy, Date) a "yyyy-mm-dd". Vacío si no se puede.
+    function claveFecha(valor) {
+        if (valor === null || valor === undefined || valor === '') return '';
+        if (valor instanceof Date) return isNaN(valor) ? '' : claveDesdeDate(valor);
+        const s = String(valor).trim();
+        if (!s) return '';
+
+        let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if (m) {
+            // ISO con zona horaria (ej. 2026-11-03T03:00:00.000Z) -> pasar a fecha local
+            if (/T.*(Z|[+-]\d{2}:?\d{2})$/.test(s)) {
+                const d = new Date(s);
+                if (!isNaN(d)) return claveDesdeDate(d);
+            }
+            return `${m[1]}-${pad2(m[2])}-${pad2(m[3])}`;
+        }
+        m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
+        if (m) {
+            const y = m[3].length === 2 ? '20' + m[3] : m[3];
+            return `${y}-${pad2(m[2])}-${pad2(m[1])}`;
+        }
+        const d = new Date(s);
+        return isNaN(d) ? '' : claveDesdeDate(d);
+    }
+
+    function formatoFechaLocal(clave) {
+        if (!clave) return '';
+        const [y, m, d] = clave.split('-');
+        return `${d}/${m}/${y}`;
+    }
+
+    function coincideOperador(t, nombre) {
+        const primero = normalizar(String(nombre).split(' ')[0]);
+        return normalizar(t.operador).includes(primero);
+    }
+
+    function esRealizado(t) {
+        return normalizar(t.resultado) === 'REALIZADO';
+    }
+
+    function idTarea(t) {
+        return [t.folio, t.ubic_origen, t.sap].map(v => String(v == null ? '' : v).trim()).join('|');
+    }
+
+    // ══ RESPALDO LOCAL (por si la hoja no devuelve las ya realizadas) ══
+    function leerLocal() {
+        try {
+            const arr = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+            return Array.isArray(arr) ? arr : [];
+        } catch (e) { return []; }
+    }
+
+    function guardarLocal(tarea, hora) {
+        try {
+            const hoy = claveHoy();
+            // se conservan solo los últimos 7 días para no crecer sin límite
+            const limite = new Date(); limite.setDate(limite.getDate() - 7);
+            const limiteKey = claveDesdeDate(limite);
+            const lista = leerLocal().filter(x => x.fechaKey >= limiteKey);
+            lista.push({
+                id: idTarea(tarea),
+                operador: nombreOperador,
+                ubic_origen: tarea.ubic_origen,
+                ubic_destino: tarea.ubic_destino,
+                sap: tarea.sap,
+                hora: hora,
+                fechaKey: hoy
+            });
+            localStorage.setItem(LS_KEY, JSON.stringify(lista));
+        } catch (e) { /* sin almacenamiento disponible: se ignora */ }
+    }
+
+    // ══ MENSAJE TOAST ══
+    function mostrarMensaje(texto, tipo) {
+        const m = document.getElementById('mensajeGlobal');
+        m.innerText = texto;
+        m.style.display = 'block';
+        m.style.backgroundColor = tipo === 'error' ? 'var(--red)' : tipo === 'success' ? 'var(--green)' : 'var(--blue)';
+        setTimeout(() => m.style.display = 'none', 3000);
+    }
+
     // ══ CONTADORES ══
     async function obtenerContadores() {
         const btn   = document.getElementById('btnActualizar');
@@ -375,7 +487,7 @@
         icono.className = "fa-solid fa-gear spinning";
         texto.innerText = 'PROCESANDO...';
         btn.style.backgroundColor = "#1e293b";
- 
+
         try {
             const resp = await fetch(`${SCRIPT_URL}?action=getTareas`);
             const data = await resp.json();
@@ -383,7 +495,7 @@
                 todasLasTareas = data.tareas;
                 ['Francisco','Bryan','Ariel','Jorge','Jim','Grúa'].forEach(op => {
                     const cant  = todasLasTareas.filter(t =>
-                        t.operador.toLowerCase().includes(op.toLowerCase()) && !t.resultado
+                        coincideOperador(t, op) && !t.resultado
                     ).length;
                     const badge = document.getElementById(`badge-${op}`);
                     if (badge) { badge.innerText = cant; badge.classList.toggle('zero', cant === 0); }
@@ -397,7 +509,7 @@
             btn.style.backgroundColor = "var(--blue)";
         }
     }
- 
+
     // ══ SELECCIÓN OPERADOR ══
     function seleccionarOperador(nombre) {
         nombreOperador = nombre;
@@ -407,7 +519,7 @@
         document.getElementById('secTareas').classList.remove('hidden');
         cargarTareas();
     }
- 
+
     function volverASeleccion() {
         nombreOperador = "";
         document.getElementById('secTareas').classList.add('hidden');
@@ -415,16 +527,7 @@
         document.getElementById('secSeleccion').classList.remove('hidden');
         obtenerContadores();
     }
- 
-    // ══ MENSAJE TOAST ══
-    function mostrarMensaje(texto, tipo) {
-        const m = document.getElementById('mensajeGlobal');
-        m.innerText = texto;
-        m.style.display = 'block';
-        m.style.backgroundColor = tipo === 'error' ? 'var(--red)' : tipo === 'success' ? 'var(--green)' : 'var(--blue)';
-        setTimeout(() => m.style.display = 'none', 3000);
-    }
- 
+
     // ══ CARGAR TAREAS ══
     async function cargarTareas() {
         document.getElementById('tareaContenido').innerHTML = "<p style='text-align:center;'>Buscando tus tareas...</p>";
@@ -433,50 +536,29 @@
             const data = await resp.json();
             if (data.tareas) {
                 todasLasTareas = data.tareas;
-                // Pendientes del operador (sin resultado)
                 tareasFiltradas = todasLasTareas.filter(t =>
-                    t.operador.toLowerCase().includes(nombreOperador.split(' ')[0].toLowerCase())
-                    && !t.resultado
+                    coincideOperador(t, nombreOperador) && !t.resultado
                 );
-                // Realizadas HOY — filtra por operador + REALIZADO + fecha_ejec == hoy (dd/mm/yyyy)
-                //const hoy = new Date().toLocaleDateString('es-CL');
-                //realizadasHoy = todasLasTareas.filter(t =>
-                //    t.operador.toLowerCase().includes(nombreOperador.split(' ')[0].toLowerCase())
-                //    && String(t.resultado).toUpperCase().trim() === 'REALIZADO'
-                //    && String(t.fecha_ejec).replace(/\//g, '-') === hoy.replace(/\//g, '-')
-                //);
-                // Realizadas HOY — filtra por operador y resultado REALIZADO
-                   // Realizadas HOY — filtra por operador actual, resultado REALIZADO y fecha de hoy
-                const hoy = new Date().toLocaleDateString('es-CL');
-                const primerNombre = nombreOperador.split(' ')[0].toLowerCase();
 
-                realizadasHoy = todasLasTareas.filter(t => {
-                    const opTarea = String(t.operador || '').toLowerCase();
-                    const resTarea = String(t.resultado || '').toUpperCase().trim();
-                    const fechaEjec = String(t.fecha_ejec || '').replace(/\//g, '-');
-                    const hoyStr = hoy.replace(/\//g, '-');
-
-                    return opTarea.includes(primerNombre) && 
-                       resTarea === 'REALIZADO' && 
-                       (fechaEjec === hoyStr || fechaEjec === ''); // Acepta la fecha de hoy o si recién fue grabada sin fecha en sheet
-                });
-                
                 if (tareasFiltradas.length > 0) {
                     indexActual = 0;
                     mostrarTarea();
-                    document.getElementById('controlesApilador').classList.remove('hidden');
                 } else {
+                    document.getElementById('contador').innerText = '0 / 0';
                     document.getElementById('tareaContenido').innerHTML =
                         `<p style='text-align:center;color:var(--txt-dim);padding:20px;'>
                             No tienes tareas pendientes, ${nombreOperador.split(' ')[0]}.<br>
                             <span style='font-size:11px;'>Puedes revisar las realizadas con 📋 Visual-Repos.</span>
                         </p>`;
-                    document.getElementById('controlesApilador').classList.remove('hidden'); // mostrar igual para poder abrir Visual-Repos
                 }
+                // se muestran siempre los controles para poder abrir Visual-Repos
+                document.getElementById('controlesApilador').classList.remove('hidden');
+            } else {
+                mostrarMensaje("Respuesta sin tareas", "error");
             }
         } catch(err) { mostrarMensaje("Error de conexión", "error"); }
     }
- 
+
     // ══ MOSTRAR TAREA ACTUAL ══
     function mostrarTarea() {
         const t = tareasFiltradas[indexActual];
@@ -490,10 +572,20 @@
             <div class="info-row"><span class="info-label">Destino</span><span class="info-value" style="color:var(--green);">${t.ubic_destino}</span></div>
         `;
     }
- 
+
     // ══ ENVIAR RESULTADO ══
+    function bloquearBotones(b) {
+        ['btnRealizado', 'btnVacia', 'btnNC'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.disabled = b;
+        });
+    }
+
     async function enviarResultado(resultado) {
-        const t   = tareasFiltradas[indexActual];
+        if (enviando) return;
+        const t = tareasFiltradas[indexActual];
+        if (!t) { mostrarMensaje("No hay tarea para registrar", "error"); return; }
+
         const now = new Date();
         const payload = {
             action:      'registrarResultado',
@@ -505,22 +597,24 @@
             fecha:       now.toLocaleDateString('es-CL'),
             hora:        now.toLocaleTimeString('es-CL')
         };
- 
+
+        enviando = true;
+        bloquearBotones(true);
         mostrarMensaje("Grabando...", "info");
         try {
             const resp = await fetch(SCRIPT_URL, {
                 method:  'POST',
-                headers: { 'Content-Type': 'text/plain' },  // sin mode:'no-cors'
+                headers: { 'Content-Type': 'text/plain' },
                 body:    JSON.stringify(payload)
             });
             const result = await resp.json();
             if (result.ok) {
                 mostrarMensaje("✅ Grabado correctamente", "success");
-                // Si fue REALIZADO, lo guardamos en cache para Visual-Repos
-                if (resultado === 'REALIZADO') {
-                    const hoyStr = new Date().toLocaleDateString('es-CL');
-                    realizadasHoy.push({ ...t, resultado, hora: payload.hora, fecha_ejec: hoyStr });
-                }
+                if (resultado === 'REALIZADO') guardarLocal(t, payload.hora);
+                // marcar localmente para que coincida con lo que tendrá la hoja
+                t.resultado  = resultado;
+                t.fecha_ejec = payload.fecha;
+                t.hora       = payload.hora;
             } else {
                 mostrarMensaje("⚠️ " + (result.error || 'Error al grabar'), "error");
             }
@@ -536,44 +630,117 @@
                         </p>`;
                     document.getElementById('contador').innerText = `${tareasFiltradas.length} / ${tareasFiltradas.length}`;
                 }
+                enviando = false;
+                bloquearBotones(false);
             }, 900);
-        } catch(err) { mostrarMensaje("❌ Error al grabar: " + err.message, "error"); }
+        } catch(err) {
+            mostrarMensaje("❌ Error al grabar: " + err.message, "error");
+            enviando = false;
+            bloquearBotones(false);
+        }
     }
- 
+
     // ══ VISUAL-REPOS ══
-    function mostrarVisualRepos() {
-        const hoy    = new Date().toLocaleDateString('es-CL');
+    // Une lo que devuelve la hoja con el respaldo local y elimina duplicados
+    function calcularRealizadas() {
+        const hoy = claveHoy();
+        const mapa = new Map();
+
+        // 1) Desde la hoja (servidor)
+        todasLasTareas.forEach(t => {
+            if (!coincideOperador(t, nombreOperador) || !esRealizado(t)) return;
+            const fKey = claveFecha(t.fecha_ejec || t.fecha_ejecucion || t.fecha);
+            // si la hoja no trae fecha, se asume de hoy (recién grabada)
+            const clave = fKey || hoy;
+            mapa.set(idTarea(t), {
+                ubic_origen:  t.ubic_origen,
+                ubic_destino: t.ubic_destino,
+                sap:          t.sap,
+                hora:         t.hora_ejec || t.hora || '',
+                fechaKey:     clave
+            });
+        });
+
+        // 2) Respaldo local de este dispositivo
+        leerLocal().forEach(x => {
+            if (!coincideOperador({ operador: x.operador }, nombreOperador)) return;
+            if (!mapa.has(x.id)) {
+                mapa.set(x.id, {
+                    ubic_origen:  x.ubic_origen,
+                    ubic_destino: x.ubic_destino,
+                    sap:          x.sap,
+                    hora:         x.hora || '',
+                    fechaKey:     x.fechaKey
+                });
+            }
+        });
+
+        let lista = Array.from(mapa.values());
+        if (vrModo === 'hoy') lista = lista.filter(x => x.fechaKey === hoy);
+        return lista;
+    }
+
+    function renderVisualRepos() {
+        const lista  = calcularRealizadas();
         const nombre = nombreOperador.split(' ').slice(0, 2).join(' ');
- 
-        document.getElementById('vr-subtitulo').textContent = nombre + ' — REALIZADAS hoy';
-        document.getElementById('vr-fecha').textContent     = hoy;
-        document.getElementById('vr-total').textContent     =
-            realizadasHoy.length + ' ubicación' + (realizadasHoy.length !== 1 ? 'es' : '');
- 
-        if (!realizadasHoy.length) {
+
+        document.getElementById('vr-subtitulo').textContent =
+            nombre + ' — REALIZADAS ' + (vrModo === 'hoy' ? 'hoy' : '(todas)');
+        document.getElementById('vr-fecha').textContent = formatoFechaLocal(claveHoy());
+        document.getElementById('vr-total').textContent =
+            lista.length + ' ubicación' + (lista.length !== 1 ? 'es' : '');
+        document.getElementById('vr-tab-hoy').classList.toggle('activo', vrModo === 'hoy');
+        document.getElementById('vr-tab-todas').classList.toggle('activo', vrModo === 'todas');
+
+        if (!lista.length) {
             document.getElementById('vr-lista').innerHTML = `
                 <div class="vr-empty">
                     <div class="ei">📭</div>
-                    <p>Aún no hay reposiciones<br>marcadas como REALIZADAS hoy.</p>
+                    <p>Aún no hay reposiciones<br>marcadas como REALIZADAS${vrModo === 'hoy' ? ' hoy' : ''}.</p>
                 </div>`;
-        } else {
-            document.getElementById('vr-lista').innerHTML = realizadasHoy.map((t, i) => `
-                <div class="vr-item">
-                    <div class="vr-num">${i + 1}</div>
-                    <div>
-                        <div class="vr-ubic">📍 ${t.ubic_origen}</div>
-                        ${t.ubic_destino ? `<div class="vr-meta">➡️ Destino: ${t.ubic_destino}</div>` : ''}
-                        ${t.sap         ? `<div class="vr-meta">SAP: ${t.sap}${t.hora ? ' · ' + t.hora : ''}</div>` : ''}
-                    </div>
-                </div>
-            `).join('');
+            return;
         }
- 
-        // Ocultar tareas, mostrar Visual-Repos
+
+        document.getElementById('vr-lista').innerHTML = lista.map((t, i) => `
+            <div class="vr-item">
+                <div class="vr-num">${i + 1}</div>
+                <div>
+                    <div class="vr-ubic">📍 ${t.ubic_origen}</div>
+                    ${t.ubic_destino ? `<div class="vr-meta">➡️ Destino: ${t.ubic_destino}</div>` : ''}
+                    ${t.sap ? `<div class="vr-meta">SAP: ${t.sap}${t.hora ? ' · ' + t.hora : ''}${vrModo === 'todas' ? ' · ' + formatoFechaLocal(t.fechaKey) : ''}</div>` : ''}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function cambiarModoVR(modo) {
+        vrModo = modo;
+        renderVisualRepos();
+    }
+
+    async function mostrarVisualRepos() {
+        // 1) Mostrar la pantalla de inmediato con lo que ya se tiene
         document.getElementById('secTareas').classList.add('hidden');
         document.getElementById('secVisualRepos').style.display = 'block';
+        renderVisualRepos();
+
+        // 2) Refrescar desde la hoja para traer las realizadas más recientes
+        const estado = document.getElementById('vr-estado');
+        estado.textContent = 'Actualizando desde la hoja...';
+        try {
+            const resp = await fetch(`${SCRIPT_URL}?action=getTareas`);
+            const data = await resp.json();
+            if (data.tareas) {
+                // conservar las marcadas localmente si la hoja aún no las refleja
+                todasLasTareas = data.tareas;
+                renderVisualRepos();
+            }
+            estado.textContent = '';
+        } catch (err) {
+            estado.textContent = 'Sin conexión: mostrando datos guardados en este equipo.';
+        }
     }
- 
+
     function cerrarVisualRepos() {
         document.getElementById('secVisualRepos').style.display = 'none';
         document.getElementById('secTareas').classList.remove('hidden');
