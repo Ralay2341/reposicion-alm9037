@@ -446,11 +446,21 @@
                 //    && String(t.fecha_ejec).replace(/\//g, '-') === hoy.replace(/\//g, '-')
                 //);
                 // Realizadas HOY — filtra por operador y resultado REALIZADO
-                    const hoy = new Date().toLocaleDateString('es-CL');
-                    realizadasHoy = todasLasTareas.filter(t =>
-                        t.operador.toLowerCase().includes(nombreOperador.toLowerCase())
-                        && String(t.resultado).toUpperCase().trim() === 'REALIZADO'
-                  ); 
+                   // Realizadas HOY — filtra por operador actual, resultado REALIZADO y fecha de hoy
+                const hoy = new Date().toLocaleDateString('es-CL');
+                const primerNombre = nombreOperador.split(' ')[0].toLowerCase();
+
+                realizadasHoy = todasLasTareas.filter(t => {
+                    const opTarea = String(t.operador || '').toLowerCase();
+                    const resTarea = String(t.resultado || '').toUpperCase().trim();
+                    const fechaEjec = String(t.fecha_ejec || '').replace(/\//g, '-');
+                    const hoyStr = hoy.replace(/\//g, '-');
+
+                    return opTarea.includes(primerNombre) && 
+                       resTarea === 'REALIZADO' && 
+                       (fechaEjec === hoyStr || fechaEjec === ''); // Acepta la fecha de hoy o si recién fue grabada sin fecha en sheet
+                });
+                
                 if (tareasFiltradas.length > 0) {
                     indexActual = 0;
                     mostrarTarea();
