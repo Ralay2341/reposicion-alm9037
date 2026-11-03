@@ -274,10 +274,10 @@
                 <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
                 <div class="op-info"><span class="op-sub">Apilador 1</span><span class="op-name">Francisco Vigueras</span></div>
             </div>
-            <div class="op-card" onclick="seleccionarOperador('Disponible')">
+            <div class="op-card" onclick="seleccionarOperador('Bryan Orellana')">
                 <div id="badge-Disponible" class="badge-tareas zero">0</div>
                 <div class="op-img-container"><img src="https://raw.githubusercontent.com/ralay2341/reposicion-alm9037/main/linde_l12.png" onerror="this.src='https://img.icons8.com/fluency/96/fork-lift.png'"></div>
-                <div class="op-info"><span class="op-sub">Apilador 2</span><span class="op-name">Disponible</span></div>
+                <div class="op-info"><span class="op-sub">Apilador 2</span><span class="op-name">Bryan Orellana</span></div>
             </div>
             <div class="op-card" onclick="seleccionarOperador('Ariel Labarca')">
                 <div id="badge-Ariel" class="badge-tareas zero">0</div>
@@ -381,7 +381,7 @@
             const data = await resp.json();
             if (data.tareas) {
                 todasLasTareas = data.tareas;
-                ['Francisco','Disponible','Ariel','Jorge','Jim','Grúa'].forEach(op => {
+                ['Francisco','Bryan','Ariel','Jorge','Jim','Grúa'].forEach(op => {
                     const cant  = todasLasTareas.filter(t =>
                         t.operador.toLowerCase().includes(op.toLowerCase()) && !t.resultado
                     ).length;
