@@ -433,8 +433,39 @@
         return normalizar(t.operador).includes(primero);
     }
 
+    // Busca un campo del registro sin importar mayúsculas, tildes, guiones o espacios en el nombre
+    function limpiarClave(k) {
+        return String(k).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function campo(t, nombres) {
+        const mapa = {};
+        Object.keys(t).forEach(k => { mapa[limpiarClave(k)] = t[k]; });
+        for (const n of nombres) {
+            const v = mapa[limpiarClave(n)];
+            if (v !== undefined && v !== null && String(v).trim() !== '') return v;
+        }
+        return '';
+    }
+
+    // Fecha de ejecución: columna "Fecha" de la hoja (NO "Fech.Solicitud")
+    function fechaEjecucion(t) {
+        let v = campo(t, ['fecha_ejec', 'fecha_ejecucion', 'fechaejec', 'fecha_realizado', 'fecha']);
+        if (v) return v;
+        // último recurso: cualquier columna con "fecha" que no sea la de solicitud
+        for (const k of Object.keys(t)) {
+            const lk = limpiarClave(k);
+            if (lk.includes('fecha') && !lk.includes('solic') && String(t[k]).trim() !== '') return t[k];
+        }
+        return '';
+    }
+
+    function horaEjecucion(t) {
+        return campo(t, ['hora_ejec', 'hora_ejecucion', 'hora']);
+    }
+
     function esRealizado(t) {
-        return normalizar(t.resultado) === 'REALIZADO';
+        return normalizar(campo(t, ['resultado', 'estado'])) === 'REALIZADO';
     }
 
     function idTarea(t) {
@@ -649,14 +680,14 @@
         // 1) Desde la hoja (servidor)
         todasLasTareas.forEach(t => {
             if (!coincideOperador(t, nombreOperador) || !esRealizado(t)) return;
-            const fKey = claveFecha(t.fecha_ejec || t.fecha_ejecucion || t.fecha);
+            const fKey = claveFecha(fechaEjecucion(t));
             // si la hoja no trae fecha, se asume de hoy (recién grabada)
             const clave = fKey || hoy;
             mapa.set(idTarea(t), {
                 ubic_origen:  t.ubic_origen,
                 ubic_destino: t.ubic_destino,
                 sap:          t.sap,
-                hora:         t.hora_ejec || t.hora || '',
+                hora:         horaEjecucion(t),
                 fechaKey:     clave
             });
         });
@@ -734,8 +765,12 @@
                 // conservar las marcadas localmente si la hoja aún no las refleja
                 todasLasTareas = data.tareas;
                 renderVisualRepos();
+                const delOperador = todasLasTareas.filter(t => coincideOperador(t, nombreOperador));
+                const realizadasHoja = delOperador.filter(esRealizado).length;
+                estado.textContent = `Hoja: ${todasLasTareas.length} filas recibidas · ${realizadasHoja} REALIZADO de ${nombreOperador.split(' ')[0]}`;
+            } else {
+                estado.textContent = '';
             }
-            estado.textContent = '';
         } catch (err) {
             estado.textContent = 'Sin conexión: mostrando datos guardados en este equipo.';
         }
