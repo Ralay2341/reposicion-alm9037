@@ -716,7 +716,7 @@
         const nombre = nombreOperador.split(' ').slice(0, 2).join(' ');
 
         document.getElementById('vr-subtitulo').textContent =
-            nombre + ' — REALIZADAS ' + (vrModo === 'hoy' ? 'hoy' : '(todas)');
+            nombre + ' — REALIZADO ' + (vrModo === 'hoy' ? 'hoy' : '(todas)');
         document.getElementById('vr-fecha').textContent = formatoFechaLocal(claveHoy());
         document.getElementById('vr-total').textContent =
             lista.length + ' ubicación' + (lista.length !== 1 ? 'es' : '');
